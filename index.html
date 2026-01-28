@@ -5,19 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Paw Pal | Rescue, Adopt, & Connect</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- GSAP for Animations -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     
-    <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://aitsun.space/chatbot/loader.js?v=2.4" data-token="1af48e6d-e115-46f2-9dab-d8095d717188"></script>
 
@@ -46,11 +42,12 @@
     </script>
 
     <style>
-        /* --- STRICT CURSOR CONTROL --- */
+        /* --- STRICT CURSOR CONTROL (COMMENTED OUT) --- */
         /* Force hide default cursor on EVERYTHING */
-        *, *::before, *::after {
+        /* *, *::before, *::after {
             cursor: none !important;
-        }
+        } 
+        */
 
         body {
             background-color: #F9F8F6;
@@ -71,9 +68,9 @@
 
         /* The Paw Icon Container */
         .cursor-dot {
-            width: 16px; /* Reduced from 28px for a finer pointer */
+            width: 16px; 
             height: 16px;
-            color: #2D2825; /* Default: paw-dark */
+            color: #2D2825; 
             display: flex;
             align-items: center;
             justify-content: center;
@@ -82,7 +79,7 @@
 
         /* The Ring Container */
         .cursor-outline {
-            width: 36px; /* Reduced from 48px to match new dot size */
+            width: 36px; 
             height: 36px;
             border: 1px solid rgba(45, 40, 37, 0.2);
             transition: width 0.2s, height 0.2s, background-color 0.2s, border-color 0.2s;
@@ -92,12 +89,12 @@
         
         /* When hovering any interactive element */
         body.hovering .cursor-dot {
-            color: #D4A373; /* Change paw to Accent Color */
-            transform: translate(-50%, -50%) scale(1.4); /* Slightly larger scale on hover for visibility */
+            color: #D4A373; 
+            transform: translate(-50%, -50%) scale(1.4); 
         }
 
         body.hovering .cursor-outline {
-            width: 50px; /* Adjusted hover size */
+            width: 50px; 
             height: 50px;
             background-color: rgba(212, 163, 115, 0.1);
             border-color: #D4A373;
@@ -105,7 +102,7 @@
 
         /* Emergency Alert Hover State */
         body.hovering-alert .cursor-dot {
-            color: #E07A5F; /* Change paw to Red */
+            color: #E07A5F; 
         }
 
         body.hovering-alert .cursor-outline {
@@ -149,28 +146,15 @@
 </head>
 <body class="font-sans text-paw-dark antialiased selection:bg-paw-accent selection:text-white">
 
-    <!-- Noise Texture Overlay -->
     <div class="fixed inset-0 pointer-events-none opacity-40 bg-noise z-0 mix-blend-multiply"></div>
 
-    <!-- Custom Cursor Elements -->
-    <div class="cursor-dot hidden md:block">
-        <!-- Perfect Geometric Paw Icon SVG (FontAwesome Standard) -->
-        <svg viewBox="0 0 512 512" fill="currentColor" class="w-full h-full">
-            <path d="M226.5 92.9c14.3 42.9-.3 86.2-32.6 96.8s-70.1-15.6-84.4-58.5s.3-86.2 32.6-96.8s70.1 15.6 84.4 58.5zM100.4 198.6c18.9 32.4 14.3 70.1-10.2 84.1s-59.7-.9-78.5-33.3S-2.7 179.3 21.8 165.3s59.7 .9 78.5 33.3zM69.2 401.2C121.6 259.9 214.7 224 256 224s134.4 35.9 186.8 177.2c3.6 9.7 5.2 20.1 5.2 30.5v1.6c0 25.8-20.9 46.7-46.7 46.7c-11.5 0-22.9-1.4-34-4.2l-88-22c-15.3-3.8-31.3-3.8-46.6 0l-88 22c-11.1 2.8-22.5 4.2-34 4.2C84.9 480 64 459.1 64 433.3v-1.6c0-10.4 1.6-20.8 5.2-30.5zM421.8 282.7c-24.5-14-29.1-51.7-10.2-84.1s54-47.3 78.5-33.3s29.1 51.7 10.2 84.1s-54 47.3-78.5 33.3zM310.1 189.7c-32.3-10.6-46.9-53.9-32.6-96.8s52.1-69.1 84.4-58.5s46.9 53.9 32.6 96.8s-52.1 69.1-84.4 58.5z"/>
-        </svg>
-    </div>
-    <div class="cursor-outline hidden md:block"></div>
-
-    <!-- Navigation -->
     <nav class="fixed w-full z-50 transition-all duration-300 top-0" id="navbar">
         <div class="max-w-7xl mx-auto px-6 lg:px-12">
             <div class="flex justify-between items-center h-24">
-                <!-- Logo -->
                 <a href="#" class="magnetic-item relative z-10 group" data-cursor-text="Home">
                     <span class="font-serif text-3xl italic font-bold tracking-tight">Paw Pal<span class="text-paw-accent">.</span></span>
                 </a>
 
-                <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-12">
                     <a href="#adopt" class="magnetic-item text-sm uppercase tracking-widest hover:text-paw-accent transition-colors duration-300">Adopt</a>
                     <a href="#rescue" class="magnetic-item text-sm uppercase tracking-widest hover:text-paw-alert transition-colors duration-300">Rescue</a>
@@ -178,13 +162,11 @@
                     <a href="#community" class="magnetic-item text-sm uppercase tracking-widest hover:text-paw-accent transition-colors duration-300">Community</a>
                 </div>
 
-                <!-- CTA Button -->
                 <button class="magnetic-item hidden md:flex group relative px-8 py-3 bg-paw-dark text-white rounded-full overflow-hidden items-center justify-center">
                     <div class="absolute inset-0 w-full h-full bg-paw-accent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
                     <span class="relative z-10 text-xs font-bold uppercase tracking-widest group-hover:text-white transition-colors">Post a Pet</span>
                 </button>
 
-                <!-- Mobile Menu Icon -->
                 <div class="md:hidden magnetic-item">
                     <i data-lucide="menu" class="w-8 h-8"></i>
                 </div>
@@ -192,9 +174,7 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <section class="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-        <!-- Abstract Background Shapes -->
         <div class="absolute top-1/4 right-[10%] w-96 h-96 bg-paw-accent/10 rounded-full blur-3xl parallax-bg" data-speed="0.05"></div>
         <div class="absolute bottom-1/4 left-[5%] w-72 h-72 bg-paw-alert/5 rounded-full blur-3xl parallax-bg" data-speed="-0.03"></div>
 
@@ -230,7 +210,6 @@
                          alt="Happy Adopted Dog" 
                          class="w-full h-full object-cover transition-all duration-700">
                 </div>
-                <!-- Floating badge -->
                 <div class="absolute bottom-10 -left-10 glass p-6 rounded-2xl shadow-lg transform parallax-element" data-speed="0.08">
                     <p class="font-serif text-2xl italic text-paw-dark">Lives Saved</p>
                     <p class="text-4xl font-bold font-serif">1,204+</p>
@@ -239,7 +218,6 @@
         </div>
     </section>
 
-    <!-- Core Features Section -->
     <section class="py-32 relative" id="features">
         <div class="max-w-7xl mx-auto px-6 lg:px-12">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-16">
@@ -278,7 +256,6 @@
         </div>
     </section>
 
-    <!-- Detailed Functional Sections -->
     <section class="py-20 bg-white" id="platform">
         <div class="max-w-7xl mx-auto px-6 lg:px-12">
             <div class="flex flex-col md:flex-row justify-between items-end mb-20">
@@ -288,7 +265,6 @@
                 </div>
             </div>
 
-            <!-- Feature 1: Adoption Portal -->
             <div class="project-item group relative mb-32 grid grid-cols-1 md:grid-cols-12 gap-8 items-center cursor-none-target" id="adopt">
                 <div class="md:col-span-7 overflow-hidden rounded-lg image-hover-container shadow-xl">
                     <img src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?q=80&w=2000&auto=format&fit=crop" 
@@ -311,7 +287,6 @@
                 </div>
             </div>
 
-            <!-- Feature 2: Emergency Rescue (Red Alert Theme) -->
             <div class="project-item alert-item group relative mb-32 grid grid-cols-1 md:grid-cols-12 gap-8 items-center cursor-none-target" id="rescue">
                 <div class="md:col-span-5 md:pr-10 md:text-right order-2 md:order-1 relative">
                     <span class="text-9xl absolute -top-20 -right-10 font-serif text-gray-100 -z-10 opacity-50 select-none">02</span>
@@ -334,7 +309,6 @@
                 </div>
             </div>
 
-             <!-- Feature 3: Community & Blogs -->
              <div class="project-item group relative grid grid-cols-1 md:grid-cols-12 gap-8 items-center cursor-none-target" id="community">
                 <div class="md:col-span-7 overflow-hidden rounded-lg image-hover-container shadow-xl">
                     <img src="https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?q=80&w=2000&auto=format&fit=crop" 
@@ -359,7 +333,6 @@
         </div>
     </section>
 
-    <!-- Interactive Marquee -->
     <section class="py-24 overflow-hidden bg-paw-dark text-white/90">
         <div class="marquee-container flex whitespace-nowrap overflow-hidden">
             <div class="marquee-content flex gap-12 animate-marquee">
@@ -369,7 +342,6 @@
                 <span class="text-6xl md:text-8xl font-serif">Heal</span>
                 <span class="text-6xl md:text-8xl font-serif italic text-white/20">Connect</span>
                 <span class="text-6xl md:text-8xl font-serif text-paw-alert">Protect</span>
-                <!-- Duplicate for loop -->
                 <span class="text-6xl md:text-8xl font-serif italic text-white/20">Rescue</span>
                 <span class="text-6xl md:text-8xl font-serif text-paw-accent">Adopt</span>
                 <span class="text-6xl md:text-8xl font-serif italic text-white/20">Care</span>
@@ -380,7 +352,6 @@
         </div>
     </section>
 
-    <!-- Footer / Contact -->
     <footer class="relative pt-32 pb-12 bg-paw-bg overflow-hidden" id="contact">
         <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-paw-accent/50 to-transparent"></div>
         
@@ -419,20 +390,18 @@
         </div>
     </footer>
 
-    <!-- JavaScript Implementation -->
     <script>
         // Initialize Lucide Icons
         lucide.createIcons();
 
-        // --- Custom Cursor Logic ---
+        // --- Custom Cursor Logic (COMMENTED OUT) ---
+        /*
         const cursorDot = document.querySelector('.cursor-dot');
         const cursorOutline = document.querySelector('.cursor-outline');
-        const magneticItems = document.querySelectorAll('.magnetic-item');
         const projectItems = document.querySelectorAll('.project-item');
         const alertItems = document.querySelectorAll('.alert-item');
         
         // --- Strict Hover Detection for ALL Interactive Elements ---
-        // Select anything that should trigger the cursor change
         const interactiveElements = document.querySelectorAll('a, button, input, textarea, [role="button"], .magnetic-item, .project-item');
 
         interactiveElements.forEach(el => {
@@ -453,27 +422,12 @@
             cursorDot.style.left = `${posX}px`;
             cursorDot.style.top = `${posY}px`;
 
-            // Outline follows with lag (handled by CSS transition for smooth feel or JS animation)
-            // Using GSAP for smoother lag
+            // Outline follows with lag
             gsap.to(cursorOutline, {
                 x: posX,
                 y: posY,
                 duration: 0.15,
                 ease: "power2.out"
-            });
-        });
-
-        // Hover effects for magnetic items (Movement Logic)
-        magneticItems.forEach(item => {
-            item.addEventListener('mouseenter', () => {
-                // Magnetic Pull Effect
-                item.addEventListener('mousemove', magneticMove);
-            });
-            
-            item.addEventListener('mouseleave', () => {
-                item.removeEventListener('mousemove', magneticMove);
-                // Reset item position
-                gsap.to(item, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.3)" });
             });
         });
 
@@ -487,8 +441,6 @@
                     mixBlendMode: "difference",
                     duration: 0.3
                 });
-                // Ensure the dot (paw) stays visible but maybe changes scale slightly
-                // Removed the scale: 0 line so the paw stays.
             });
             item.addEventListener('mouseleave', () => {
                 gsap.to(cursorOutline, {
@@ -508,6 +460,24 @@
             });
             item.addEventListener('mouseleave', () => {
                 document.body.classList.remove('hovering-alert');
+            });
+        });
+        */
+
+        // --- Magnetic Item Logic (Kept Active for Buttons) ---
+        const magneticItems = document.querySelectorAll('.magnetic-item');
+        
+        // Hover effects for magnetic items (Movement Logic)
+        magneticItems.forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                // Magnetic Pull Effect
+                item.addEventListener('mousemove', magneticMove);
+            });
+            
+            item.addEventListener('mouseleave', () => {
+                item.removeEventListener('mousemove', magneticMove);
+                // Reset item position
+                gsap.to(item, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.3)" });
             });
         });
 
