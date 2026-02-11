@@ -75,6 +75,26 @@ $rescues = $conn->query("SELECT * FROM rescue_reports WHERE status IN ('Reported
                     class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">
                     <i data-lucide="siren" class="w-5 h-5"></i> Rescue Reports
                 </a>
+                <a href="profile.php"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">
+                    <i data-lucide="user-circle" class="w-5 h-5"></i> My Profile
+                </a>
+
+                <div class="mt-8 mb-2 px-4 text-xs font-semibold text-white/30 uppercase tracking-widest">
+                    Quick Links
+                </div>
+                <a href="../adopt.php"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">
+                    <i data-lucide="heart" class="w-5 h-5"></i> Adopt a Pet
+                </a>
+                <a href="../blogs.php"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">
+                    <i data-lucide="book-open" class="w-5 h-5"></i> Success Stories
+                </a>
+                <a href="../public/index.php"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">
+                    <i data-lucide="clipboard-list" class="w-5 h-5"></i> My Adoptions
+                </a>
             </nav>
 
             <div class="p-4 border-t border-white/10">

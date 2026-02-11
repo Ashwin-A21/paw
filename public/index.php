@@ -7,6 +7,7 @@ if (!isset($_SESSION['user_id'])) {
 include '../config.php';
 
 $userId = $_SESSION['user_id'];
+$role = $_SESSION['role'] ?? 'user';
 
 // Get user's applications
 $applications = $conn->query("SELECT aa.*, p.name as pet_name, p.type, p.image 
@@ -72,8 +73,14 @@ $applications = $conn->query("SELECT aa.*, p.name as pet_name, p.type, p.image
                     <a href="../index.php" class="text-sm uppercase tracking-widest hover:text-paw-accent">Home</a>
                     <a href="../adopt.php" class="text-sm uppercase tracking-widest hover:text-paw-accent">Adopt</a>
                     <a href="../blogs.php" class="text-sm uppercase tracking-widest hover:text-paw-accent">Blog</a>
+                    <a href="profile.php" class="text-sm uppercase tracking-widest hover:text-paw-accent">Profile</a>
                 </div>
                 <div class="hidden md:flex items-center gap-4">
+                    <?php if (in_array($role, ['volunteer', 'rescuer'])): ?>
+                            <a href="../volunteer/index.php" class="px-5 py-2 border border-paw-dark rounded-full text-xs uppercase tracking-widest font-bold hover:bg-paw-dark hover:text-white transition-colors">
+                                Volunteer Panel
+                            </a>
+                    <?php endif; ?>
                     <span class="text-sm text-paw-gray"><?php echo htmlspecialchars($_SESSION['username']); ?></span>
                     <a href="../logout.php"
                         class="px-6 py-2 bg-paw-dark text-white rounded-full text-xs uppercase tracking-widest font-bold hover:bg-paw-accent transition-colors">Logout</a>
@@ -148,7 +155,8 @@ $applications = $conn->query("SELECT aa.*, p.name as pet_name, p.type, p.image
                                 <div class="flex-1">
                                     <h3 class="font-serif text-xl"><?php echo htmlspecialchars($app['pet_name']); ?></h3>
                                     <p class="text-sm text-paw-gray capitalize"><?php echo $app['type']; ?> • Applied
-                                        <?php echo date('M d, Y', strtotime($app['application_date'])); ?></p>
+                                        <?php echo date('M d, Y', strtotime($app['application_date'])); ?>
+                                    </p>
                                 </div>
                                 <span
                                     class="px-4 py-2 text-sm rounded-full 

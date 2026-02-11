@@ -94,6 +94,10 @@ $users = $conn->query("SELECT * FROM users ORDER BY created_at DESC");
                 <a href="users.php" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/10 text-white mb-2">
                     <i data-lucide="users" class="w-5 h-5"></i> Users
                 </a>
+                <a href="profile.php"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">
+                    <i data-lucide="user-circle" class="w-5 h-5"></i> My Profile
+                </a>
             </nav>
 
             <div class="p-4 border-t border-white/10">
@@ -167,7 +171,11 @@ $users = $conn->query("SELECT * FROM users ORDER BY created_at DESC");
                                             </span>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="px-6 py-4">
+                                    <td class="px-6 py-4 flex items-center gap-3">
+                                        <a href="edit_user.php?id=<?php echo $user['id']; ?>"
+                                            class="text-sm font-medium text-blue-600 hover:text-blue-800">
+                                            Edit
+                                        </a>
                                         <form method="POST">
                                             <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
                                             <input type="hidden" name="current_status"

@@ -139,6 +139,8 @@ $petsCount = $petsResult ? $petsResult->fetch_assoc()['count'] : 0;
                         ?>
                         <a href="<?php echo $dashboardUrl; ?>"
                             class="text-sm uppercase tracking-widest hover:text-paw-accent transition-colors">Dashboard</a>
+                        <a href="public/profile.php"
+                            class="text-sm uppercase tracking-widest hover:text-paw-accent transition-colors">Profile</a>
                         <a href="logout.php"
                             class="group relative px-6 py-2.5 bg-paw-dark text-white rounded-full overflow-hidden flex items-center justify-center">
                             <span class="relative z-10 text-xs font-bold uppercase tracking-widest">Logout</span>

@@ -100,6 +100,10 @@ $recentRescues = $conn->query("SELECT * FROM rescue_reports ORDER BY reported_at
                     class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">
                     <i data-lucide="users" class="w-5 h-5"></i> Users
                 </a>
+                <a href="profile.php"
+                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">
+                    <i data-lucide="user-circle" class="w-5 h-5"></i> My Profile
+                </a>
             </nav>
 
             <div class="p-4 border-t border-white/10">
@@ -195,7 +199,8 @@ $recentRescues = $conn->query("SELECT * FROM rescue_reports ORDER BY reported_at
                                         <div>
                                             <p class="font-medium"><?php echo htmlspecialchars($app['username']); ?></p>
                                             <p class="text-sm text-paw-gray">applying for
-                                                <?php echo htmlspecialchars($app['pet_name']); ?></p>
+                                                <?php echo htmlspecialchars($app['pet_name']); ?>
+                                            </p>
                                         </div>
                                         <span
                                             class="px-3 py-1 text-xs rounded-full 
@@ -224,7 +229,8 @@ $recentRescues = $conn->query("SELECT * FROM rescue_reports ORDER BY reported_at
                                         <div>
                                             <p class="font-medium"><?php echo htmlspecialchars($rescue['location']); ?></p>
                                             <p class="text-sm text-paw-gray">
-                                                <?php echo date('M d, H:i', strtotime($rescue['reported_at'])); ?></p>
+                                                <?php echo date('M d, H:i', strtotime($rescue['reported_at'])); ?>
+                                            </p>
                                         </div>
                                         <span
                                             class="px-3 py-1 text-xs rounded-full 
