@@ -34,10 +34,12 @@ $userQuery = $conn->query("SELECT * FROM users WHERE id=$uid");
 $currentUser = $userQuery->fetch_assoc();
 
 $basePath = '../';
+$hideNavbar = true;
+$hideFooter = true;
 include '../includes/header.php';
 ?>
 
-<div class="flex min-h-screen pt-20">
+<div class="flex min-h-screen">
     <!-- Sidebar -->
     <aside class="w-64 bg-paw-dark text-white flex flex-col hidden md:flex">
         <div class="p-6 border-b border-white/10">

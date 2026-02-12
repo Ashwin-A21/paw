@@ -18,8 +18,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $gender = mysqli_real_escape_string($conn, $_POST['gender']);
     $dob = mysqli_real_escape_string($conn, $_POST['dob']);
 
-    // Handle Image Upload
     $imageUpdate = "";
+
+    // Handle Image Deletion (Use Avatar)
+    if (isset($_POST['delete_image']) && $_POST['delete_image'] == '1') {
+        $imageUpdate = ", profile_image=NULL";
+    }
+
+    // Handle Image Upload (Overrides delete if both present)
     if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === 0) {
         $uploadDir = 'uploads/users/';
         if (!is_dir($uploadDir))
@@ -103,6 +109,16 @@ if ($user['is_verified']) {
             outline: none;
             border-color: #D4A373;
         }
+
+        /* Modal Animation */
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+
+        body.modal-active {
+            overflow-x: hidden;
+            overflow-y: hidden !important;
+        }
     </style>
 </head>
 
@@ -126,10 +142,20 @@ if ($user['is_verified']) {
             <!-- Sidebar / User Card -->
             <div class="lg:col-span-1">
                 <div class="bg-white rounded-2xl shadow-sm p-6 text-center sticky top-24">
-                    <div class="relative w-32 h-32 mx-auto mb-4">
-                        <img src="<?php echo !empty($user['profile_image']) ? 'uploads/users/' . htmlspecialchars($user['profile_image']) : 'https://ui-avatars.com/api/?name=' . urlencode($user['username']); ?>"
+
+                    <!-- Profile Image Container -->
+                    <div class="relative w-32 h-32 mx-auto mb-4 group cursor-pointer" onclick="toggleModal()">
+                        <img id="currentProfileImage"
+                            src="<?php echo !empty($user['profile_image']) ? 'uploads/users/' . htmlspecialchars($user['profile_image']) : 'https://ui-avatars.com/api/?name=' . urlencode($user['username']); ?>"
                             alt="Profile"
-                            class="w-full h-full object-cover rounded-full border-4 border-paw-bg shadow-inner">
+                            class="w-full h-full object-cover rounded-full border-4 border-paw-bg shadow-inner transition-opacity group-hover:opacity-75">
+
+                        <!-- Hover Overlay -->
+                        <div
+                            class="absolute inset-0 flex items-center justify-center rounded-full bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <i data-lucide="camera" class="w-8 h-8 text-white"></i>
+                        </div>
+
                         <?php if ($user['is_verified']): ?>
                             <div class="absolute bottom-0 right-0 bg-blue-500 text-white p-1.5 rounded-full border-4 border-white"
                                 title="Verified User">
@@ -201,7 +227,12 @@ if ($user['is_verified']) {
                         Edit Profile
                     </h2>
 
-                    <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                    <form method="POST" enctype="multipart/form-data" class="space-y-6" id="profileForm">
+                        <!-- Hidden Inputs for Image Handling -->
+                        <input type="file" name="profile_image" id="profileImageInput" accept="image/*" class="hidden"
+                            onchange="previewImage(this)">
+                        <input type="hidden" name="delete_image" id="deleteImageInput" value="0">
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label class="block text-sm uppercase tracking-widest font-semibold mb-2">Full
@@ -233,12 +264,7 @@ if ($user['is_verified']) {
                             </div>
                         </div>
 
-                        <div>
-                            <label class="block text-sm uppercase tracking-widest font-semibold mb-2">Profile
-                                Picture</label>
-                            <input type="file" name="profile_image" accept="image/*" class="form-input">
-                            <p class="text-xs text-paw-gray mt-1">Leave empty to keep current picture.</p>
-                        </div>
+                        <!-- Removed the explicit file input from here -->
 
                         <div class="flex justify-end">
                             <button type="submit" name="update_profile"
@@ -320,7 +346,81 @@ if ($user['is_verified']) {
         </div>
     </main>
 
-    <script>lucide.createIcons();</script>
+    <!-- Modal Layout -->
+    <div id="imageModal"
+        class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-50">
+        <div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50" onclick="toggleModal()"></div>
+
+        <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded-xl shadow-lg z-50 overflow-y-auto">
+
+            <div class="modal-content py-6 text-left px-6">
+                <!-- Title -->
+                <div class="flex justify-between items-center pb-3 border-b border-gray-100 mb-4">
+                    <p class="text-2xl font-serif font-bold">Update Profile Picture</p>
+                    <div class="modal-close cursor-pointer z-50" onclick="toggleModal()">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <!-- Body -->
+                <div class="space-y-4">
+                    <button onclick="triggerUpload()"
+                        class="w-full py-4 border border-paw-dark rounded-xl flex items-center justify-center gap-3 hover:bg-gray-50 transition-colors group">
+                        <i data-lucide="upload-cloud" class="w-5 h-5 group-hover:text-paw-accent transition-colors"></i>
+                        <span class="font-bold text-sm uppercase tracking-widest">Upload Photo</span>
+                    </button>
+
+                    <button onclick="useAvatar()"
+                        class="w-full py-4 border border-gray-200 rounded-xl flex items-center justify-center gap-3 hover:bg-gray-50 transition-colors group">
+                        <i data-lucide="user" class="w-5 h-5 group-hover:text-paw-accent transition-colors"></i>
+                        <span class="font-bold text-sm uppercase tracking-widest text-gray-600">Use Avatar</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        function toggleModal() {
+            const body = document.querySelector('body');
+            const modal = document.querySelector('.modal');
+            modal.classList.toggle('opacity-0');
+            modal.classList.toggle('pointer-events-none');
+            body.classList.toggle('modal-active');
+        }
+
+        function triggerUpload() {
+            document.getElementById('profileImageInput').click();
+        }
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('currentProfileImage').src = e.target.result;
+                    // Reset delete flag if user uploads new image
+                    document.getElementById('deleteImageInput').value = "0";
+                }
+                reader.readAsDataURL(input.files[0]);
+                toggleModal(); // Close modal
+            }
+        }
+
+        function useAvatar() {
+            // Set delete flag
+            document.getElementById('deleteImageInput').value = "1";
+            // Update preview to avatar URL (constructing it similar to PHP)
+            const username = "<?php echo urlencode($user['username']); ?>";
+            document.getElementById('currentProfileImage').src = 'https://ui-avatars.com/api/?name=' + username;
+
+            // Clear file input
+            document.getElementById('profileImageInput').value = "";
+
+            toggleModal(); // Close modal
+        }
+    </script>
 </body>
 
 </html>
