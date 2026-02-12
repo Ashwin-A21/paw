@@ -22,6 +22,16 @@ if (isset($_GET['gender']) && !empty($_GET['gender'])) {
 
 $sql .= " ORDER BY added_at DESC";
 $pets = $conn->query($sql);
+
+// Fetch current user if logged in
+$currentUser = null;
+if (isset($_SESSION['user_id'])) {
+    $uid = $_SESSION['user_id'];
+    $uResult = $conn->query("SELECT * FROM users WHERE id=$uid");
+    if ($uResult && $uResult->num_rows > 0) {
+        $currentUser = $uResult->fetch_assoc();
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
@@ -110,8 +120,37 @@ $pets = $conn->query($sql);
                 </div>
                 <div class="hidden md:flex items-center gap-4">
                     <?php if (isset($_SESSION['user_id'])): ?>
+                        <?php
+                        $dashboardUrl = 'public/index.php';
+                        if ($_SESSION['role'] === 'admin')
+                            $dashboardUrl = 'admin/index.php';
+                        elseif ($_SESSION['role'] === 'volunteer' || $_SESSION['role'] === 'rescuer')
+                            $dashboardUrl = 'volunteer/index.php';
+                        ?>
+                        <a href="<?php echo $dashboardUrl; ?>"
+                            class="text-sm uppercase tracking-widest hover:text-paw-accent transition-colors">Dashboard</a>
+                        <a href="public/profile.php"
+                            class="relative w-10 h-10 rounded-full overflow-hidden border-2 border-paw-accent hover:border-paw-dark transition-colors group">
+                            <img src="<?php
+                            $username = $currentUser['username'] ?? 'User';
+                            $imgSrc = 'https://ui-avatars.com/api/?name=' . urlencode($username);
+                            if (!empty($currentUser['profile_image'])) {
+                                if (strpos($currentUser['profile_image'], 'http') === 0) {
+                                    $imgSrc = $currentUser['profile_image'];
+                                } else {
+                                    $basePath = 'uploads/users/';
+                                    if (file_exists($basePath . $currentUser['profile_image'])) {
+                                        $imgSrc = $basePath . htmlspecialchars($currentUser['profile_image']);
+                                    }
+                                }
+                            }
+                            echo $imgSrc;
+                            ?>" class="w-full h-full object-cover">
+                        </a>
                         <a href="logout.php"
-                            class="px-6 py-2 bg-paw-dark text-white rounded-full text-xs uppercase tracking-widest font-bold">Logout</a>
+                            class="group relative px-6 py-2.5 bg-paw-dark text-white rounded-full overflow-hidden flex items-center justify-center">
+                            <span class="relative z-10 text-xs font-bold uppercase tracking-widest">Logout</span>
+                        </a>
                     <?php else: ?>
                         <a href="login.php" class="text-sm uppercase tracking-widest hover:text-paw-accent">Login</a>
                         <a href="register.php"

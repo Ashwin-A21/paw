@@ -21,6 +21,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = mysqli_real_escape_string($conn, $_POST['email']);
     $role = $_POST['role'];
     $isVerified = isset($_POST['is_verified']) ? 1 : 0;
+    $livesSaved = (int) $_POST['lives_saved'];
+    $phone = mysqli_real_escape_string($conn, $_POST['phone']);
+    $gender = mysqli_real_escape_string($conn, $_POST['gender']);
+    $dob = mysqli_real_escape_string($conn, $_POST['dob']);
 
     $passwordSql = "";
     if (!empty($_POST['new_password'])) {
@@ -28,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $passwordSql = ", password='$newPassword'";
     }
 
-    $updateSql = "UPDATE users SET username='$username', email='$email', role='$role', is_verified=$isVerified $passwordSql WHERE id=$userId";
+    $updateSql = "UPDATE users SET username='$username', email='$email', role='$role', is_verified=$isVerified, lives_saved=$livesSaved, phone='$phone', gender='$gender', dob='$dob' $passwordSql WHERE id=$userId";
 
     if ($conn->query($updateSql)) {
         $message = "User updated successfully!";
@@ -128,10 +132,10 @@ $user = $userResult->fetch_assoc();
                                     <option value="user" <?php echo $user['role'] === 'user' ? 'selected' : ''; ?>>User
                                     </option>
                                     <option value="volunteer" <?php echo $user['role'] === 'volunteer' ? 'selected' : ''; ?>>Volunteer</option>
-                                    <option value="rescuer" <?php echo $user['role'] === 'rescuer' ? 'selected' : ''; ?>
-                                        >Rescuer</option>
-                                    <option value="admin" <?php echo $user['role'] === 'admin' ? 'selected' : ''; ?>
-                                        >Admin</option>
+                                    <option value="rescuer" <?php echo $user['role'] === 'rescuer' ? 'selected' : ''; ?>>
+                                        Rescuer</option>
+                                    <option value="admin" <?php echo $user['role'] === 'admin' ? 'selected' : ''; ?>>Admin
+                                    </option>
                                 </select>
                             </div>
                             <div class="flex items-center pt-8">
@@ -139,6 +143,42 @@ $user = $userResult->fetch_assoc();
                                     <input type="checkbox" name="is_verified" value="1" <?php echo $user['is_verified'] ? 'checked' : ''; ?> class="w-5 h-5 accent-paw-accent rounded">
                                     <span class="font-medium">Verified User</span>
                                 </label>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Lives
+                                    Saved</label>
+                                <input type="number" name="lives_saved" value="<?php echo $user['lives_saved'] ?? 0; ?>"
+                                    min="0"
+                                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent">
+                            </div>
+                            <div>
+                                <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Phone</label>
+                                <input type="text" name="phone"
+                                    value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>"
+                                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Gender</label>
+                                <select name="gender"
+                                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent">
+                                    <option value="">Select</option>
+                                    <option value="Male" <?php echo ($user['gender'] ?? '') === 'Male' ? 'selected' : ''; ?>>Male</option>
+                                    <option value="Female" <?php echo ($user['gender'] ?? '') === 'Female' ? 'selected' : ''; ?>>Female</option>
+                                    <option value="Other" <?php echo ($user['gender'] ?? '') === 'Other' ? 'selected' : ''; ?>>Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Date of
+                                    Birth</label>
+                                <input type="date" name="dob"
+                                    value="<?php echo htmlspecialchars($user['dob'] ?? ''); ?>"
+                                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent">
                             </div>
                         </div>
 

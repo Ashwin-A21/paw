@@ -22,6 +22,13 @@ if (isset($_POST['update_role'])) {
     $conn->query("UPDATE users SET role='$newRole' WHERE id=$userId");
 }
 
+// Handle Lives Saved Update
+if (isset($_POST['update_lives'])) {
+    $userId = (int) $_POST['user_id'];
+    $lives = (int) $_POST['lives_saved'];
+    $conn->query("UPDATE users SET lives_saved=$lives WHERE id=$userId");
+}
+
 $users = $conn->query("SELECT * FROM users ORDER BY created_at DESC");
 ?>
 <!DOCTYPE html>
@@ -120,8 +127,12 @@ $users = $conn->query("SELECT * FROM users ORDER BY created_at DESC");
                                 </th>
                                 <th class="px-6 py-4 text-sm font-semibold text-paw-gray uppercase tracking-wider">Role
                                 </th>
-                                <th class="px-6 py-4 text-sm font-semibold text-paw-gray uppercase tracking-wider">
-                                    Status</th>
+                                <th class="px-6 py-4 text-sm font-semibold text-paw-gray uppercase tracking-wider">Lives
+                                    Saved
+                                </th>
+                                <th class="px-6 py-4 text-sm font-semibold text-paw-gray uppercase tracking-wider"></th>
+                                </th>
+                                Status</th>
                                 <th class="px-6 py-4 text-sm font-semibold text-paw-gray uppercase tracking-wider">
                                     Action</th>
                             </tr>
@@ -156,6 +167,13 @@ $users = $conn->query("SELECT * FROM users ORDER BY created_at DESC");
                                                 <option value="admin" <?php echo $user['role'] === 'admin' ? 'selected' : ''; ?>>Admin</option>
                                             </select>
                                             <input type="hidden" name="update_role" value="1">
+                                        </form>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <form method="POST" class="flex items-center gap-2">
+                                            <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
+                                            <input type="number" name="lives_saved" value="<?php echo $user['lives_saved'] ?? 0; ?>" min="0" class="w-16 px-2 py-1 text-sm border rounded-lg focus:outline-none focus:border-paw-accent">
+                                            <button type="submit" name="update_lives" class="text-xs text-paw-accent hover:text-paw-dark font-medium">Save</button>
                                         </form>
                                     </td>
                                     <td class="px-6 py-4">

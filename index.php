@@ -5,6 +5,16 @@ include 'config.php';
 // Get stats for display
 $petsResult = $conn->query("SELECT COUNT(*) as count FROM pets WHERE status='Available'");
 $petsCount = $petsResult ? $petsResult->fetch_assoc()['count'] : 0;
+
+// Fetch current user if logged in
+$currentUser = null;
+if (isset($_SESSION['user_id'])) {
+    $uid = $_SESSION['user_id'];
+    $uResult = $conn->query("SELECT * FROM users WHERE id=$uid");
+    if ($uResult && $uResult->num_rows > 0) {
+        $currentUser = $uResult->fetch_assoc();
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
@@ -140,7 +150,23 @@ $petsCount = $petsResult ? $petsResult->fetch_assoc()['count'] : 0;
                         <a href="<?php echo $dashboardUrl; ?>"
                             class="text-sm uppercase tracking-widest hover:text-paw-accent transition-colors">Dashboard</a>
                         <a href="public/profile.php"
-                            class="text-sm uppercase tracking-widest hover:text-paw-accent transition-colors">Profile</a>
+                            class="relative w-10 h-10 rounded-full overflow-hidden border-2 border-paw-accent hover:border-paw-dark transition-colors group">
+                            <img src="<?php
+                            $username = $currentUser['username'] ?? 'User';
+                            $imgSrc = 'https://ui-avatars.com/api/?name=' . urlencode($username);
+                            if (!empty($currentUser['profile_image'])) {
+                                if (strpos($currentUser['profile_image'], 'http') === 0) {
+                                    $imgSrc = $currentUser['profile_image'];
+                                } else {
+                                    $basePath = 'uploads/users/';
+                                    if (file_exists($basePath . $currentUser['profile_image'])) {
+                                        $imgSrc = $basePath . htmlspecialchars($currentUser['profile_image']);
+                                    }
+                                }
+                            }
+                            echo $imgSrc;
+                            ?>" class="w-full h-full object-cover">
+                        </a>
                         <a href="logout.php"
                             class="group relative px-6 py-2.5 bg-paw-dark text-white rounded-full overflow-hidden flex items-center justify-center">
                             <span class="relative z-10 text-xs font-bold uppercase tracking-widest">Logout</span>

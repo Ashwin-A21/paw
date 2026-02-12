@@ -14,6 +14,21 @@ if (!$blog) {
     header("Location: blogs.php");
     exit();
 }
+
+// Check if published or if current user is author/admin
+$canView = false;
+if ($blog['is_published'] && ($blog['status'] ?? 'approved') === 'approved') {
+    $canView = true;
+} elseif (isset($_SESSION['user_id'])) {
+    if ($_SESSION['role'] === 'admin' || $_SESSION['user_id'] == $blog['author_id']) {
+        $canView = true;
+    }
+}
+
+if (!$canView) {
+    header("Location: blogs.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">

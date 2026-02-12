@@ -50,6 +50,21 @@ if (isset($_GET['delete'])) {
     exit();
 }
 
+// Handle Approval/Rejection
+if (isset($_GET['approve'])) {
+    $id = (int) $_GET['approve'];
+    $conn->query("UPDATE blogs SET status='approved', is_published=1 WHERE id=$id");
+    header("Location: blogs.php");
+    exit();
+}
+
+if (isset($_GET['reject'])) {
+    $id = (int) $_GET['reject'];
+    $conn->query("UPDATE blogs SET status='rejected', is_published=0 WHERE id=$id");
+    header("Location: blogs.php");
+    exit();
+}
+
 // Get blog for editing
 $editBlog = null;
 if (isset($_GET['edit'])) {
@@ -58,7 +73,7 @@ if (isset($_GET['edit'])) {
     $editBlog = $result->fetch_assoc();
 }
 
-$blogs = $conn->query("SELECT * FROM blogs ORDER BY created_at DESC");
+$blogs = $conn->query("SELECT * FROM blogs ORDER BY CASE WHEN status = 'pending' THEN 0 ELSE 1 END, created_at DESC");
 ?>
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
@@ -264,23 +279,38 @@ $blogs = $conn->query("SELECT * FROM blogs ORDER BY created_at DESC");
                                             <?php echo date('M d, Y', strtotime($blog['created_at'])); ?>
                                         </td>
                                         <td class="px-6 py-4">
-                                            <span
-                                                class="px-3 py-1 text-xs rounded-full <?php echo $blog['is_published'] ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-600'; ?>">
-                                                <?php echo $blog['is_published'] ? 'Published' : 'Draft'; ?>
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 text-right">
-                                            <a href="blogs.php?edit=<?php echo $blog['id']; ?>"
-                                                class="text-paw-accent hover:underline mr-4">Edit</a>
-                                            <a href="blogs.php?delete=<?php echo $blog['id']; ?>"
-                                                onclick="return confirm('Delete this post?');"
-                                                class="text-paw-alert hover:underline">Delete</a>
-                                        </td>
-                                    </tr>
-                                <?php endwhile; ?>
-                            </tbody>
-                        </table>
-                    </div>
+                                            <?php
+                                            // Handle cases where 'status' column might not exist for old data (though we ran setup, it's safer)
+                                            $status = $blog['status'] ?? ($blog['is_published'] ? 'approved' : 'pending');
+                                            $badgeClass = match ($status) {
+                                                'approved' => 'bg-green-50 text-green-700',
+                                                'rejected' => 'bg-red-50 text-red-700',
+                                                'pending' => 'bg-yellow-50 text-yellow-700',
+                                                default => 'bg-gray-100 text-gray-600'
+                                            };
+                                            ?>
+                                                    <span class="px-3 py-1 rounded-full text-xs font-bold uppercase <?php echo $badgeClass; ?>">
+                                                        <?php echo ucfirst($status); ?>
+                                                    </span>
+                                                </td>
+                                                <td class="px-6 py-4 text-right">
+                                                    <?php if ($blog['status'] == 'pending'): ?>
+                                                            <a href="blogs.php?approve=<?php echo $blog['id']; ?>"
+                                                                class="text-green-600 hover:underline mr-2 font-semibold">Approve</a>
+                                                            <a href="blogs.php?reject=<?php echo $blog['id']; ?>"
+                                                                class="text-red-500 hover:underline mr-4 font-semibold">Reject</a>
+                                                    <?php endif; ?>
+                                                    <a href="blogs.php?edit=<?php echo $blog['id']; ?>"
+                                                        class="text-paw-accent hover:underline mr-4">Edit</a>
+                                                    <a href="blogs.php?delete=<?php echo $blog['id']; ?>"
+                                                        onclick="return confirm('Delete this post?');"
+                                                        class="text-paw-alert hover:underline">Delete</a>
+                                                </td>
+                                            </tr>
+                                    <?php endwhile; ?>
+                                </tbody>
+                            </table>
+                        </div>
                 <?php endif; ?>
             </div>
         </main>

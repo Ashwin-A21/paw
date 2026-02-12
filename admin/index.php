@@ -27,6 +27,11 @@ $recentApps = $conn->query("SELECT aa.*, u.username, p.name as pet_name FROM ado
 
 // Recent Rescues
 $recentRescues = $conn->query("SELECT * FROM rescue_reports ORDER BY reported_at DESC LIMIT 5");
+
+// Current User (for sidebar)
+$uid = $_SESSION['user_id'];
+$userQuery = $conn->query("SELECT * FROM users WHERE id=$uid");
+$currentUser = $userQuery->fetch_assoc();
 ?>
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
@@ -108,8 +113,21 @@ $recentRescues = $conn->query("SELECT * FROM rescue_reports ORDER BY reported_at
 
             <div class="p-4 border-t border-white/10">
                 <div class="flex items-center gap-3 mb-4">
-                    <div class="w-10 h-10 bg-paw-accent rounded-full flex items-center justify-center">
-                        <i data-lucide="user" class="w-5 h-5 text-white"></i>
+                    <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white/20">
+                        <img src="<?php 
+                            $imgSrc = 'https://ui-avatars.com/api/?name=' . urlencode($currentUser['username']);
+                            if (!empty($currentUser['profile_image'])) {
+                                if (strpos($currentUser['profile_image'], 'http') === 0) {
+                                    $imgSrc = $currentUser['profile_image'];
+                                } else {
+                                    $basePath = '../uploads/users/';
+                                    if(file_exists($basePath . $currentUser['profile_image'])) {
+                                         $imgSrc = $basePath . htmlspecialchars($currentUser['profile_image']);
+                                    }
+                                }
+                            }
+                            echo $imgSrc; 
+                        ?>" class="w-full h-full object-cover">
                     </div>
                     <div>
                         <p class="text-sm font-medium"><?php echo htmlspecialchars($_SESSION['username']); ?></p>

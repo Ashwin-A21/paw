@@ -9,6 +9,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $email = mysqli_real_escape_string($conn, $_POST['email']);
     $password = mysqli_real_escape_string($conn, $_POST['password']);
+    $phone = mysqli_real_escape_string($conn, $_POST['phone']);
+    $gender = mysqli_real_escape_string($conn, $_POST['gender']);
+    $dob = mysqli_real_escape_string($conn, $_POST['dob']);
+
     $role = $_POST['role'] ?? 'user';
 
     // Validate role
@@ -23,7 +27,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($result->num_rows > 0) {
         $error = "Email already registered.";
     } else {
-        $sql = "INSERT INTO users (username, email, password, role) VALUES ('$username', '$email', '$password', '$role')";
+        $sql = "INSERT INTO users (username, email, password, role, phone, gender, dob) 
+                VALUES ('$username', '$email', '$password', '$role', '$phone', '$gender', '$dob')";
         if ($conn->query($sql) === TRUE) {
             $success = "Registration successful! You can now login.";
         } else {
@@ -132,26 +137,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
             <?php endif; ?>
 
-            <form method="POST" class="space-y-5">
-                <div>
-                    <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Full
-                        Name</label>
-                    <input type="text" name="username" required placeholder="John Doe" class="form-input">
+            <form method="POST" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm uppercase tracking-widest font-semibold mb-2">Full Name</label>
+                        <input type="text" name="username" required placeholder="John Doe" class="form-input">
+                    </div>
+                    <div>
+                        <label class="block text-sm uppercase tracking-widest font-semibold mb-2">DOB</label>
+                        <input type="date" name="dob" required class="form-input">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm uppercase tracking-widest font-semibold mb-2">Gender</label>
+                        <select name="gender" required class="form-input">
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm uppercase tracking-widest font-semibold mb-2">Phone</label>
+                        <input type="tel" name="phone" required placeholder="123-456-7890" class="form-input">
+                    </div>
                 </div>
 
                 <div>
-                    <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Email</label>
+                    <label class="block text-sm uppercase tracking-widest font-semibold mb-2">Email</label>
                     <input type="email" name="email" required placeholder="you@example.com" class="form-input">
                 </div>
 
                 <div>
-                    <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Password</label>
+                    <label class="block text-sm uppercase tracking-widest font-semibold mb-2">Password</label>
                     <input type="password" name="password" required placeholder="••••••••" class="form-input">
                 </div>
 
                 <div>
-                    <label class="block text-sm uppercase tracking-widest font-semibold mb-3">I want
-                        to</label>
+                    <label class="block text-sm uppercase tracking-widest font-semibold mb-3">I want to</label>
                     <div class="grid grid-cols-3 gap-3">
                         <label class="role-card cursor-pointer border-2 border-gray-200 rounded-xl p-4 text-center"
                             onclick="selectRole(this, 'user')">

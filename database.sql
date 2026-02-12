@@ -11,6 +11,10 @@ CREATE TABLE IF NOT EXISTS users (
     address TEXT,
     role ENUM('admin', 'user', 'volunteer', 'rescuer') DEFAULT 'user',
     is_verified BOOLEAN DEFAULT FALSE,
+    lives_saved INT DEFAULT 0,
+    gender VARCHAR(20) DEFAULT NULL,
+    dob DATE DEFAULT NULL,
+    profile_image VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -74,6 +78,7 @@ CREATE TABLE IF NOT EXISTS blogs (
     author VARCHAR(100) DEFAULT 'Admin',
     image VARCHAR(255),
     is_published BOOLEAN DEFAULT TRUE,
+    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE SET NULL
 );
@@ -120,11 +125,11 @@ CREATE TABLE IF NOT EXISTS contact_messages (
 -- ============================================
 
 -- Plain text passwords for development (Password: 1234)
-INSERT INTO users (username, email, password, role, is_verified) VALUES 
-('Admin', 'admin@paw.com', '1234', 'admin', TRUE),
-('John User', 'john@example.com', '1234', 'user', TRUE),
-('Sarah Volunteer', 'sarah@volunteer.com', '1234', 'volunteer', TRUE),
-('Mike Rescuer', 'mike@rescuer.com', '1234', 'rescuer', TRUE);
+INSERT INTO users (username, email, password, role, is_verified, lives_saved, gender, phone) VALUES 
+('Admin', 'admin@paw.com', '1234', 'admin', TRUE, 0, 'Male', '1234567890'),
+('John User', 'john@example.com', '1234', 'user', TRUE, 0, 'Male', '9876543210'),
+('Sarah Volunteer', 'sarah@volunteer.com', '1234', 'volunteer', TRUE, 15, 'Female', '5556667777'),
+('Mike Rescuer', 'mike@rescuer.com', '1234', 'rescuer', TRUE, 22, 'Male', '8889990000');
 
 -- Sample Pets
 INSERT INTO pets (name, type, breed, age, gender, description, image, status, added_by) VALUES 
@@ -135,9 +140,9 @@ INSERT INTO pets (name, type, breed, age, gender, description, image, status, ad
 ('Max', 'dog', 'Golden Retriever', '4 years', 'Male', 'Max is a gentle giant who loves everyone he meets. Perfect for families looking for a loyal companion.', 'pet5.jpg', 'Available', 1);
 
 -- Sample Blog
-INSERT INTO blogs (title, slug, content, author_id, author) VALUES 
-('Why Adopt a Pet?', 'why-adopt-a-pet', 'Adopting a pet saves two lives: the one you adopt and the one who takes their place in the shelter. Every year, millions of animals end up in shelters. By adopting, you give them a second chance at happiness while also gaining a loyal companion.\n\nAdopted pets are often already vaccinated, spayed/neutered, and microchipped, saving you time and money. Plus, shelters can help match you with a pet that fits your lifestyle.\n\nMake a difference today – adopt, don''t shop!', 1, 'Admin'),
-('How to Prepare Your Home for a New Pet', 'prepare-home-new-pet', 'Bringing a new pet home is exciting! Here are some tips to prepare:\n\n1. Pet-proof your home by removing hazardous items\n2. Set up a comfortable sleeping area\n3. Stock up on food, treats, and toys\n4. Schedule a vet visit\n5. Be patient during the adjustment period\n\nRemember, your new pet may need time to settle in. Give them love and patience!', 1, 'Admin');
+INSERT INTO blogs (title, slug, content, author_id, author, status, is_published) VALUES 
+('Why Adopt a Pet?', 'why-adopt-a-pet', 'Adopting a pet saves two lives: the one you adopt and the one who takes their place in the shelter. Every year, millions of animals end up in shelters. By adopting, you give them a second chance at happiness while also gaining a loyal companion.\n\nAdopted pets are often already vaccinated, spayed/neutered, and microchipped, saving you time and money. Plus, shelters can help match you with a pet that fits your lifestyle.\n\nMake a difference today – adopt, don''t shop!', 1, 'Admin', 'approved', 1),
+('How to Prepare Your Home for a New Pet', 'prepare-home-new-pet', 'Bringing a new pet home is exciting! Here are some tips to prepare:\n\n1. Pet-proof your home by removing hazardous items\n2. Set up a comfortable sleeping area\n3. Stock up on food, treats, and toys\n4. Schedule a vet visit\n5. Be patient during the adjustment period\n\nRemember, your new pet may need time to settle in. Give them love and patience!', 1, 'Admin', 'approved', 1);
 
 -- Sample Rescue Report
 INSERT INTO rescue_reports (reporter_name, contact_phone, location, description, animal_type, urgency, status) VALUES 
