@@ -60,49 +60,7 @@ $rescues = $conn->query("SELECT * FROM rescue_reports ORDER BY
 
     <div class="flex min-h-screen">
         <!-- Sidebar -->
-        <aside class="w-64 bg-paw-dark text-white flex flex-col">
-            <div class="p-6 border-b border-white/10">
-                <a href="../index.php" class="font-serif text-2xl italic font-bold">Paw Pal<span
-                        class="text-paw-accent">.</span></a>
-                <p class="text-xs text-white/50 mt-1 uppercase tracking-widest">Admin Panel</p>
-            </div>
-
-            <nav class="flex-1 p-4">
-                <a href="index.php"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">
-                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
-                </a>
-                <a href="pets.php"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">
-                    <i data-lucide="heart" class="w-5 h-5"></i> Manage Pets
-                </a>
-                <a href="applications.php"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">
-                    <i data-lucide="clipboard-list" class="w-5 h-5"></i> Applications
-                </a>
-                <a href="rescues.php" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/10 text-white mb-2">
-                    <i data-lucide="siren" class="w-5 h-5"></i> Rescue Reports
-                </a>
-                <a href="blogs.php"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">
-                    <i data-lucide="book-open" class="w-5 h-5"></i> Blog Posts
-                </a>
-                <a href="users.php"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">
-                    <i data-lucide="users" class="w-5 h-5"></i> Users
-                </a>
-                <a href="profile.php"
-                    class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">
-                    <i data-lucide="user-circle" class="w-5 h-5"></i> My Profile
-                </a>
-            </nav>
-
-            <div class="p-4 border-t border-white/10">
-                <a href="../logout.php" class="flex items-center gap-2 text-white/50 hover:text-white text-sm">
-                    <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
-                </a>
-            </div>
-        </aside>
+        <?php include 'includes/sidebar.php'; ?>
 
         <!-- Main Content -->
         <main class="flex-1 p-8 overflow-y-auto">

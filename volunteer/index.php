@@ -27,74 +27,7 @@ include '../includes/header.php';
 
 <div class="flex min-h-screen">
     <!-- Sidebar -->
-    <aside
-        class="w-64 bg-paw-dark text-white flex flex-col transition-colors duration-300 border-r border-white/10 hidden md:flex">
-        <div class="p-6 border-b border-white/10">
-            <p class="text-xs text-white/50 mt-1 uppercase tracking-widest"><?php echo ucfirst($role); ?> Panel</p>
-        </div>
-
-        <nav class="flex-1 p-4">
-            <a href="index.php" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/10 text-white mb-2">
-                <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
-            </a>
-            <a href="tasks.php"
-                class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">
-                <i data-lucide="check-square" class="w-5 h-5"></i> My Tasks
-            </a>
-            <a href="rescues.php"
-                class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">
-                <i data-lucide="siren" class="w-5 h-5"></i> Rescue Reports
-            </a>
-            <a href="profile.php"
-                class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">
-                <i data-lucide="user-circle" class="w-5 h-5"></i> My Profile
-            </a>
-
-            <div class="mt-8 mb-2 px-4 text-xs font-semibold text-white/30 uppercase tracking-widest">
-                Quick Links
-            </div>
-            <a href="../adopt.php"
-                class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">
-                <i data-lucide="heart" class="w-5 h-5"></i> Adopt a Pet
-            </a>
-            <a href="../blogs.php"
-                class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">
-                <i data-lucide="book-open" class="w-5 h-5"></i> Success Stories
-            </a>
-            <a href="../public/index.php"
-                class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">
-                <i data-lucide="clipboard-list" class="w-5 h-5"></i> My Adoptions
-            </a>
-        </nav>
-
-        <div class="p-4 border-t border-white/10">
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white/20">
-                    <img src="<?php
-                    $imgSrc = 'https://ui-avatars.com/api/?name=' . urlencode($currentUser['username']);
-                    if (!empty($currentUser['profile_image'])) {
-                        if (strpos($currentUser['profile_image'], 'http') === 0) {
-                            $imgSrc = $currentUser['profile_image'];
-                        } else {
-                            $basePath = '../uploads/users/';
-                            if (file_exists($basePath . $currentUser['profile_image'])) {
-                                $imgSrc = $basePath . htmlspecialchars($currentUser['profile_image']);
-                            }
-                        }
-                    }
-                    echo $imgSrc;
-                    ?>" class="w-full h-full object-cover">
-                </div>
-                <div>
-                    <p class="text-sm font-medium"><?php echo htmlspecialchars($_SESSION['username']); ?></p>
-                    <p class="text-xs text-white/50 uppercase"><?php echo $role; ?></p>
-                </div>
-            </div>
-            <a href="../logout.php" class="flex items-center gap-2 text-white/50 hover:text-white text-sm">
-                <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
-            </a>
-        </div>
-    </aside>
+    <?php include 'includes/sidebar.php'; ?>
 
     <!-- Main Content -->
     <main class="flex-1 p-8 overflow-y-auto relative">
