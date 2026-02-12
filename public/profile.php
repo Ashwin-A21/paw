@@ -93,350 +93,240 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Fetch current user data
 $userResult = $conn->query("SELECT * FROM users WHERE id=$userId");
 $user = $userResult->fetch_assoc();
+
+$basePath = '../';
+include '../includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile - Paw Pal</title>
+<style>
+    .glass {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+    }
+</style>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap"
-        rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'paw-bg': '#F9F8F6',
-                        'paw-dark': '#2D2825',
-                        'paw-accent': '#D4A373',
-                        'paw-alert': '#E07A5F',
-                        'paw-gray': '#9D958F',
-                    },
-                    fontFamily: {
-                        serif: ['"Cormorant Garamond"', 'serif'],
-                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            background-color: #F9F8F6;
-        }
-
-        .glass {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(12px);
-        }
-    </style>
-</head>
-
-<body class="font-sans text-paw-dark antialiased">
-
-    <!-- Navbar -->
-    <nav class="fixed w-full z-50 glass shadow-sm transition-all duration-300 top-0" id="navbar">
-        <div class="max-w-7xl mx-auto px-6 lg:px-12">
-            <div class="flex justify-between items-center h-20">
-                <a href="../index.php" class="magnetic-item relative z-10 group">
-                    <span class="font-serif text-3xl italic font-bold tracking-tight">Paw Pal<span
-                            class="text-paw-accent">.</span></span>
-                </a>
-
-                <div class="hidden md:flex items-center space-x-12">
-                    <a href="../adopt.php"
-                        class="magnetic-item text-sm uppercase tracking-widest hover:text-paw-accent transition-colors duration-300">Adopt</a>
-                    <a href="../rescue.php"
-                        class="magnetic-item text-sm uppercase tracking-widest hover:text-paw-alert transition-colors duration-300">Rescue</a>
-                    <a href="../centers.php"
-                        class="magnetic-item text-sm uppercase tracking-widest hover:text-paw-accent transition-colors duration-300">Verified
-                        Partners</a>
-                    <a href="../blogs.php"
-                        class="magnetic-item text-sm uppercase tracking-widest hover:text-paw-accent transition-colors duration-300">Community</a>
-                </div>
-
-                <div class="hidden md:flex items-center gap-4">
-                    <?php
-                    $dashboardUrl = 'index.php'; // already in public/ or assume standard
-                    if (isset($_SESSION['role'])) {
-                        if ($_SESSION['role'] === 'admin')
-                            $dashboardUrl = '../admin/index.php';
-                        elseif ($_SESSION['role'] === 'volunteer' || $_SESSION['role'] === 'rescuer')
-                            $dashboardUrl = '../volunteer/index.php';
-                        else
-                            $dashboardUrl = '../index.php'; // User dashboard usually just home or specific user dash
-                    }
-                    ?>
-                    <a href="<?php echo $dashboardUrl; ?>"
-                        class="text-sm uppercase tracking-widest hover:text-paw-accent transition-colors">Dashboard</a>
-                    <a href="profile.php"
-                        class="relative w-10 h-10 rounded-full overflow-hidden border-2 border-paw-accent hover:border-paw-dark transition-colors group">
-                        <img src="<?php
-                        $imgSrc = 'https://ui-avatars.com/api/?name=' . urlencode($user['username']);
-                        if (!empty($user['profile_image'])) {
-                            if (strpos($user['profile_image'], 'http') === 0) {
-                                $imgSrc = $user['profile_image'];
-                            } else {
-                                $basePath = '../uploads/users/';
-                                if (file_exists($basePath . $user['profile_image'])) {
-                                    $imgSrc = $basePath . htmlspecialchars($user['profile_image']);
-                                }
-                            }
-                        }
-                        echo $imgSrc;
-                        ?>" class="w-full h-full object-cover">
-                    </a>
-                    <a href="../logout.php"
-                        class="group relative px-6 py-2.5 bg-paw-dark text-white rounded-full overflow-hidden flex items-center justify-center">
-                        <span class="relative z-10 text-xs font-bold uppercase tracking-widest">Logout</span>
-                    </a>
-                </div>
-
-                <div class="md:hidden magnetic-item">
-                    <i data-lucide="menu" class="w-8 h-8"></i>
-                </div>
-            </div>
+<section class="pt-32 pb-20 px-6">
+    <div class="max-w-3xl mx-auto">
+        <div class="mb-10">
+            <a href="index.php"
+                class="text-paw-gray hover:text-paw-accent flex items-center gap-2 mb-4 text-sm uppercase tracking-widest"><i
+                    data-lucide="arrow-left" class="w-4 h-4"></i> Back to Dashboard</a>
+            <h1 class="font-serif text-5xl mb-2">My Profile</h1>
+            <p class="text-paw-gray">Manage your account details and security.</p>
         </div>
-    </nav>
 
-    <section class="pt-32 pb-20 px-6">
-        <div class="max-w-3xl mx-auto">
-            <div class="mb-10">
-                <a href="index.php"
-                    class="text-paw-gray hover:text-paw-accent flex items-center gap-2 mb-4 text-sm uppercase tracking-widest"><i
-                        data-lucide="arrow-left" class="w-4 h-4"></i> Back to Dashboard</a>
-                <h1 class="font-serif text-5xl mb-2">My Profile</h1>
-                <p class="text-paw-gray">Manage your account details and security.</p>
-            </div>
+        <div class="bg-white rounded-2xl shadow-sm overflow-hidden p-8">
+            <?php if ($message): ?>
+                <div class="bg-green-50 text-green-700 p-4 rounded-xl mb-6 flex items-center gap-2">
+                    <i data-lucide="check-circle" class="w-5 h-5"></i>
+                    <?php echo $message; ?>
+                </div>
+            <?php endif; ?>
 
-            <div class="bg-white rounded-2xl shadow-sm overflow-hidden p-8">
-                <?php if ($message): ?>
-                    <div class="bg-green-50 text-green-700 p-4 rounded-xl mb-6 flex items-center gap-2">
-                        <i data-lucide="check-circle" class="w-5 h-5"></i>
-                        <?php echo $message; ?>
-                    </div>
-                <?php endif; ?>
+            <?php if ($error): ?>
+                <div class="bg-red-50 text-red-700 p-4 rounded-xl mb-6 flex items-center gap-2">
+                    <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                    <?php echo $error; ?>
+                </div>
+            <?php endif; ?>
 
-                <?php if ($error): ?>
-                    <div class="bg-red-50 text-red-700 p-4 rounded-xl mb-6 flex items-center gap-2">
-                        <i data-lucide="alert-circle" class="w-5 h-5"></i>
-                        <?php echo $error; ?>
-                    </div>
-                <?php endif; ?>
-
-                <!-- User Header -->
-                <div class="flex flex-col md:flex-row items-center gap-8 mb-8 pb-8 border-b border-gray-100">
-                    <div class="relative w-32 h-32 flex-shrink-0 group cursor-pointer" onclick="openImageModal()">
-                        <img src="<?php
-                        $imgSrc = 'https://ui-avatars.com/api/?name=' . urlencode($user['username']); // Default fallback
-                        if (!empty($user['profile_image'])) {
-                            if (strpos($user['profile_image'], 'http') === 0) {
-                                $imgSrc = $user['profile_image']; // It's a URL (default avatar)
-                            } else {
-                                $basePath = '../uploads/users/';
-                                // Check if file exists to prevent broken images
-                                if (file_exists($basePath . $user['profile_image'])) {
-                                    $imgSrc = $basePath . htmlspecialchars($user['profile_image']);
-                                }
+            <!-- User Header -->
+            <div class="flex flex-col md:flex-row items-center gap-8 mb-8 pb-8 border-b border-gray-100">
+                <div class="relative w-32 h-32 flex-shrink-0 group cursor-pointer" onclick="openImageModal()">
+                    <img src="<?php
+                    $imgSrc = 'https://ui-avatars.com/api/?name=' . urlencode($user['username']); // Default fallback
+                    if (!empty($user['profile_image'])) {
+                        if (strpos($user['profile_image'], 'http') === 0) {
+                            $imgSrc = $user['profile_image']; // It's a URL (default avatar)
+                        } else {
+                            $basePath = '../uploads/users/';
+                            // Check if file exists to prevent broken images
+                            if (file_exists($basePath . $user['profile_image'])) {
+                                $imgSrc = $basePath . htmlspecialchars($user['profile_image']);
                             }
                         }
-                        echo $imgSrc;
-                        ?>" alt="Profile"
-                            class="w-full h-full object-cover rounded-full border-4 border-paw-bg shadow-inner bg-paw-bg">
+                    }
+                    echo $imgSrc;
+                    ?>" alt="Profile"
+                        class="w-full h-full object-cover rounded-full border-4 border-paw-bg shadow-inner bg-paw-bg">
 
-                        <!-- Overlay -->
-                        <div
-                            class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <i data-lucide="camera" class="w-8 h-8 text-white"></i>
-                        </div>
+                    <!-- Overlay -->
+                    <div
+                        class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <i data-lucide="camera" class="w-8 h-8 text-white"></i>
+                    </div>
 
-                        <?php if ($user['is_verified']): ?>
-                            <div class="absolute bottom-0 right-0 bg-blue-500 text-white p-1.5 rounded-full border-4 border-white"
-                                title="Verified User">
-                                <i data-lucide="badge-check" class="w-5 h-5"></i>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                    <div class="text-center md:text-left">
-                        <h2 class="font-serif text-3xl font-bold mb-2">
-                            <?php echo htmlspecialchars($user['username']); ?>
-                        </h2>
-                        <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-3">
-                            <span
-                                class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-paw-accent/10 text-paw-accent">
-                                <?php echo htmlspecialchars($user['role']); ?>
-                            </span>
-                            <?php if (($user['lives_saved'] ?? 0) > 0): ?>
-                                <span
-                                    class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-green-100 text-green-700 flex items-center gap-1">
-                                    <i data-lucide="heart" class="w-3 h-3 fill-current"></i>
-                                    <?php echo $user['lives_saved']; ?> Lives Saved
-                                </span>
-                            <?php endif; ?>
+                    <?php if ($user['is_verified']): ?>
+                        <div class="absolute bottom-0 right-0 bg-blue-500 text-white p-1.5 rounded-full border-4 border-white"
+                            title="Verified User">
+                            <i data-lucide="badge-check" class="w-5 h-5"></i>
                         </div>
-                        <?php if ($user['is_verified']): ?>
-                            <a href="../create_blog.php"
-                                class="inline-flex items-center gap-2 text-sm text-paw-accent hover:underline font-medium">
-                                <i data-lucide="pen-tool" class="w-4 h-4"></i> Share a Success Story
-                            </a>
-                        <?php endif; ?>
-                    </div>
+                    <?php endif; ?>
                 </div>
-
-                <form method="POST" class="space-y-6">
-                    <input type="hidden" name="action" value="update_info">
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Full Name</label>
-                            <input type="text" name="username"
-                                value="<?php echo htmlspecialchars($user['username']); ?>" required
-                                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent transition-colors">
-                        </div>
-                        <div>
-                            <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Phone</label>
-                            <input type="tel" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>"
-                                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent transition-colors">
-                        </div>
+                <div class="text-center md:text-left">
+                    <h2 class="font-serif text-3xl font-bold mb-2">
+                        <?php echo htmlspecialchars($user['username']); ?>
+                    </h2>
+                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-3">
+                        <span
+                            class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-paw-accent/10 text-paw-accent">
+                            <?php echo htmlspecialchars($user['role']); ?>
+                        </span>
+                        <?php if (($user['lives_saved'] ?? 0) > 0): ?>
+                            <span
+                                class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-green-100 text-green-700 flex items-center gap-1">
+                                <i data-lucide="heart" class="w-3 h-3 fill-current"></i>
+                                <?php echo $user['lives_saved']; ?> Lives Saved
+                            </span>
+                        <?php endif; ?>
                     </div>
+                    <?php if ($user['is_verified']): ?>
+                        <a href="../create_blog.php"
+                            class="inline-flex items-center gap-2 text-sm text-paw-accent hover:underline font-medium">
+                            <i data-lucide="pen-tool" class="w-4 h-4"></i> Share a Success Story
+                        </a>
+                    <?php endif; ?>
+                </div>
+            </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Gender</label>
-                            <select name="gender"
-                                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent transition-colors bg-white">
-                                <option value="">Select Gender</option>
-                                <option value="Male" <?php echo ($user['gender'] ?? '') === 'Male' ? 'selected' : ''; ?>>
-                                    Male</option>
-                                <option value="Female" <?php echo ($user['gender'] ?? '') === 'Female' ? 'selected' : ''; ?>>Female</option>
-                                <option value="Other" <?php echo ($user['gender'] ?? '') === 'Other' ? 'selected' : ''; ?>>Other</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Date of
-                                Birth</label>
-                            <input type="date" name="dob" value="<?php echo htmlspecialchars($user['dob'] ?? ''); ?>"
-                                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent transition-colors">
-                        </div>
-                    </div>
+            <form method="POST" class="space-y-6">
+                <input type="hidden" name="action" value="update_info">
 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Email Address</label>
-                        <input type="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>"
+                        <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Full Name</label>
+                        <input type="text" name="username" value="<?php echo htmlspecialchars($user['username']); ?>"
                             required
                             class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent transition-colors">
                     </div>
+                    <div>
+                        <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Phone</label>
+                        <input type="tel" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>"
+                            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent transition-colors">
+                    </div>
+                </div>
 
-                    <div class="pt-8 border-t border-gray-100">
-                        <h3 class="font-serif text-2xl mb-6">Change Password</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Gender</label>
+                        <select name="gender"
+                            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent transition-colors bg-white">
+                            <option value="">Select Gender</option>
+                            <option value="Male" <?php echo ($user['gender'] ?? '') === 'Male' ? 'selected' : ''; ?>>
+                                Male</option>
+                            <option value="Female" <?php echo ($user['gender'] ?? '') === 'Female' ? 'selected' : ''; ?>>
+                                Female</option>
+                            <option value="Other" <?php echo ($user['gender'] ?? '') === 'Other' ? 'selected' : ''; ?>>
+                                Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Date of
+                            Birth</label>
+                        <input type="date" name="dob" value="<?php echo htmlspecialchars($user['dob'] ?? ''); ?>"
+                            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent transition-colors">
+                    </div>
+                </div>
 
-                        <div class="space-y-4">
+                <div>
+                    <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Email Address</label>
+                    <input type="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required
+                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent transition-colors">
+                </div>
+
+                <div class="pt-8 border-t border-gray-100">
+                    <h3 class="font-serif text-2xl mb-6">Change Password</h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Current
+                                Password</label>
+                            <input type="password" name="current_password" placeholder="Enter only if changing password"
+                                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent transition-colors">
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Current
+                                <label class="block text-sm uppercase tracking-widest font-semibold mb-3">New
                                     Password</label>
-                                <input type="password" name="current_password"
-                                    placeholder="Enter only if changing password"
+                                <input type="password" name="new_password" placeholder="New Password"
                                     class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent transition-colors">
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label class="block text-sm uppercase tracking-widest font-semibold mb-3">New
-                                        Password</label>
-                                    <input type="password" name="new_password" placeholder="New Password"
-                                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent transition-colors">
-                                </div>
-                                <div>
-                                    <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Confirm
-                                        New Password</label>
-                                    <input type="password" name="confirm_password" placeholder="Confirm New Password"
-                                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent transition-colors">
-                                </div>
+                            <div>
+                                <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Confirm
+                                    New Password</label>
+                                <input type="password" name="confirm_password" placeholder="Confirm New Password"
+                                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent transition-colors">
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="pt-6">
-                        <button type="submit"
-                            class="px-8 py-4 bg-paw-dark text-white rounded-xl text-sm uppercase tracking-widest font-bold hover:bg-paw-accent transition-colors">
-                            Save Changes
-                        </button>
-                    </div>
-                </form>
-            </div>
+                <div class="pt-6">
+                    <button type="submit"
+                        class="px-8 py-4 bg-paw-dark text-white rounded-xl text-sm uppercase tracking-widest font-bold hover:bg-paw-accent transition-colors">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Footer -->
-    <footer class="py-12 bg-paw-bg border-t border-gray-200">
-        <div class="max-w-7xl mx-auto px-6 flex justify-between items-center text-sm text-paw-gray">
-            <p>&copy; 2024 Paw Pal.</p>
-            <p>Built with <i data-lucide="heart" class="inline w-4 h-4 text-paw-alert"></i> for animals</p>
-        </div>
-    </footer>
+<?php include '../includes/footer.php'; ?>
 
-    <script>lucide.createIcons();</script>
+<!-- Image Update Modal -->
+<div id="imageModal" class="fixed inset-0 z-[100] hidden">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="closeImageModal()"></div>
 
-    <!-- Image Update Modal -->
-    <div id="imageModal" class="fixed inset-0 z-[100] hidden">
-        <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="closeImageModal()"></div>
+    <!-- Modal Content -->
+    <div class="relative min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl p-8 relative transform transition-all scale-100">
+            <button type="button" onclick="closeImageModal()"
+                class="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+            </button>
 
-        <!-- Modal Content -->
-        <div class="relative min-h-screen flex items-center justify-center p-4">
-            <div
-                class="bg-white w-full max-w-lg rounded-3xl shadow-2xl p-8 relative transform transition-all scale-100">
-                <button type="button" onclick="closeImageModal()"
-                    class="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors">
-                    <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
-                </button>
+            <h2 class="font-serif text-2xl font-bold mb-6 text-center">Update Profile Picture</h2>
 
-                <h2 class="font-serif text-2xl font-bold mb-6 text-center">Update Profile Picture</h2>
+            <form method="POST" enctype="multipart/form-data" action="profile.php">
+                <input type="hidden" name="action" value="update_image">
 
-                <form method="POST" enctype="multipart/form-data" action="profile.php">
-                    <input type="hidden" name="action" value="update_image">
-
-                    <!-- File Upload -->
-                    <div class="mb-8 text-center">
-                        <label class="block text-sm uppercase tracking-widest font-semibold mb-4 text-gray-500">Upload
-                            New Photo</label>
-                        <label class="cursor-pointer inline-block relative group">
-                            <div
-                                class="w-32 h-32 rounded-full border-4 border-dashed border-gray-200 flex items-center justify-center bg-gray-50 group-hover:bg-gray-100 transition-colors overflow-hidden">
-                                <img id="previewImage" src="#" class="hidden w-full h-full object-cover">
-                                <div id="uploadPlaceholder" class="text-center p-4">
-                                    <i data-lucide="upload-cloud" class="w-8 h-8 text-gray-400 mx-auto mb-2"></i>
-                                    <span class="text-xs text-gray-500 font-medium">Click to upload</span>
-                                </div>
+                <!-- File Upload -->
+                <div class="mb-8 text-center">
+                    <label class="block text-sm uppercase tracking-widest font-semibold mb-4 text-gray-500">Upload
+                        New Photo</label>
+                    <label class="cursor-pointer inline-block relative group">
+                        <div
+                            class="w-32 h-32 rounded-full border-4 border-dashed border-gray-200 flex items-center justify-center bg-gray-50 group-hover:bg-gray-100 transition-colors overflow-hidden">
+                            <img id="previewImage" src="#" class="hidden w-full h-full object-cover">
+                            <div id="uploadPlaceholder" class="text-center p-4">
+                                <i data-lucide="upload-cloud" class="w-8 h-8 text-gray-400 mx-auto mb-2"></i>
+                                <span class="text-xs text-gray-500 font-medium">Click to upload</span>
                             </div>
-                            <input type="file" name="profile_image" accept="image/*" class="hidden"
-                                onchange="previewFile(this)">
-                        </label>
-                    </div>
+                        </div>
+                        <input type="file" name="profile_image" accept="image/*" class="hidden"
+                            onchange="previewFile(this)">
+                    </label>
+                </div>
 
-                    <!-- Separator -->
-                    <div class="relative flex items-center gap-4 mb-8">
-                        <div class="h-px bg-gray-200 flex-grow"></div>
-                        <span class="text-xs font-bold uppercase text-gray-400">OR</span>
-                        <div class="h-px bg-gray-200 flex-grow"></div>
-                    </div>
+                <!-- Separator -->
+                <div class="relative flex items-center gap-4 mb-8">
+                    <div class="h-px bg-gray-200 flex-grow"></div>
+                    <span class="text-xs font-bold uppercase text-gray-400">OR</span>
+                    <div class="h-px bg-gray-200 flex-grow"></div>
+                </div>
 
-                    <!-- Avatar Selection -->
-                    <label
-                        class="block text-sm uppercase tracking-widest font-semibold mb-4 text-center text-gray-500">Choose
-                        an Avatar</label>
-                    <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide justify-center mb-6">
-                        <?php
-                        $seeds = ['Felix', 'Aneka', 'Mittens', 'Bella', 'Charlie', 'Max', 'Luna', 'Oliver'];
-                        foreach ($seeds as $seed) {
-                            $avatarUrl = "https://api.dicebear.com/9.x/adventurer/svg?seed=" . $seed;
-                            echo '<label class="cursor-pointer relative group flex-shrink-0">
+                <!-- Avatar Selection -->
+                <label
+                    class="block text-sm uppercase tracking-widest font-semibold mb-4 text-center text-gray-500">Choose
+                    an Avatar</label>
+                <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide justify-center mb-6">
+                    <?php
+                    $seeds = ['Felix', 'Aneka', 'Mittens', 'Bella', 'Charlie', 'Max', 'Luna', 'Oliver'];
+                    foreach ($seeds as $seed) {
+                        $avatarUrl = "https://api.dicebear.com/9.x/adventurer/svg?seed=" . $seed;
+                        echo '<label class="cursor-pointer relative group flex-shrink-0">
                                 <input type="radio" name="default_avatar" value="' . $avatarUrl . '" class="peer sr-only">
                                 <div class="relative">
                                     <img src="' . $avatarUrl . '" class="w-14 h-14 rounded-full border-2 border-transparent peer-checked:border-paw-accent hover:border-paw-accent/50 transition-all bg-white shadow-sm peer-checked:scale-110">
@@ -445,41 +335,41 @@ $user = $userResult->fetch_assoc();
                                     </div>
                                 </div>
                             </label>';
-                        }
-                        ?>
-                    </div>
+                    }
+                    ?>
+                </div>
 
-                    <div class="flex gap-3">
-                        <button type="button" onclick="closeImageModal()"
-                            class="flex-1 py-3 border border-gray-200 text-gray-600 rounded-xl font-bold uppercase text-sm tracking-widest hover:bg-gray-50 transition-colors">Cancel</button>
-                        <button type="submit"
-                            class="flex-1 py-3 bg-paw-dark text-white rounded-xl font-bold uppercase text-sm tracking-widest hover:bg-paw-accent transition-colors shadow-lg shadow-paw-dark/20">Save
-                            Picture</button>
-                    </div>
-                </form>
-            </div>
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeImageModal()"
+                        class="flex-1 py-3 border border-gray-200 text-gray-600 rounded-xl font-bold uppercase text-sm tracking-widest hover:bg-gray-50 transition-colors">Cancel</button>
+                    <button type="submit"
+                        class="flex-1 py-3 bg-paw-dark text-white rounded-xl font-bold uppercase text-sm tracking-widest hover:bg-paw-accent transition-colors shadow-lg shadow-paw-dark/20">Save
+                        Picture</button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
-    <script>
-        function openImageModal() {
-            document.getElementById('imageModal').classList.remove('hidden');
-        }
-        function closeImageModal() {
-            document.getElementById('imageModal').classList.add('hidden');
-        }
-        function previewFile(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    document.getElementById('previewImage').src = e.target.result;
-                    document.getElementById('previewImage').classList.remove('hidden');
-                    document.getElementById('uploadPlaceholder').classList.add('hidden');
-                }
-                reader.readAsDataURL(input.files[0]);
+<script>
+    function openImageModal() {
+        document.getElementById('imageModal').classList.remove('hidden');
+    }
+    function closeImageModal() {
+        document.getElementById('imageModal').classList.add('hidden');
+    }
+    function previewFile(input) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('previewImage').src = e.target.result;
+                document.getElementById('previewImage').classList.remove('hidden');
+                document.getElementById('uploadPlaceholder').classList.add('hidden');
             }
+            reader.readAsDataURL(input.files[0]);
         }
-    </script>
+    }
+</script>
 </body>
 
 </html>
