@@ -33,6 +33,8 @@ $rescues = $conn->query("SELECT * FROM rescue_reports ORDER BY urgency DESC, rep
 $myRescues = $conn->query("SELECT * FROM rescue_reports WHERE assigned_to=$userId AND status='Rescued' ORDER BY updated_at DESC");
 
 $basePath = '../';
+$hideNavbar = true;
+$hideFooter = true;
 include '../includes/header.php';
 ?>
 
@@ -61,7 +63,7 @@ include '../includes/header.php';
     </div>
 </div>
 
-<div class="flex min-h-screen pt-20">
+<div class="flex min-h-screen">
     <!-- Sidebar -->
     <aside class="w-64 bg-paw-dark text-white flex flex-col border-r border-white/10 hidden md:flex">
         <div class="p-6 border-b border-white/10">

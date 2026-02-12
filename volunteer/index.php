@@ -20,10 +20,12 @@ $tasks = $conn->query("SELECT * FROM tasks WHERE assigned_to=$userId ORDER BY du
 $rescues = $conn->query("SELECT * FROM rescue_reports WHERE status IN ('Reported', 'Assigned', 'In Progress') ORDER BY urgency DESC, reported_at DESC");
 
 $basePath = '../';
+$hideNavbar = true;
+$hideFooter = true;
 include '../includes/header.php';
 ?>
 
-<div class="flex min-h-screen pt-20">
+<div class="flex min-h-screen">
     <!-- Sidebar -->
     <aside
         class="w-64 bg-paw-dark text-white flex flex-col transition-colors duration-300 border-r border-white/10 hidden md:flex">

@@ -94,6 +94,7 @@
     line-height: 1.1;
     margin-bottom: 1.5rem;
     background: linear-gradient(135deg, var(--dark) 0%, var(--primary) 100%);
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }

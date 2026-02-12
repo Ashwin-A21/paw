@@ -51,10 +51,12 @@ $userResult = $conn->query("SELECT * FROM users WHERE id=$userId");
 $user = $userResult->fetch_assoc();
 
 $basePath = '../';
+$hideNavbar = true;
+$hideFooter = true;
 include '../includes/header.php';
 ?>
 
-<div class="flex min-h-screen pt-20">
+<div class="flex min-h-screen">
     <!-- Sidebar -->
     <aside class="w-64 bg-paw-dark text-white flex flex-col border-r border-white/10 hidden md:flex">
         <div class="p-6 border-b border-white/10">

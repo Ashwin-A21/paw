@@ -133,87 +133,89 @@ if (isset($isTransparentHeader) && $isTransparentHeader) {
 
 <body class="font-sans text-paw-dark antialiased selection:bg-paw-accent selection:text-white">
 
-    <nav class="<?php echo $navClass; ?>" id="navbar">
-        <div class="max-w-7xl mx-auto px-6 lg:px-12">
-            <div
-                class="<?php echo (isset($isTransparentHeader) && $isTransparentHeader) ? 'h-24' : 'h-20'; ?> flex justify-between items-center transition-all duration-300">
-                <a href="<?php echo $basePath; ?>index.php" class="magnetic-item relative z-10 group">
-                    <span class="font-serif text-3xl italic font-bold tracking-tight">Paw Pal<span
-                            class="text-paw-accent">.</span></span>
-                </a>
+    <?php if (!isset($hideNavbar) || !$hideNavbar): ?>
+        <nav class="<?php echo $navClass; ?>" id="navbar">
+            <div class="max-w-7xl mx-auto px-6 lg:px-12">
+                <div
+                    class="<?php echo (isset($isTransparentHeader) && $isTransparentHeader) ? 'h-24' : 'h-20'; ?> flex justify-between items-center transition-all duration-300">
+                    <a href="<?php echo $basePath; ?>index.php" class="magnetic-item relative z-10 group">
+                        <span class="font-serif text-3xl italic font-bold tracking-tight">Paw Pal<span
+                                class="text-paw-accent">.</span></span>
+                    </a>
 
-                <div class="hidden md:flex items-center space-x-12">
-                    <a href="<?php echo $basePath; ?>adopt.php"
-                        class="magnetic-item text-sm uppercase tracking-widest hover:text-paw-accent transition-colors duration-300">Adopt</a>
-                    <a href="<?php echo $basePath; ?>rescue.php"
-                        class="magnetic-item text-sm uppercase tracking-widest hover:text-paw-alert transition-colors duration-300">Rescue</a>
-                    <a href="<?php echo $basePath; ?>centers.php"
-                        class="magnetic-item text-sm uppercase tracking-widest hover:text-paw-verified transition-colors duration-300">Verified
-                        Partners</a>
-                    <a href="<?php echo $basePath; ?>blogs.php"
-                        class="magnetic-item text-sm uppercase tracking-widest hover:text-paw-accent transition-colors duration-300">Community</a>
-                </div>
+                    <div class="hidden md:flex items-center space-x-12">
+                        <a href="<?php echo $basePath; ?>adopt.php"
+                            class="magnetic-item text-sm uppercase tracking-widest hover:text-paw-accent transition-colors duration-300">Adopt</a>
+                        <a href="<?php echo $basePath; ?>rescue.php"
+                            class="magnetic-item text-sm uppercase tracking-widest hover:text-paw-alert transition-colors duration-300">Rescue</a>
+                        <a href="<?php echo $basePath; ?>centers.php"
+                            class="magnetic-item text-sm uppercase tracking-widest hover:text-paw-verified transition-colors duration-300">Verified
+                            Partners</a>
+                        <a href="<?php echo $basePath; ?>blogs.php"
+                            class="magnetic-item text-sm uppercase tracking-widest hover:text-paw-accent transition-colors duration-300">Community</a>
+                    </div>
 
-                <div class="hidden md:flex items-center gap-4">
-                    <?php if (isset($_SESSION['user_id'])): ?>
-                        <?php
-                        $dashboardUrl = $basePath . 'public/index.php';
-                        if (isset($_SESSION['role'])) {
-                            if ($_SESSION['role'] === 'admin')
-                                $dashboardUrl = $basePath . 'admin/index.php';
-                            elseif ($_SESSION['role'] === 'volunteer' || $_SESSION['role'] === 'rescuer')
-                                $dashboardUrl = $basePath . 'volunteer/index.php';
-                        }
-                        ?>
-                        <a href="<?php echo $dashboardUrl; ?>"
-                            class="text-sm uppercase tracking-widest hover:text-paw-accent transition-colors">Dashboard</a>
+                    <div class="hidden md:flex items-center gap-4">
+                        <?php if (isset($_SESSION['user_id'])): ?>
+                            <?php
+                            $dashboardUrl = $basePath . 'public/index.php';
+                            if (isset($_SESSION['role'])) {
+                                if ($_SESSION['role'] === 'admin')
+                                    $dashboardUrl = $basePath . 'admin/index.php';
+                                elseif ($_SESSION['role'] === 'volunteer' || $_SESSION['role'] === 'rescuer')
+                                    $dashboardUrl = $basePath . 'volunteer/index.php';
+                            }
+                            ?>
+                            <a href="<?php echo $dashboardUrl; ?>"
+                                class="text-sm uppercase tracking-widest hover:text-paw-accent transition-colors">Dashboard</a>
 
-                        <a href="<?php echo $basePath; ?>public/profile.php"
-                            class="relative w-10 h-10 rounded-full overflow-hidden border-2 border-paw-accent hover:border-paw-dark transition-colors group">
-                            <img src="<?php
-                            $username = $currentUser['username'] ?? 'User';
-                            $imgSrc = 'https://ui-avatars.com/api/?name=' . urlencode($username);
-                            if (!empty($currentUser['profile_image'])) {
-                                if (strpos($currentUser['profile_image'], 'http') === 0) {
-                                    $imgSrc = $currentUser['profile_image'];
-                                } else {
-                                    // Handle relative path for standard navbar
-                                    // uploads is in root/uploads
-                                    // If we are in root, $basePath is empty. Uploads is at uploads/
-                                    // If we are in public/, $basePath is ../. Uploads is at ../uploads/
-                                    $paramsPath = $basePath . 'uploads/users/';
-                                    if (file_exists(__DIR__ . '/../uploads/users/' . $currentUser['profile_image'])) {
-                                        // Simplify check: just trust the path construction relative to browser URL
-                                        $imgSrc = $paramsPath . htmlspecialchars($currentUser['profile_image']);
+                            <a href="<?php echo $basePath; ?>public/profile.php"
+                                class="relative w-10 h-10 rounded-full overflow-hidden border-2 border-paw-accent hover:border-paw-dark transition-colors group">
+                                <img src="<?php
+                                $username = $currentUser['username'] ?? 'User';
+                                $imgSrc = 'https://ui-avatars.com/api/?name=' . urlencode($username);
+                                if (!empty($currentUser['profile_image'])) {
+                                    if (strpos($currentUser['profile_image'], 'http') === 0) {
+                                        $imgSrc = $currentUser['profile_image'];
+                                    } else {
+                                        // Handle relative path for standard navbar
+                                        // uploads is in root/uploads
+                                        // If we are in root, $basePath is empty. Uploads is at uploads/
+                                        // If we are in public/, $basePath is ../. Uploads is at ../uploads/
+                                        $paramsPath = $basePath . 'uploads/users/';
+                                        if (file_exists(__DIR__ . '/../uploads/users/' . $currentUser['profile_image'])) {
+                                            // Simplify check: just trust the path construction relative to browser URL
+                                            $imgSrc = $paramsPath . htmlspecialchars($currentUser['profile_image']);
+                                        }
                                     }
                                 }
-                            }
-                            echo $imgSrc;
-                            ?>" class="w-full h-full object-cover">
-                        </a>
+                                echo $imgSrc;
+                                ?>" class="w-full h-full object-cover">
+                            </a>
 
-                        <a href="<?php echo $basePath; ?>logout.php"
-                            class="group relative px-6 py-2.5 bg-paw-dark text-white rounded-full overflow-hidden flex items-center justify-center">
-                            <span class="relative z-10 text-xs font-bold uppercase tracking-widest">Logout</span>
-                        </a>
-                    <?php else: ?>
-                        <a href="<?php echo $basePath; ?>login.php"
-                            class="text-sm uppercase tracking-widest hover:text-paw-accent transition-colors">Login</a>
-                        <a href="<?php echo $basePath; ?>register.php"
-                            class="group relative px-8 py-3 bg-paw-dark text-white rounded-full overflow-hidden flex items-center justify-center">
-                            <div
-                                class="absolute inset-0 w-full h-full bg-paw-accent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left">
-                            </div>
-                            <span
-                                class="relative z-10 text-xs font-bold uppercase tracking-widest group-hover:text-white transition-colors">Sign
-                                Up</span>
-                        </a>
-                    <?php endif; ?>
-                </div>
+                            <a href="<?php echo $basePath; ?>logout.php"
+                                class="group relative px-6 py-2.5 bg-paw-dark text-white rounded-full overflow-hidden flex items-center justify-center">
+                                <span class="relative z-10 text-xs font-bold uppercase tracking-widest">Logout</span>
+                            </a>
+                        <?php else: ?>
+                            <a href="<?php echo $basePath; ?>login.php"
+                                class="text-sm uppercase tracking-widest hover:text-paw-accent transition-colors">Login</a>
+                            <a href="<?php echo $basePath; ?>register.php"
+                                class="group relative px-8 py-3 bg-paw-dark text-white rounded-full overflow-hidden flex items-center justify-center">
+                                <div
+                                    class="absolute inset-0 w-full h-full bg-paw-accent transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left">
+                                </div>
+                                <span
+                                    class="relative z-10 text-xs font-bold uppercase tracking-widest group-hover:text-white transition-colors">Sign
+                                    Up</span>
+                            </a>
+                        <?php endif; ?>
+                    </div>
 
-                <div class="md:hidden magnetic-item">
-                    <i data-lucide="menu" class="w-8 h-8"></i>
+                    <div class="md:hidden magnetic-item">
+                        <i data-lucide="menu" class="w-8 h-8"></i>
+                    </div>
                 </div>
             </div>
-        </div>
-    </nav>
+        </nav>
+    <?php endif; ?>
