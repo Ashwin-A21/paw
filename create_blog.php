@@ -11,7 +11,7 @@ $user_id = $_SESSION['user_id'];
 $user = $conn->query("SELECT * FROM users WHERE id=$user_id")->fetch_assoc();
 
 if (!$user['is_verified']) {
-    header("Location: profile.php"); // Only verified users
+    header("Location: public/profile.php"); // Only verified users
     exit();
 }
 
@@ -23,7 +23,7 @@ $error = "";
 if ($blog_id) {
     $blog = $conn->query("SELECT * FROM blogs WHERE id=$blog_id AND author_id=$user_id")->fetch_assoc();
     if (!$blog) {
-        header("Location: profile.php");
+        header("Location: public/profile.php");
         exit();
     }
 }
@@ -127,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <a href="index.php" class="font-serif text-2xl italic font-bold">Paw Pal<span
                     class="text-paw-accent">.</span></a>
             <div class="flex items-center gap-6">
-                <a href="profile.php" class="text-sm font-medium hover:text-paw-accent transition-colors">Back to
+                <a href="public/profile.php" class="text-sm font-medium hover:text-paw-accent transition-colors">Back to
                     Profile</a>
             </div>
         </div>
@@ -176,7 +176,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="flex justify-between items-center pt-4">
-                    <a href="profile.php" class="text-paw-gray hover:text-paw-dark text-sm font-medium">Cancel</a>
+                    <a href="public/profile.php"
+                        class="text-paw-gray hover:text-paw-dark text-sm font-medium">Cancel</a>
                     <button type="submit"
                         class="px-8 py-3 bg-paw-dark text-white rounded-xl text-sm uppercase tracking-widest font-bold hover:bg-paw-accent transition-colors">
                         <?php echo $blog ? 'Update & Request Approval' : 'Submit for Approval'; ?>
