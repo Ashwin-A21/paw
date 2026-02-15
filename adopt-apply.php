@@ -156,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
                     <!-- Pet Image -->
                     <div class="rounded-2xl overflow-hidden shadow-xl h-[500px]">
-                        <img src="<?php echo file_exists('uploads/pets/' . $pet['image']) ? 'uploads/pets/' . $pet['image'] : 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800'; ?>"
+                        <img src="<?php echo file_exists('uploads/pets/' . $pet['image']) ? 'uploads/pets/' . rawurlencode($pet['image']) : 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800'; ?>"
                             alt="<?php echo htmlspecialchars($pet['name']); ?>" class="w-full h-full object-cover">
                     </div>
 

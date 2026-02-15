@@ -180,7 +180,7 @@ if (isset($isTransparentHeader) && $isTransparentHeader) {
                                         } else {
                                             $paramsPath = $basePath . 'uploads/users/';
                                             if (file_exists(__DIR__ . '/../uploads/users/' . $currentUser['profile_image'])) {
-                                                $imgSrc = $paramsPath . htmlspecialchars($currentUser['profile_image']);
+                                                $imgSrc = $paramsPath . rawurlencode($currentUser['profile_image']);
                                             }
                                         }
                                     }

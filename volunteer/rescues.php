@@ -141,11 +141,15 @@ include '../includes/header.php';
                                                 <?php echo htmlspecialchars($rescue['contact_phone']); ?>
                                             </div>
                                         <?php endif; ?>
+                                        <a href="../rescue-details.php?id=<?php echo $rescue['id']; ?>"
+                                            class="mt-3 inline-flex items-center gap-2 text-sm text-paw-accent hover:text-paw-dark font-bold uppercase tracking-widest transition-colors">
+                                            <i data-lucide="external-link" class="w-3.5 h-3.5"></i> View Details & Discussion
+                                        </a>
                                     </div>
                                     <div>
                                         <?php if ($rescue['image']): ?>
                                             <div class="w-full h-48 rounded-xl overflow-hidden">
-                                                <img src="../uploads/rescues/<?php echo $rescue['image']; ?>"
+                                                <img src="../uploads/rescues/<?php echo rawurlencode($rescue['image']); ?>"
                                                     class="w-full h-full object-cover" alt="Rescue Image">
                                             </div>
                                         <?php else: ?>
@@ -187,7 +191,12 @@ include '../includes/header.php';
                                 </div>
                                 <h3 class="font-serif text-xl mb-2"><?php echo htmlspecialchars($rescue['location']); ?>
                                 </h3>
-                                <p class="text-sm text-paw-gray"><?php echo htmlspecialchars($rescue['description']); ?></p>
+                                <p class="text-sm text-paw-gray mb-3"><?php echo htmlspecialchars($rescue['description']); ?>
+                                </p>
+                                <a href="../rescue-details.php?id=<?php echo $rescue['id']; ?>"
+                                    class="inline-flex items-center gap-2 text-sm text-paw-accent hover:text-paw-dark font-bold uppercase tracking-widest transition-colors">
+                                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i> View Details
+                                </a>
                             </div>
                         </div>
                     <?php endwhile; ?>

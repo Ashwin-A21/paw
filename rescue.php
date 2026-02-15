@@ -12,14 +12,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $urgency = $_POST['urgency'] ?? 'Medium';
     $image = '';
 
+    include_once 'includes/functions.php';
     if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
         $uploadDir = 'uploads/rescues/';
-        if (!is_dir($uploadDir))
-            mkdir($uploadDir, 0777, true);
-        $imageName = time() . '_' . basename($_FILES['image']['name']);
-        $targetPath = $uploadDir . $imageName;
-        if (move_uploaded_file($_FILES['image']['tmp_name'], $targetPath)) {
-            $image = $imageName;
+        $uploadResult = handleFileUpload($_FILES['image'], $uploadDir);
+        if ($uploadResult && isset($uploadResult['success'])) {
+            $image = $uploadResult['filename'];
         }
     }
 

@@ -5,14 +5,83 @@ include 'config.php';
 // Filter by Type
 $typeFilter = isset($_GET['type']) ? mysqli_real_escape_string($conn, $_GET['type']) : '';
 
-// Query Verified Partners
-$sql = "SELECT * FROM users WHERE is_verified = 1 AND role IN ('rescuer', 'volunteer', 'organization')";
+// Query ALL Verified Partners
+$sql = "SELECT *, 
+    CASE 
+        WHEN role = 'organization' THEN 'Organization'
+        ELSE 'Individual' 
+    END AS effective_type
+    FROM users WHERE is_verified = 1 AND role != 'admin'";
+
 if (!empty($typeFilter)) {
-    $sql .= " AND organization_type = '$typeFilter'";
+    if ($typeFilter === 'Individual') {
+        $sql .= " AND role != 'organization'";
+    } else {
+        // Assuming typeFilter 'Organization' maps to role 'organization'
+        // If exact match needed:
+        if ($typeFilter === 'Organization') {
+            $sql .= " AND role = 'organization'";
+        }
+    }
 }
 $sql .= " ORDER BY lives_saved DESC";
 
 $centers = $conn->query($sql);
+
+// Function to calculate Paw Score
+function calculatePawScore($conn, $userId, $livesSaved)
+{
+    $score = 0;
+
+    // Rescues: 10 points each
+    $score += $livesSaved * 10;
+
+    // Rescue reports assigned & completed: 15 points each
+    $rescuesDone = $conn->query("SELECT COUNT(*) as cnt FROM rescue_reports WHERE assigned_to = $userId AND status IN ('Rescued','Closed')");
+    if ($rescuesDone) {
+        $row = $rescuesDone->fetch_assoc();
+        $score += ($row['cnt'] ?? 0) * 15;
+    }
+
+    // Rescue reports filed: 5 points each
+    $reportsFiled = $conn->query("SELECT COUNT(*) as cnt FROM rescue_reports WHERE reporter_id = $userId");
+    if ($reportsFiled) {
+        $row = $reportsFiled->fetch_assoc();
+        $score += ($row['cnt'] ?? 0) * 5;
+    }
+
+    // Pets listed for adoption: 5 points each
+    $petsListed = $conn->query("SELECT COUNT(*) as cnt FROM pets WHERE added_by = $userId");
+    if ($petsListed) {
+        $row = $petsListed->fetch_assoc();
+        $score += ($row['cnt'] ?? 0) * 5;
+    }
+
+    // Blog posts: 3 points each
+    $blogs = $conn->query("SELECT COUNT(*) as cnt FROM blogs WHERE author_id = $userId AND status='approved'");
+    if ($blogs) {
+        $row = $blogs->fetch_assoc();
+        $score += ($row['cnt'] ?? 0) * 3;
+    }
+
+    return $score;
+}
+
+// Function to get badge info based on score
+function getBadgeInfo($score)
+{
+    if ($score >= 200)
+        return ['title' => 'Elite Rescuer', 'color' => 'bg-purple-500 text-white', 'icon' => 'crown'];
+    if ($score >= 150)
+        return ['title' => 'Legend', 'color' => 'bg-yellow-500 text-white', 'icon' => 'trophy'];
+    if ($score >= 100)
+        return ['title' => 'Hero', 'color' => 'bg-red-500 text-white', 'icon' => 'shield'];
+    if ($score >= 50)
+        return ['title' => 'Guardian', 'color' => 'bg-blue-500 text-white', 'icon' => 'star'];
+    if ($score >= 20)
+        return ['title' => 'Rising Star', 'color' => 'bg-green-500 text-white', 'icon' => 'trending-up'];
+    return ['title' => 'Newcomer', 'color' => 'bg-gray-400 text-white', 'icon' => 'sparkles'];
+}
 
 $basePath = '';
 include 'includes/header.php';
@@ -45,17 +114,9 @@ include 'includes/header.php';
                 class="px-6 py-2 rounded-full text-sm font-bold uppercase tracking-widest transition-all <?php echo $typeFilter === 'Individual' ? 'bg-paw-dark text-white' : 'bg-white text-gray-500 hover:bg-gray-100'; ?>">
                 Individual
             </a>
-            <a href="centers.php?type=Charity"
-                class="px-6 py-2 rounded-full text-sm font-bold uppercase tracking-widest transition-all <?php echo $typeFilter === 'Charity' ? 'bg-paw-dark text-white' : 'bg-white text-gray-500 hover:bg-gray-100'; ?>">
-                Charity
-            </a>
             <a href="centers.php?type=Organization"
                 class="px-6 py-2 rounded-full text-sm font-bold uppercase tracking-widest transition-all <?php echo $typeFilter === 'Organization' ? 'bg-paw-dark text-white' : 'bg-white text-gray-500 hover:bg-gray-100'; ?>">
                 Organization
-            </a>
-            <a href="centers.php?type=Trust"
-                class="px-6 py-2 rounded-full text-sm font-bold uppercase tracking-widest transition-all <?php echo $typeFilter === 'Trust' ? 'bg-paw-dark text-white' : 'bg-white text-gray-500 hover:bg-gray-100'; ?>">
-                Trust
             </a>
         </div>
     </div>
@@ -69,6 +130,14 @@ include 'includes/header.php';
             $rank = 1;
             while ($center = $centers->fetch_assoc()):
                 $isTop3 = $rank <= 3;
+                $pawScore = calculatePawScore($conn, $center['id'], $center['lives_saved']);
+                $badge = getBadgeInfo($pawScore);
+
+                // Determine display name: prefer organization_name, then username
+                $displayName = !empty($center['organization_name']) ? $center['organization_name'] : $center['username'];
+                
+                $effectiveType = $center['effective_type'] ?? 'Individual';
+                $userRole = !empty($center['role']) ? ucfirst($center['role']) : 'Member';
                 ?>
                 <div
                     class="bg-white rounded-3xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 relative overflow-hidden group flex flex-col">
@@ -83,20 +152,17 @@ include 'includes/header.php';
 
                     <div class="relative z-10 flex-1">
                         <!-- Header with Badge -->
-                        <div class="flex items-center gap-4 mb-6">
+                        <div class="flex items-center gap-4 mb-4">
                             <div class="relative w-16 h-16 flex-shrink-0">
                                 <img src="<?php
                                 $imgSrc = 'https://api.dicebear.com/9.x/toon-head/svg?seed=' . urlencode($center['username']);
-                                
+
                                 if (!empty($center['profile_image'])) {
                                     if (strpos($center['profile_image'], 'http') === 0) {
-                                        // It's a URL (e.g. Google auth or external)
                                         $imgSrc = $center['profile_image'];
                                     } else {
-                                        // It's a local file
-                                        $localPath = 'uploads/users/' . $center['profile_image'];
-                                        if (file_exists($localPath)) {
-                                            $imgSrc = $localPath;
+                                        if (file_exists('uploads/users/' . $center['profile_image'])) {
+                                            $imgSrc = 'uploads/users/' . rawurlencode($center['profile_image']);
                                         }
                                     }
                                 }
@@ -111,17 +177,36 @@ include 'includes/header.php';
 
                             <div>
                                 <h3 class="font-serif text-xl font-bold leading-tight text-paw-dark">
-                                    <?php echo htmlspecialchars($center['organization_name'] ?? $center['username']); ?>
+                                    <?php echo htmlspecialchars($displayName); ?>
                                 </h3>
                                 <div class="flex flex-col gap-1 mt-1">
-                                    <span class="text-[10px] uppercase tracking-widest font-bold text-gray-400">
-                                        <?php echo htmlspecialchars($center['organization_type'] ?? 'Individual'); ?>
-                                    </span>
-                                    <span class="text-xs font-bold text-paw-accent">
-                                        <?php echo ucfirst($center['role']); ?>
-                                    </span>
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <?php if ($effectiveType === 'Organization'): ?>
+                                            <span
+                                                class="text-[10px] uppercase tracking-widest font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">
+                                                Organization
+                                            </span>
+                                        <?php else: ?>
+                                            <span
+                                                class="text-[10px] uppercase tracking-widest font-bold px-2 py-0.5 rounded-full bg-gray-100 text-paw-dark">
+                                                <?php echo $userRole; ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Paw Score Badge -->
+                        <div class="flex items-center gap-2 mb-6">
+                            <span
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest <?php echo $badge['color']; ?> shadow-sm">
+                                <i data-lucide="<?php echo $badge['icon']; ?>" class="w-3 h-3"></i>
+                                <?php echo $badge['title']; ?>
+                            </span>
+                            <span class="text-xs font-bold text-paw-dark bg-gray-100 px-2.5 py-1 rounded-full">
+                                <?php echo $pawScore; ?> pts
+                            </span>
                         </div>
 
                         <div class="space-y-3 mb-8">
@@ -152,7 +237,7 @@ include 'includes/header.php';
                     </div>
 
                     <div class="flex gap-3 mt-auto">
-                        <?php if (!empty($center['organization_type']) && in_array($center['organization_type'], ['Charity', 'Organization', 'Trust'])): ?>
+                        <?php if ($effectiveType === 'Organization'): ?>
                             <a href="donate.php?id=<?php echo $center['id']; ?>"
                                 class="flex-1 py-3 bg-paw-verified text-white rounded-xl text-xs uppercase tracking-widest font-bold hover:bg-paw-dark transition-colors text-center shadow-lg shadow-paw-verified/20 flex items-center justify-center gap-2">
                                 <i data-lucide="heart" class="w-3 h-3"></i> Donate

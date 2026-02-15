@@ -33,13 +33,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $content = mysqli_real_escape_string($conn, $_POST['content']);
     $imageUpdate = "";
 
+    include_once 'includes/functions.php';
     if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
         $uploadDir = 'uploads/blogs/';
-        if (!is_dir($uploadDir))
-            mkdir($uploadDir, 0777, true);
-        $imageName = time() . '_' . basename($_FILES['image']['name']);
-        $targetPath = $uploadDir . $imageName;
-        if (move_uploaded_file($_FILES['image']['tmp_name'], $targetPath)) {
+        $uploadResult = handleFileUpload($_FILES['image'], $uploadDir);
+
+        if ($uploadResult && isset($uploadResult['success'])) {
+            $imageName = $uploadResult['filename'];
             $imageUpdate = ", image='$imageName'";
             $imageVal = $imageName; // For insert
         }
@@ -168,7 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <label class="block text-sm uppercase tracking-widest font-semibold mb-2">Featured Image</label>
                     <?php if (!empty($blog['image'])): ?>
                         <div class="mb-3">
-                            <img src="uploads/blogs/<?php echo htmlspecialchars($blog['image']); ?>"
+                            <img src="uploads/blogs/<?php echo rawurlencode($blog['image']); ?>"
                                 class="h-32 rounded-lg object-cover">
                         </div>
                     <?php endif; ?>

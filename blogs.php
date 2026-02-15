@@ -2,7 +2,7 @@
 session_start();
 include 'config.php';
 
-$blogs = $conn->query("SELECT * FROM blogs WHERE is_published=1 ORDER BY created_at DESC");
+$blogs = $conn->query("SELECT b.*, u.username as author_username, u.role as author_role FROM blogs b LEFT JOIN users u ON b.author_id = u.id WHERE b.is_published=1 AND b.status='approved' ORDER BY b.created_at DESC");
 
 // Fetch current user if logged in
 $currentUser = null;
@@ -44,7 +44,8 @@ include 'includes/header.php';
             Stories <span class="italic">& Insights</span>
         </h1>
         <p class="text-paw-gray max-w-xl mx-auto text-lg mb-8">
-            A collection of heartwarming journeys, informative articles, and medical advice. Join our community and share
+            A collection of heartwarming journeys, informative articles, and medical advice. Join our community and
+            share
             your experiences.
         </p>
         <a href="create_blog.php"
@@ -62,14 +63,29 @@ include 'includes/header.php';
                 <?php while ($blog = $blogs->fetch_assoc()): ?>
                     <article class="blog-card bg-white rounded-2xl overflow-hidden shadow-lg group">
                         <div class="h-56 overflow-hidden">
-                            <img src="<?php echo $blog['image'] && file_exists('uploads/blogs/' . $blog['image']) ? 'uploads/blogs/' . $blog['image'] : 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600'; ?>"
-                                alt="<?php echo htmlspecialchars($blog['title']); ?>" class="w-full h-full object-cover">
+                            <?php
+                            $blogImgSrc = 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=600';
+                            if (!empty($blog['image'])) {
+                                $blogImgPath = 'uploads/blogs/' . $blog['image'];
+                                if (file_exists($blogImgPath)) {
+                                    $blogImgSrc = 'uploads/blogs/' . rawurlencode($blog['image']);
+                                }
+                            }
+                            ?>
+                            <img src="<?php echo $blogImgSrc; ?>" alt="<?php echo htmlspecialchars($blog['title']); ?>"
+                                class="w-full h-full object-cover">
                         </div>
                         <div class="p-6">
                             <div class="flex items-center gap-4 text-xs text-paw-gray uppercase tracking-widest mb-4">
                                 <span><?php echo date('M d, Y', strtotime($blog['created_at'])); ?></span>
                                 <span>•</span>
-                                <span><?php echo htmlspecialchars($blog['author']); ?></span>
+                                <span><?php echo htmlspecialchars($blog['author_username'] ?? $blog['author']); ?></span>
+                                <?php if (!empty($blog['author_role'])): ?>
+                                    <span
+                                        class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest bg-paw-accent/10 text-paw-accent">
+                                        <?php echo ucfirst($blog['author_role']); ?>
+                                    </span>
+                                <?php endif; ?>
                             </div>
                             <h3 class="font-serif text-2xl mb-3 hover:text-paw-accent transition-colors">
                                 <a

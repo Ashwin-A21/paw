@@ -97,7 +97,7 @@ include 'includes/header.php';
                     <div
                         class="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group border border-gray-100 flex flex-col h-full">
                         <div class="relative h-72 overflow-hidden">
-                            <img src="<?php echo 'uploads/pets/' . htmlspecialchars($pet['image']); ?>"
+                            <img src="<?php echo 'uploads/pets/' . rawurlencode($pet['image']); ?>"
                                 alt="<?php echo htmlspecialchars($pet['name']); ?>"
                                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
                             <div
@@ -136,7 +136,7 @@ include 'includes/header.php';
                                         Details
                                     </a>
                                     <?php if (isset($_SESSION['user_id'])): ?>
-                                        <a href="adopt_form.php?pet_id=<?php echo $pet['id']; ?>"
+                                        <a href="adopt-apply.php?pet=<?php echo $pet['id']; ?>"
                                             class="flex-1 py-3 bg-paw-accent text-white rounded-xl text-center text-sm font-bold uppercase tracking-widest hover:bg-paw-dark transition-colors shadow-lg shadow-paw-accent/20">
                                             Adopt
                                         </a>
@@ -151,14 +151,14 @@ include 'includes/header.php';
                         </div>
                     </div>
                 <?php endwhile; ?>
-                </div>
-            <?php else: ?>
-                <div class="col-span-full text-center py-20 text-gray-500">
-                    <p class="text-xl font-bold">No pets found</p>
-                    <p>Try different search criteria.</p>
-                </div>
-            <?php endif; ?>
-        </div>
+            </div>
+        <?php else: ?>
+            <div class="col-span-full text-center py-20 text-gray-500">
+                <p class="text-xl font-bold">No pets found</p>
+                <p>Try different search criteria.</p>
+            </div>
+        <?php endif; ?>
+    </div>
 </section>
 
 <?php include 'includes/footer.php'; ?>

@@ -26,16 +26,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // File Upload (Priority)
+        include_once '../includes/functions.php';
         if (isset($_FILES['profile_image']) && $_FILES['profile_image']['error'] === 0) {
             $uploadDir = '../uploads/users/';
-            if (!is_dir($uploadDir))
-                mkdir($uploadDir, 0777, true);
+            $uploadResult = handleFileUpload($_FILES['profile_image'], $uploadDir);
 
-            $imageName = time() . '_' . basename($_FILES['profile_image']['name']);
-            $targetPath = $uploadDir . $imageName;
-
-            if (move_uploaded_file($_FILES['profile_image']['tmp_name'], $targetPath)) {
+            if ($uploadResult && isset($uploadResult['success'])) {
+                $imageName = $uploadResult['filename'];
                 $imageUpdate = "profile_image='$imageName'";
+                $imageProcessed = true;
             }
         }
 
@@ -58,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $phone = mysqli_real_escape_string($conn, $_POST['phone']);
         $gender = mysqli_real_escape_string($conn, $_POST['gender']);
         $dob = mysqli_real_escape_string($conn, $_POST['dob']);
+        $address = mysqli_real_escape_string($conn, $_POST['address']);
 
         // Password Update Logic
         $passwordSql = "";
@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (empty($error)) {
-            $updateSql = "UPDATE users SET username='$username', email='$email', phone='$phone', gender='$gender', dob='$dob' $passwordSql WHERE id=$userId";
+            $updateSql = "UPDATE users SET username='$username', email='$email', phone='$phone', gender='$gender', dob='$dob', address='$address' $passwordSql WHERE id=$userId";
             if ($conn->query($updateSql)) {
                 $_SESSION['username'] = $username;
                 $message = "Profile updated successfully!";
@@ -179,7 +179,7 @@ include '../includes/header.php';
                             $basePath = '../uploads/users/';
                             // Check if file exists to prevent broken images
                             if (file_exists($basePath . $user['profile_image'])) {
-                                $imgSrc = $basePath . htmlspecialchars($user['profile_image']);
+                                $imgSrc = $basePath . rawurlencode($user['profile_image']);
                             }
                         }
                     }
@@ -265,10 +265,19 @@ include '../includes/header.php';
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Email Address</label>
-                    <input type="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required
-                        class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent transition-colors">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Email Address</label>
+                        <input type="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>"
+                            required
+                            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Address</label>
+                        <input type="text" name="address"
+                            value="<?php echo htmlspecialchars($user['address'] ?? ''); ?>" placeholder="City, Country"
+                            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent transition-colors">
+                    </div>
                 </div>
 
                 <div class="pt-8 border-t border-gray-100">
@@ -491,7 +500,8 @@ include '../includes/header.php';
             function toggleOrgFields() {
                 const role = document.getElementById('roleSelect').value;
                 const orgFields = document.getElementById('orgFields');
-                if (role === 'organization') {
+                // Show org fields for all roles - users can specify if they're individual or organization
+                if (role) {
                     orgFields.classList.remove('hidden');
                 } else {
                     orgFields.classList.add('hidden');

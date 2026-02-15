@@ -78,8 +78,8 @@ function volunteerSidebarLinkClass($page, $currentPage)
                             $imgSrc = $sidebarUser['profile_image'];
                         } else {
                             $imgPath = '../uploads/users/';
-                            if (file_exists($imgPath . $sidebarUser['profile_image'])) {
-                                $imgSrc = $imgPath . htmlspecialchars($sidebarUser['profile_image']);
+                            if (file_exists('../uploads/users/' . $sidebarUser['profile_image'])) {
+                                $imgSrc = '../uploads/users/' . rawurlencode($sidebarUser['profile_image']);
                             }
                         }
                     }

@@ -107,8 +107,8 @@ if (!$canView) {
     <?php if ($blog['image'] && file_exists('uploads/blogs/' . $blog['image'])): ?>
         <div class="pt-20 h-[50vh] relative overflow-hidden">
             <div class="absolute inset-0 bg-gradient-to-b from-paw-dark/50 to-paw-dark/20"></div>
-            <img src="uploads/blogs/<?php echo $blog['image']; ?>" alt="<?php echo htmlspecialchars($blog['title']); ?>"
-                class="w-full h-full object-cover">
+            <img src="uploads/blogs/<?php echo rawurlencode($blog['image']); ?>"
+                alt="<?php echo htmlspecialchars($blog['title']); ?>" class="w-full h-full object-cover">
         </div>
     <?php else: ?>
         <div class="pt-32"></div>

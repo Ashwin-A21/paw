@@ -236,9 +236,8 @@ $basePath = '../';
                                             if (strpos($fb['profile_image'], 'http') === 0) {
                                                 $avatarSrc = $fb['profile_image'];
                                             } else {
-                                                $localPath = '../uploads/users/' . $fb['profile_image'];
-                                                if (file_exists($localPath)) {
-                                                    $avatarSrc = $localPath;
+                                                if (file_exists('../uploads/users/' . $fb['profile_image'])) {
+                                                    $avatarSrc = '../uploads/users/' . rawurlencode($fb['profile_image']);
                                                 }
                                             }
                                         }

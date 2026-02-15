@@ -16,7 +16,9 @@ $myRescues = $conn->query("SELECT r.*, u.username as reporter_username FROM resc
 
 // Stats
 $totalReported = $myReports ? $myReports->num_rows : 0;
-$totalRescued = $myRescues ? $myRescues->num_rows : 0;
+// Fetch lives_saved from users table for consistent stats
+$userStats = $conn->query("SELECT lives_saved FROM users WHERE id = $userId")->fetch_assoc();
+$totalRescued = $userStats['lives_saved'] ?? 0;
 
 $basePath = '../';
 include '../includes/header.php';
@@ -120,12 +122,18 @@ include '../includes/header.php';
                         $urgencyClass = $urgencyColors[$report['urgency']] ?? 'bg-gray-100 text-gray-700';
                         ?>
                         <div
-                            class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                            class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden relative">
+                            <?php if ($report['status'] === 'Rescued' || $report['status'] === 'Closed'): ?>
+                                <div
+                                    class="absolute top-0 right-0 bg-green-500 text-white px-3 py-1 rounded-bl-2xl text-[10px] font-bold uppercase tracking-widest shadow-sm z-10 flex items-center gap-1">
+                                    <i data-lucide="check-circle" class="w-3 h-3"></i> Rescued
+                                </div>
+                            <?php endif; ?>
                             <div class="flex flex-col md:flex-row">
                                 <!-- Image -->
                                 <?php if (!empty($report['image'])): ?>
                                     <div class="w-full md:w-48 h-40 md:h-auto flex-shrink-0 overflow-hidden">
-                                        <img src="../uploads/rescues/<?php echo htmlspecialchars($report['image']); ?>"
+                                        <img src="../uploads/rescues/<?php echo rawurlencode($report['image']); ?>"
                                             class="w-full h-full object-cover" alt="Rescue">
                                     </div>
                                 <?php endif; ?>
@@ -169,6 +177,11 @@ include '../includes/header.php';
                                             </span>
                                         <?php endif; ?>
                                     </div>
+
+                                    <a href="../rescue-details.php?id=<?php echo $report['id']; ?>"
+                                        class="mt-3 inline-flex items-center gap-2 text-sm text-paw-accent hover:text-paw-dark font-bold uppercase tracking-widest transition-colors">
+                                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i> View Details & Discussion
+                                    </a>
 
                                     <!-- Status Timeline -->
                                     <?php if ($report['status'] !== 'Reported'): ?>
@@ -241,12 +254,18 @@ include '../includes/header.php';
                         $urgencyClass = $urgencyColors[$rescue['urgency']] ?? 'bg-gray-100 text-gray-700';
                         ?>
                         <div
-                            class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                            class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow overflow-hidden relative">
+                            <?php if ($rescue['status'] === 'Rescued' || $rescue['status'] === 'Closed'): ?>
+                                <div
+                                    class="absolute top-0 right-0 bg-green-500 text-white px-3 py-1 rounded-bl-2xl text-[10px] font-bold uppercase tracking-widest shadow-sm z-10 flex items-center gap-1">
+                                    <i data-lucide="check-circle" class="w-3 h-3"></i> Rescued
+                                </div>
+                            <?php endif; ?>
                             <div class="flex flex-col md:flex-row">
                                 <!-- Image -->
                                 <?php if (!empty($rescue['image'])): ?>
                                     <div class="w-full md:w-48 h-40 md:h-auto flex-shrink-0 overflow-hidden">
-                                        <img src="../uploads/rescues/<?php echo htmlspecialchars($rescue['image']); ?>"
+                                        <img src="../uploads/rescues/<?php echo rawurlencode($rescue['image']); ?>"
                                             class="w-full h-full object-cover" alt="Rescue">
                                     </div>
                                 <?php endif; ?>
@@ -308,6 +327,11 @@ include '../includes/header.php';
                                             </span>
                                         <?php endif; ?>
                                     </div>
+
+                                    <a href="../rescue-details.php?id=<?php echo $rescue['id']; ?>"
+                                        class="mt-3 inline-flex items-center gap-2 text-sm text-paw-accent hover:text-paw-dark font-bold uppercase tracking-widest transition-colors">
+                                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i> View Details & Discussion
+                                    </a>
 
                                     <!-- Status Timeline -->
                                     <div class="mt-4 pt-4 border-t border-gray-50">

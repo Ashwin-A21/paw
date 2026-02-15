@@ -158,7 +158,7 @@ $basePath = '../';
                                     </td>
                                     <td class="p-4">
                                         <?php if ($row['document_proof']): ?>
-                                            <a href="../uploads/proofs/<?php echo htmlspecialchars($row['document_proof']); ?>"
+                                            <a href="../uploads/proofs/<?php echo rawurlencode($row['document_proof']); ?>"
                                                 target="_blank"
                                                 class="text-paw-accent hover:underline text-sm font-medium flex items-center gap-1">
                                                 <i data-lucide="file-check" class="w-4 h-4"></i> View Doc

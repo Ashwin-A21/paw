@@ -241,7 +241,7 @@ CREATE TABLE `users` (
   `password` varchar(255) NOT NULL,
   `phone` varchar(20) DEFAULT NULL,
   `address` text DEFAULT NULL,
-  `role` enum('user','admin','volunteer','rescuer') DEFAULT 'user',
+  `role` enum('user','admin','volunteer','rescuer','organization') DEFAULT 'user',
   `is_verified` tinyint(1) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `gender` varchar(20) DEFAULT NULL,
@@ -261,7 +261,7 @@ INSERT INTO `users` (`id`, `username`, `email`, `password`, `phone`, `address`, 
 (2, 'John User', 'john@example.com', '1234', NULL, NULL, 'user', 1, '2026-02-02 05:26:50', NULL, NULL, NULL, 0, NULL, NULL),
 (3, 'Sarah G Volunteer', 'sarah@volunteer.com', '12345', '987654321', NULL, 'volunteer', 1, '2026-02-02 05:26:50', '', '0000-00-00', 'https://api.dicebear.com/9.x/toon-head/svg?seed=Aneka', 6, 'Individual', ''),
 (4, 'Mike Rescuer', 'mike@rescuer.com', '1234', NULL, NULL, 'rescuer', 1, '2026-02-02 05:26:50', NULL, NULL, NULL, 8, NULL, NULL),
-(5, 'Ash lord', 'ash@gmail.com', '12345', '9897654321', NULL, 'user', 1, '2026-02-02 05:27:38', '', '2002-10-21', 'https://api.dicebear.com/9.x/adventurer/svg?seed=Aneka', 9, NULL, NULL);
+(5, 'Ash lord', 'ash@gmail.com', '12345', '9897654321', NULL, 'organization', 1, '2026-02-02 05:27:38', '', '2002-10-21', 'https://api.dicebear.com/9.x/adventurer/svg?seed=Aneka', 9, 'Trust', NULL);
 
 --
 -- Indexes for dumped tables
@@ -450,6 +450,26 @@ ALTER TABLE `role_requests`
 ALTER TABLE `tasks`
   ADD CONSTRAINT `tasks_ibfk_1` FOREIGN KEY (`assigned_to`) REFERENCES `users` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `tasks_ibfk_2` FOREIGN KEY (`rescue_report_id`) REFERENCES `rescue_reports` (`id`) ON DELETE SET NULL;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `comments`
+--
+
+CREATE TABLE IF NOT EXISTS `comments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `entity_type` enum('pet','rescue') NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `comment` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `entity_type` (`entity_type`, `entity_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
