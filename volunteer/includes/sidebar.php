@@ -72,7 +72,7 @@ function volunteerSidebarLinkClass($page, $currentPage)
             <div class="flex items-center gap-3 mb-4">
                 <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white/20">
                     <img src="<?php
-                    $imgSrc = 'https://ui-avatars.com/api/?name=' . urlencode($sidebarUser['username']);
+                    $imgSrc = 'https://api.dicebear.com/9.x/toon-head/svg?seed=' . urlencode($sidebarUser['username']);
                     if (!empty($sidebarUser['profile_image'])) {
                         if (strpos($sidebarUser['profile_image'], 'http') === 0) {
                             $imgSrc = $sidebarUser['profile_image'];

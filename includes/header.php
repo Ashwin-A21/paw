@@ -166,37 +166,79 @@ if (isset($isTransparentHeader) && $isTransparentHeader) {
                                     $dashboardUrl = $basePath . 'volunteer/index.php';
                             }
                             ?>
-                            <a href="<?php echo $dashboardUrl; ?>"
-                                class="text-sm uppercase tracking-widest hover:text-paw-accent transition-colors">Dashboard</a>
 
-                            <a href="<?php echo $basePath; ?>public/profile.php"
-                                class="relative w-10 h-10 rounded-full overflow-hidden border-2 border-paw-accent hover:border-paw-dark transition-colors group">
-                                <img src="<?php
-                                $username = $currentUser['username'] ?? 'User';
-                                $imgSrc = 'https://ui-avatars.com/api/?name=' . urlencode($username);
-                                if (!empty($currentUser['profile_image'])) {
-                                    if (strpos($currentUser['profile_image'], 'http') === 0) {
-                                        $imgSrc = $currentUser['profile_image'];
-                                    } else {
-                                        // Handle relative path for standard navbar
-                                        // uploads is in root/uploads
-                                        // If we are in root, $basePath is empty. Uploads is at uploads/
-                                        // If we are in public/, $basePath is ../. Uploads is at ../uploads/
-                                        $paramsPath = $basePath . 'uploads/users/';
-                                        if (file_exists(__DIR__ . '/../uploads/users/' . $currentUser['profile_image'])) {
-                                            // Simplify check: just trust the path construction relative to browser URL
-                                            $imgSrc = $paramsPath . htmlspecialchars($currentUser['profile_image']);
+                            <!-- Profile Dropdown -->
+                            <div class="relative" id="profileDropdownContainer">
+                                <button onclick="toggleProfileDropdown()"
+                                    class="relative w-10 h-10 rounded-full overflow-hidden border-2 border-paw-accent hover:border-paw-dark transition-colors focus:outline-none focus:ring-2 focus:ring-paw-accent focus:ring-offset-2 cursor-pointer">
+                                    <img src="<?php
+                                    $username = $currentUser['username'] ?? 'User';
+                                    $imgSrc = 'https://api.dicebear.com/9.x/toon-head/svg?seed=' . urlencode($username);
+                                    if (!empty($currentUser['profile_image'])) {
+                                        if (strpos($currentUser['profile_image'], 'http') === 0) {
+                                            $imgSrc = $currentUser['profile_image'];
+                                        } else {
+                                            $paramsPath = $basePath . 'uploads/users/';
+                                            if (file_exists(__DIR__ . '/../uploads/users/' . $currentUser['profile_image'])) {
+                                                $imgSrc = $paramsPath . htmlspecialchars($currentUser['profile_image']);
+                                            }
                                         }
                                     }
-                                }
-                                echo $imgSrc;
-                                ?>" class="w-full h-full object-cover">
-                            </a>
+                                    echo $imgSrc;
+                                    ?>" class="w-full h-full object-cover" alt="Profile">
+                                </button>
 
-                            <a href="<?php echo $basePath; ?>logout.php"
-                                class="group relative px-6 py-2.5 bg-paw-dark text-white rounded-full overflow-hidden flex items-center justify-center">
-                                <span class="relative z-10 text-xs font-bold uppercase tracking-widest">Logout</span>
-                            </a>
+                                <!-- Dropdown Menu -->
+                                <div id="profileDropdown"
+                                    class="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 py-3 opacity-0 invisible transform -translate-y-2 transition-all duration-200 z-[999]">
+
+                                    <!-- User Info Header -->
+                                    <div class="px-5 py-3 border-b border-gray-100">
+                                        <p class="font-serif text-lg font-bold text-paw-dark truncate">
+                                            <?php echo htmlspecialchars($currentUser['username'] ?? 'User'); ?></p>
+                                        <p class="text-xs text-paw-gray truncate">
+                                            <?php echo htmlspecialchars($currentUser['email'] ?? ''); ?></p>
+                                        <span
+                                            class="inline-block mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-paw-accent/10 text-paw-accent">
+                                            <?php echo ucfirst($_SESSION['role'] ?? 'user'); ?>
+                                        </span>
+                                    </div>
+
+                                    <!-- Menu Items -->
+                                    <div class="py-2">
+                                        <a href="<?php echo $basePath; ?>public/profile.php"
+                                            class="flex items-center gap-3 px-5 py-2.5 text-sm text-gray-700 hover:bg-paw-bg hover:text-paw-accent transition-colors">
+                                            <i data-lucide="user" class="w-4 h-4"></i>
+                                            My Profile
+                                        </a>
+                                        <a href="<?php echo $dashboardUrl; ?>"
+                                            class="flex items-center gap-3 px-5 py-2.5 text-sm text-gray-700 hover:bg-paw-bg hover:text-paw-accent transition-colors">
+                                            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                                            Dashboard
+                                        </a>
+                                        <a href="<?php echo $basePath; ?>public/my-pets.php"
+                                            class="flex items-center gap-3 px-5 py-2.5 text-sm text-gray-700 hover:bg-paw-bg hover:text-paw-accent transition-colors">
+                                            <i data-lucide="heart" class="w-4 h-4"></i>
+                                            My Pets
+                                        </a>
+                                        <a href="<?php echo $basePath; ?>rescue.php"
+                                            class="flex items-center gap-3 px-5 py-2.5 text-sm text-gray-700 hover:bg-paw-bg hover:text-paw-accent transition-colors">
+                                            <i data-lucide="siren" class="w-4 h-4"></i>
+                                            My Rescue Reports
+                                        </a>
+                                    </div>
+
+                                    <!-- Logout -->
+                                    <div class="border-t border-gray-100 pt-2">
+                                        <a href="<?php echo $basePath; ?>logout.php"
+                                            class="flex items-center gap-3 px-5 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors">
+                                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                                            Logout
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
                         <?php else: ?>
                             <a href="<?php echo $basePath; ?>login.php"
                                 class="text-sm uppercase tracking-widest hover:text-paw-accent transition-colors">Login</a>
@@ -218,4 +260,31 @@ if (isset($isTransparentHeader) && $isTransparentHeader) {
                 </div>
             </div>
         </nav>
+
+        <script>
+            function toggleProfileDropdown() {
+                const dropdown = document.getElementById('profileDropdown');
+                if (!dropdown) return;
+                
+                if (dropdown.classList.contains('invisible')) {
+                    dropdown.classList.remove('invisible', 'opacity-0', '-translate-y-2');
+                    dropdown.classList.add('visible', 'opacity-100', 'translate-y-0');
+                    // Re-init lucide icons for dropdown items
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                } else {
+                    dropdown.classList.add('invisible', 'opacity-0', '-translate-y-2');
+                    dropdown.classList.remove('visible', 'opacity-100', 'translate-y-0');
+                }
+            }
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                const container = document.getElementById('profileDropdownContainer');
+                const dropdown = document.getElementById('profileDropdown');
+                if (container && dropdown && !container.contains(e.target)) {
+                    dropdown.classList.add('invisible', 'opacity-0', '-translate-y-2');
+                    dropdown.classList.remove('visible', 'opacity-100', 'translate-y-0');
+                }
+            });
+        </script>
     <?php endif; ?>

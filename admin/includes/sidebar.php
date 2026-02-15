@@ -50,6 +50,12 @@ function sidebarLinkClass($page, $currentPage)
         <a href="users.php" class="<?php echo sidebarLinkClass('users.php', $currentPage); ?>">
             <i data-lucide="users" class="w-5 h-5"></i> Users
         </a>
+        <a href="requests.php" class="<?php echo sidebarLinkClass('requests.php', $currentPage); ?>">
+            <i data-lucide="shield-check" class="w-5 h-5"></i> Requests
+        </a>
+        <a href="feedback.php" class="<?php echo sidebarLinkClass('feedback.php', $currentPage); ?>">
+            <i data-lucide="message-square-heart" class="w-5 h-5"></i> Feedback
+        </a>
         <a href="profile.php" class="<?php echo sidebarLinkClass('profile.php', $currentPage); ?>">
             <i data-lucide="user-circle" class="w-5 h-5"></i> My Profile
         </a>
@@ -60,7 +66,7 @@ function sidebarLinkClass($page, $currentPage)
             <div class="flex items-center gap-3 mb-4">
                 <div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white/20">
                     <img src="<?php
-                    $imgSrc = 'https://ui-avatars.com/api/?name=' . urlencode($sidebarUser['username']);
+                    $imgSrc = 'https://api.dicebear.com/9.x/toon-head/svg?seed=' . urlencode($sidebarUser['username']);
                     if (!empty($sidebarUser['profile_image'])) {
                         if (strpos($sidebarUser['profile_image'], 'http') === 0) {
                             $imgSrc = $sidebarUser['profile_image'];

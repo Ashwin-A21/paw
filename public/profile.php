@@ -88,6 +88,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
+    // 3. Handle Feedback Submission
+    elseif (isset($_POST['action']) && $_POST['action'] === 'submit_feedback') {
+        $rating = (int) $_POST['rating'];
+        $feedback_message = mysqli_real_escape_string($conn, $_POST['message']);
+
+        if ($conn->query("INSERT INTO feedback (user_id, rating, message) VALUES ($userId, $rating, '$feedback_message')")) {
+            $message = "Thank you for your feedback!";
+        } else {
+            $error = "Error submitting feedback: " . $conn->error;
+        }
+    }
+    // 4. Handle Role Upgrade Request
+    elseif (isset($_POST['action']) && $_POST['action'] === 'request_role') {
+        $requested_role = mysqli_real_escape_string($conn, $_POST['requested_role']);
+        $org_type = isset($_POST['organization_type']) ? mysqli_real_escape_string($conn, $_POST['organization_type']) : NULL;
+        $org_name = isset($_POST['organization_name']) ? mysqli_real_escape_string($conn, $_POST['organization_name']) : NULL;
+
+        $proof_doc = NULL;
+        if (isset($_FILES['document_proof']) && $_FILES['document_proof']['error'] === 0) {
+            $uploadDir = '../uploads/proofs/';
+            if (!is_dir($uploadDir))
+                mkdir($uploadDir, 0777, true);
+            $fileName = time() . '_' . basename($_FILES['document_proof']['name']);
+            if (move_uploaded_file($_FILES['document_proof']['tmp_name'], $uploadDir . $fileName)) {
+                $proof_doc = $fileName;
+            }
+        }
+
+        $sql = "INSERT INTO role_requests (user_id, requested_role, organization_name, organization_type, document_proof) 
+                VALUES ($userId, '$requested_role', '$org_name', '$org_type', '$proof_doc')";
+
+        if ($conn->query($sql)) {
+            $message = "Your request has been submitted for admin approval.";
+        } else {
+            $error = "Error submitting request: " . $conn->error;
+        }
+    }
 }
 
 // Fetch current user data
@@ -134,7 +171,7 @@ include '../includes/header.php';
             <div class="flex flex-col md:flex-row items-center gap-8 mb-8 pb-8 border-b border-gray-100">
                 <div class="relative w-32 h-32 flex-shrink-0 group cursor-pointer" onclick="openImageModal()">
                     <img src="<?php
-                    $imgSrc = 'https://ui-avatars.com/api/?name=' . urlencode($user['username']); // Default fallback
+                    $imgSrc = 'https://api.dicebear.com/9.x/toon-head/svg?seed=' . urlencode($user['username']); // Default fallback
                     if (!empty($user['profile_image'])) {
                         if (strpos($user['profile_image'], 'http') === 0) {
                             $imgSrc = $user['profile_image']; // It's a URL (default avatar)
@@ -269,6 +306,198 @@ include '../includes/header.php';
                 </div>
             </form>
         </div>
+
+        <!-- Role Upgrade & Feedback Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            <!-- Role Upgrade -->
+            <div class="bg-white rounded-2xl shadow-sm overflow-hidden p-8">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                        <i data-lucide="shield-check" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-serif text-xl font-bold">Upgrade Role</h3>
+                        <p class="text-xs text-paw-gray uppercase tracking-widest">Become a Partner</p>
+                    </div>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data" class="space-y-4">
+                    <input type="hidden" name="action" value="request_role">
+
+                    <div>
+                        <label class="block text-sm font-bold uppercase tracking-widest mb-2">I want to be a</label>
+                        <select name="requested_role" id="roleSelect" onchange="toggleOrgFields()" required
+                            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent">
+                            <option value="">Select Role</option>
+                            <option value="volunteer">Volunteer</option>
+                            <option value="rescuer">Rescuer</option>
+                            <option value="organization">Organization / Charity</option>
+                        </select>
+                    </div>
+
+                    <div id="orgFields" class="hidden space-y-4">
+                        <div>
+                            <label class="block text-sm font-bold uppercase tracking-widest mb-2">Organization
+                                Type</label>
+                            <select name="organization_type"
+                                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent">
+                                <option value="Individual">Individual</option>
+                                <option value="Charity">Charity</option>
+                                <option value="Organization">Organization</option>
+                                <option value="Trust">Trust</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold uppercase tracking-widest mb-2">Organization
+                                Name</label>
+                            <input type="text" name="organization_name"
+                                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold uppercase tracking-widest mb-2">Upload Proof (ID/Reg
+                            Doc)</label>
+                        <input type="file" name="document_proof"
+                            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-paw-accent/10 file:text-paw-accent hover:file:bg-paw-accent/20">
+                    </div>
+
+                    <button type="submit"
+                        class="w-full py-3 bg-paw-dark text-white rounded-xl font-bold uppercase tracking-widest text-sm hover:bg-paw-accent transition-colors">
+                        Submit Application
+                    </button>
+                </form>
+            </div>
+
+            <!-- Feedback -->
+            <div class="bg-white rounded-2xl shadow-sm overflow-hidden p-8">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-3 bg-yellow-50 text-yellow-600 rounded-xl">
+                        <i data-lucide="message-square-heart" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-serif text-xl font-bold">Give Feedback</h3>
+                        <p class="text-xs text-paw-gray uppercase tracking-widest">Help us improve</p>
+                    </div>
+                </div>
+
+                <form method="POST" class="space-y-4" onsubmit="return validateFeedback()">
+                    <input type="hidden" name="action" value="submit_feedback">
+                    <input type="hidden" name="rating" id="ratingInput" value="0">
+
+                    <div>
+                        <label class="block text-sm font-bold uppercase tracking-widest mb-3">Your Rating</label>
+                        <div class="flex gap-2" id="starContainer">
+                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                <button type="button" onclick="setRating(<?php echo $i; ?>)"
+                                    class="star-btn focus:outline-none transform hover:scale-110 transition-transform"
+                                    data-star="<?php echo $i; ?>">
+                                    <svg class="w-10 h-10 transition-colors duration-200" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <polygon
+                                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+                                            class="star-path" />
+                                    </svg>
+                                </button>
+                            <?php endfor; ?>
+                        </div>
+                        <p id="ratingText" class="text-xs text-paw-gray mt-2">Click a star to rate</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold uppercase tracking-widest mb-2">Message</label>
+                        <textarea name="message" rows="4" required
+                            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent resize-none placeholder-gray-300"
+                            placeholder="Tell us what you think..."></textarea>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full py-3 bg-paw-accent text-white rounded-xl font-bold uppercase tracking-widest text-sm hover:bg-paw-dark transition-colors">
+                        Send Feedback
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            const ratingLabels = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+            let currentRating = 0;
+
+            function setRating(value) {
+                currentRating = value;
+                document.getElementById('ratingInput').value = value;
+                document.getElementById('ratingText').textContent = ratingLabels[value] + ' (' + value + '/5)';
+                updateStars(value);
+            }
+
+            function updateStars(rating) {
+                const stars = document.querySelectorAll('.star-btn');
+                stars.forEach((btn, index) => {
+                    const path = btn.querySelector('.star-path');
+                    if (index < rating) {
+                        path.setAttribute('fill', '#FBBF24');
+                        path.setAttribute('stroke', '#F59E0B');
+                        btn.style.color = '#F59E0B';
+                    } else {
+                        path.setAttribute('fill', 'none');
+                        path.setAttribute('stroke', 'currentColor');
+                        btn.style.color = '#D1D5DB';
+                    }
+                });
+            }
+
+            // Hover preview
+            document.querySelectorAll('.star-btn').forEach((btn) => {
+                btn.addEventListener('mouseenter', function () {
+                    const hoverVal = parseInt(this.dataset.star);
+                    const stars = document.querySelectorAll('.star-btn');
+                    stars.forEach((b, index) => {
+                        const path = b.querySelector('.star-path');
+                        if (index < hoverVal) {
+                            path.setAttribute('fill', '#FDE68A');
+                            path.setAttribute('stroke', '#FBBF24');
+                            b.style.color = '#FBBF24';
+                        } else if (index < currentRating) {
+                            path.setAttribute('fill', '#FBBF24');
+                            path.setAttribute('stroke', '#F59E0B');
+                            b.style.color = '#F59E0B';
+                        } else {
+                            path.setAttribute('fill', 'none');
+                            path.setAttribute('stroke', 'currentColor');
+                            b.style.color = '#D1D5DB';
+                        }
+                    });
+                });
+            });
+
+            document.getElementById('starContainer').addEventListener('mouseleave', function () {
+                updateStars(currentRating);
+            });
+
+            function validateFeedback() {
+                if (currentRating === 0) {
+                    alert('Please select a rating before submitting.');
+                    return false;
+                }
+                return true;
+            }
+
+            // Init stars color
+            updateStars(0);
+        </script>
+
+        <script>
+            function toggleOrgFields() {
+                const role = document.getElementById('roleSelect').value;
+                const orgFields = document.getElementById('orgFields');
+                if (role === 'organization') {
+                    orgFields.classList.remove('hidden');
+                } else {
+                    orgFields.classList.add('hidden');
+                }
+            }
+        </script>
     </div>
 </section>
 
@@ -325,7 +554,7 @@ include '../includes/header.php';
                     <?php
                     $seeds = ['Felix', 'Aneka', 'Mittens', 'Bella', 'Charlie', 'Max', 'Luna', 'Oliver'];
                     foreach ($seeds as $seed) {
-                        $avatarUrl = "https://api.dicebear.com/9.x/adventurer/svg?seed=" . $seed;
+                        $avatarUrl = "https://api.dicebear.com/9.x/toon-head/svg?seed=" . $seed;
                         echo '<label class="cursor-pointer relative group flex-shrink-0">
                                 <input type="radio" name="default_avatar" value="' . $avatarUrl . '" class="peer sr-only">
                                 <div class="relative">
