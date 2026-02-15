@@ -195,9 +195,11 @@ if (isset($isTransparentHeader) && $isTransparentHeader) {
                                     <!-- User Info Header -->
                                     <div class="px-5 py-3 border-b border-gray-100">
                                         <p class="font-serif text-lg font-bold text-paw-dark truncate">
-                                            <?php echo htmlspecialchars($currentUser['username'] ?? 'User'); ?></p>
+                                            <?php echo htmlspecialchars($currentUser['username'] ?? 'User'); ?>
+                                        </p>
                                         <p class="text-xs text-paw-gray truncate">
-                                            <?php echo htmlspecialchars($currentUser['email'] ?? ''); ?></p>
+                                            <?php echo htmlspecialchars($currentUser['email'] ?? ''); ?>
+                                        </p>
                                         <span
                                             class="inline-block mt-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-paw-accent/10 text-paw-accent">
                                             <?php echo ucfirst($_SESSION['role'] ?? 'user'); ?>
@@ -221,7 +223,7 @@ if (isset($isTransparentHeader) && $isTransparentHeader) {
                                             <i data-lucide="heart" class="w-4 h-4"></i>
                                             My Pets
                                         </a>
-                                        <a href="<?php echo $basePath; ?>rescue.php"
+                                        <a href="<?php echo $basePath; ?>public/my-rescues.php"
                                             class="flex items-center gap-3 px-5 py-2.5 text-sm text-gray-700 hover:bg-paw-bg hover:text-paw-accent transition-colors">
                                             <i data-lucide="siren" class="w-4 h-4"></i>
                                             My Rescue Reports
@@ -265,7 +267,7 @@ if (isset($isTransparentHeader) && $isTransparentHeader) {
             function toggleProfileDropdown() {
                 const dropdown = document.getElementById('profileDropdown');
                 if (!dropdown) return;
-                
+
                 if (dropdown.classList.contains('invisible')) {
                     dropdown.classList.remove('invisible', 'opacity-0', '-translate-y-2');
                     dropdown.classList.add('visible', 'opacity-100', 'translate-y-0');
@@ -278,7 +280,7 @@ if (isset($isTransparentHeader) && $isTransparentHeader) {
             }
 
             // Close dropdown when clicking outside
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 const container = document.getElementById('profileDropdownContainer');
                 const dropdown = document.getElementById('profileDropdown');
                 if (container && dropdown && !container.contains(e.target)) {
