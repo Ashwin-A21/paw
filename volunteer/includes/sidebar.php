@@ -59,7 +59,7 @@ function volunteerSidebarLinkClass($page, $currentPage)
         </a>
         <a href="../blogs.php"
             class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">
-            <i data-lucide="book-open" class="w-5 h-5"></i> Success Stories
+            <i data-lucide="book-open" class="w-5 h-5"></i> Stories & Insights
         </a>
         <a href="../public/index.php"
             class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/70 hover:bg-white/5 hover:text-white mb-2 transition-colors">

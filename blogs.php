@@ -41,11 +41,11 @@ include 'includes/header.php';
     <div class="max-w-7xl mx-auto text-center">
         <p class="text-sm uppercase tracking-[0.3em] text-paw-accent mb-4">Paw Pal Community</p>
         <h1 class="font-serif text-5xl md:text-7xl text-paw-dark mb-6">
-            Success <span class="italic">Stories</span>
+            Stories <span class="italic">& Insights</span>
         </h1>
         <p class="text-paw-gray max-w-xl mx-auto text-lg mb-8">
-            Celebrating the heartwarming journeys of pets finding their forever homes. Join our community and share
-            your story.
+            A collection of heartwarming journeys, informative articles, and medical advice. Join our community and share
+            your experiences.
         </p>
         <a href="create_blog.php"
             class="inline-flex items-center gap-2 px-8 py-3 bg-paw-dark text-white rounded-full text-sm uppercase tracking-widest font-bold hover:bg-paw-accent transition-colors">
@@ -91,8 +91,8 @@ include 'includes/header.php';
                 <div class="w-20 h-20 bg-paw-accent/10 rounded-full flex items-center justify-center mx-auto mb-6">
                     <i data-lucide="book-open" class="w-10 h-10 text-paw-accent"></i>
                 </div>
-                <h3 class="font-serif text-3xl mb-4">No Stories Yet</h3>
-                <p class="text-paw-gray">Check back soon for updates and heartwarming stories!</p>
+                <h3 class="font-serif text-3xl mb-4">No Articles Yet</h3>
+                <p class="text-paw-gray">Check back soon for updates, stories, and tips!</p>
             </div>
         <?php endif; ?>
     </div>

@@ -96,7 +96,8 @@ if (!$canView) {
                     <a href="adopt.php"
                         class="text-sm uppercase tracking-widest hover:text-paw-accent transition-colors">Adopt</a>
                     <a href="blogs.php"
-                        class="text-sm uppercase tracking-widest text-paw-accent transition-colors">Success Stories</a>
+                        class="text-sm uppercase tracking-widest text-paw-accent transition-colors">Stories &
+                        Insights</a>
                 </div>
             </div>
         </div>
@@ -117,7 +118,7 @@ if (!$canView) {
     <article class="py-16 px-6">
         <div class="max-w-3xl mx-auto">
             <a href="blogs.php" class="inline-flex items-center gap-2 text-paw-accent hover:underline mb-8">
-                <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Success Stories
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Articles
             </a>
 
             <header class="mb-12">

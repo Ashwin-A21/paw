@@ -183,7 +183,7 @@ include '../includes/header.php';
                     <?php if ($user['is_verified']): ?>
                         <a href="../create_blog.php"
                             class="inline-flex items-center gap-2 text-sm text-paw-accent hover:underline font-medium">
-                            <i data-lucide="pen-tool" class="w-4 h-4"></i> Share a Success Story
+                            <i data-lucide="pen-tool" class="w-4 h-4"></i> Share a Story
                         </a>
                     <?php endif; ?>
                 </div>

@@ -195,7 +195,7 @@ include 'includes/header.php';
                 <h3 class="text-4xl font-serif mb-4 group-hover:text-blue-400 transition-colors duration-300">
                     Community & Insights</h3>
                 <p class="text-paw-gray mb-6 leading-relaxed">
-                    Read success stories, get vet-verified health tips, and post about your own pets. A space for
+                    Read stories, get vet-verified health tips, and post about your own pets. A space for
                     pet owners to learn and share.
                 </p>
                 <ul class="flex flex-wrap gap-3 mb-8">
