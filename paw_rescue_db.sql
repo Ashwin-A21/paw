@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 15, 2026 at 05:48 AM
+-- Generation Time: Feb 15, 2026 at 07:03 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -102,6 +102,28 @@ CREATE TABLE `donations` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `feedback`
+--
+
+CREATE TABLE `feedback` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `rating` int(11) DEFAULT NULL CHECK (`rating` >= 1 and `rating` <= 5),
+  `message` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `feedback`
+--
+
+INSERT INTO `feedback` (`id`, `user_id`, `rating`, `message`, `created_at`) VALUES
+(1, 3, 4, 'nicee', '2026-02-15 05:33:31'),
+(2, 1, 4, 'nicee', '2026-02-15 05:38:06');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `pets`
 --
 
@@ -128,7 +150,8 @@ INSERT INTO `pets` (`id`, `name`, `type`, `breed`, `age`, `gender`, `description
 (3, 'Arjun', 'dog', 'German Shepherd', '3 years', 'Male', 'Arjun is a loyal and intelligent German Shepherd. He has been trained in basic commands and is very protective.', '1771130365_german_shepherd_dog_guide.avif', 'Available', 1, '2026-02-02 05:26:50'),
 (4, 'Luna', 'cat', 'Persian', '2 years', 'Female', 'Luna is a beautiful Persian cat with a fluffy white coat. She enjoys quiet environments and gentle handling.', '1771130405_Persian_in_Cat_Cafe.jpg', 'Available', 1, '2026-02-02 05:26:50'),
 (5, 'Max', 'dog', 'Golden Retriever', '4 years', 'Male', 'Max is a gentle giant who loves everyone he meets. Perfect for families looking for a loyal companion.', '1771130471_Untitled_design-40.jpg', 'Available', 1, '2026-02-02 05:26:50'),
-(6, 'bogra', 'dog', 'Siberian Husky', '6', 'Male', 'The Siberian Husky is a breed of medium-sized working sled dog. The breed belongs to the Spitz genetic family. It is recognizable by its thickly furred double coat, erect triangular ears, and distinctive markings, and is smaller than the similar-looking Alaskan Malamute', '1771130092_images.webp', 'Available', 1, '2026-02-15 04:34:52');
+(6, 'bogra', 'dog', 'Siberian Husky', '6', 'Male', 'The Siberian Husky is a breed of medium-sized working sled dog. The breed belongs to the Spitz genetic family. It is recognizable by its thickly furred double coat, erect triangular ears, and distinctive markings, and is smaller than the similar-looking Alaskan Malamute', '1771130092_images.webp', 'Available', 1, '2026-02-15 04:34:52'),
+(7, 'chommu', 'dog', 'street dog ', '7', 'Male', 'cutiepie chommu , keralas one and only chommu', '1771133524_download (11).jpg', 'Available', 3, '2026-02-15 05:32:04');
 
 -- --------------------------------------------------------
 
@@ -162,6 +185,30 @@ INSERT INTO `rescue_reports` (`id`, `reporter_id`, `reporter_name`, `contact_pho
 (1, NULL, 'Anonymous', '9876543210', 'Near City Park, Main Street', NULL, NULL, 'Injured stray dog found near the park. Appears to have a leg injury and is limping.', 'Dog', 'High', NULL, 'Rescued', 4, '2026-02-02 05:26:50', '2026-02-11 11:41:41'),
 (2, 5, 'Ash', '897654235', 'near the old abounded house pet stuck under the pipeline', 12.70606400, 74.90422900, 'its an emergency , urgent help needed', NULL, 'Medium', '', 'In Progress', NULL, '2026-02-02 07:17:42', '2026-02-12 10:55:34'),
 (3, NULL, 'test', '786523545', 'xsfcsdf', 28.42341000, 76.98806800, 'sdfsf', NULL, 'Medium', '1771050797_download (9).jpg', 'Reported', NULL, '2026-02-14 06:33:17', '2026-02-14 06:33:17');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `role_requests`
+--
+
+CREATE TABLE `role_requests` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `requested_role` varchar(50) NOT NULL,
+  `organization_name` varchar(150) DEFAULT NULL,
+  `organization_type` enum('Individual','Charity','Organization','Trust') DEFAULT NULL,
+  `document_proof` varchar(255) DEFAULT NULL,
+  `status` enum('Pending','Approved','Rejected') DEFAULT 'Pending',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `role_requests`
+--
+
+INSERT INTO `role_requests` (`id`, `user_id`, `requested_role`, `organization_name`, `organization_type`, `document_proof`, `status`, `created_at`) VALUES
+(1, 3, 'volunteer', '', 'Individual', '1771133427_download.png', 'Approved', '2026-02-15 05:30:27');
 
 -- --------------------------------------------------------
 
@@ -200,19 +247,21 @@ CREATE TABLE `users` (
   `gender` varchar(20) DEFAULT NULL,
   `dob` date DEFAULT NULL,
   `profile_image` varchar(255) DEFAULT NULL,
-  `lives_saved` int(11) DEFAULT 0
+  `lives_saved` int(11) DEFAULT 0,
+  `organization_type` enum('Individual','Charity','Organization','Trust') DEFAULT NULL,
+  `organization_name` varchar(150) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `email`, `password`, `phone`, `address`, `role`, `is_verified`, `created_at`, `gender`, `dob`, `profile_image`, `lives_saved`) VALUES
-(1, 'Admin', 'admin@paw.com', '1234', '2345678', NULL, 'admin', 1, '2026-02-02 05:26:50', '', '0000-00-00', 'https://api.dicebear.com/9.x/adventurer/svg?seed=Charlie', 0),
-(2, 'John User', 'john@example.com', '1234', NULL, NULL, 'user', 1, '2026-02-02 05:26:50', NULL, NULL, NULL, 0),
-(3, 'Sarah G Volunteer', 'sarah@volunteer.com', '12345', '987654321', NULL, 'volunteer', 1, '2026-02-02 05:26:50', '', '0000-00-00', '1770893467_download (7).jpg', 6),
-(4, 'Mike Rescuer', 'mike@rescuer.com', '1234', NULL, NULL, 'rescuer', 1, '2026-02-02 05:26:50', NULL, NULL, NULL, 8),
-(5, 'Ash lord', 'ash@gmail.com', '12345', '9897654321', NULL, 'user', 1, '2026-02-02 05:27:38', '', '2002-10-21', 'https://api.dicebear.com/9.x/adventurer/svg?seed=Aneka', 9);
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `phone`, `address`, `role`, `is_verified`, `created_at`, `gender`, `dob`, `profile_image`, `lives_saved`, `organization_type`, `organization_name`) VALUES
+(1, 'Admin', 'admin@paw.com', '1234', '2345678', NULL, 'admin', 1, '2026-02-02 05:26:50', '', '0000-00-00', 'https://api.dicebear.com/9.x/toon-head/svg?seed=Charlie', 0, NULL, NULL),
+(2, 'John User', 'john@example.com', '1234', NULL, NULL, 'user', 1, '2026-02-02 05:26:50', NULL, NULL, NULL, 0, NULL, NULL),
+(3, 'Sarah G Volunteer', 'sarah@volunteer.com', '12345', '987654321', NULL, 'volunteer', 1, '2026-02-02 05:26:50', '', '0000-00-00', 'https://api.dicebear.com/9.x/toon-head/svg?seed=Aneka', 6, 'Individual', ''),
+(4, 'Mike Rescuer', 'mike@rescuer.com', '1234', NULL, NULL, 'rescuer', 1, '2026-02-02 05:26:50', NULL, NULL, NULL, 8, NULL, NULL),
+(5, 'Ash lord', 'ash@gmail.com', '12345', '9897654321', NULL, 'user', 1, '2026-02-02 05:27:38', '', '2002-10-21', 'https://api.dicebear.com/9.x/adventurer/svg?seed=Aneka', 9, NULL, NULL);
 
 --
 -- Indexes for dumped tables
@@ -246,6 +295,13 @@ ALTER TABLE `donations`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `feedback`
+--
+ALTER TABLE `feedback`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- Indexes for table `pets`
 --
 ALTER TABLE `pets`
@@ -259,6 +315,13 @@ ALTER TABLE `rescue_reports`
   ADD PRIMARY KEY (`id`),
   ADD KEY `reporter_id` (`reporter_id`),
   ADD KEY `assigned_to` (`assigned_to`);
+
+--
+-- Indexes for table `role_requests`
+--
+ALTER TABLE `role_requests`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `tasks`
@@ -304,16 +367,28 @@ ALTER TABLE `donations`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `feedback`
+--
+ALTER TABLE `feedback`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `pets`
 --
 ALTER TABLE `pets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `rescue_reports`
 --
 ALTER TABLE `rescue_reports`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `role_requests`
+--
+ALTER TABLE `role_requests`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `tasks`
@@ -345,6 +420,12 @@ ALTER TABLE `blogs`
   ADD CONSTRAINT `blogs_ibfk_1` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
 
 --
+-- Constraints for table `feedback`
+--
+ALTER TABLE `feedback`
+  ADD CONSTRAINT `feedback_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `pets`
 --
 ALTER TABLE `pets`
@@ -356,6 +437,12 @@ ALTER TABLE `pets`
 ALTER TABLE `rescue_reports`
   ADD CONSTRAINT `rescue_reports_ibfk_1` FOREIGN KEY (`reporter_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `rescue_reports_ibfk_2` FOREIGN KEY (`assigned_to`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `role_requests`
+--
+ALTER TABLE `role_requests`
+  ADD CONSTRAINT `role_requests_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `tasks`
