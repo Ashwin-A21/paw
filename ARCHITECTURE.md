@@ -1,40 +1,51 @@
-# Architecture Documentation
+# System Architecture Documentation
 
-## Context Diagram (Level 0 DFD)
-- Provide a detailed context diagram that outlines the high-level interactions between the system and external entities.
+## Level 0 DFD: System Context
 
-## Module-Wise DFDs (Level 1)
-### User Management
-- Description of user roles, processes, and data flow.
+![Level 0 DFD](link_to_level_0_dfd_image)
 
-### Pet Management
-- Overview of how pets are managed within the system including adoptions and status tracking.
+- Description: This diagram shows the system's interaction with external entities.
 
-### Rescue Operations
-- Processes related to rescuing and managing rescued animals.
+## Level 1 DFDs
 
-### Blog Management
-- Workflow of blog creation, updating, and deleting blog entries.
+### 1. Authentication Module
 
-### Donation Management
-- Explanation of how donations are managed, tracked, and reported.
+![Level 1 DFD for Authentication](link_to_authentication_dfd_image)
 
-### Rescue Centers
-- Details on the management of different rescue center operations.
+- Description: This diagram details the authentication processes handling user login, registration, and sessions management.
 
-## Comprehensive ER Diagram
-- Include a detailed ER diagram reflecting all database tables and relationships, covering entities such as Users, Pets, Donations, Blogs, and Rescue Centers.
+### 2. Pet Adoption Module
 
-## Data Flow Summaries
-- Summarize data flows for each module, illustrating how data moves through the system.
+![Level 1 DFD for Pet Adoption](link_to_pet_adoption_dfd_image)
 
-## Database Tables Summary
-- Provide a summary of all database tables, including purpose and key attributes.
+- Description: This diagram outlines the processes involved in pet adoption requests and finalization.
 
-## System Architecture Layers
-- Describe the various layers within the system architecture, including presentation, business logic, and data storage layers.
+### 3. Rescue Operations Module
 
----
+![Level 1 DFD for Rescue Operations](link_to_rescue_operations_dfd_image)
 
-### Note:
-Make sure diagrams and images referenced in the document are well linked or included.
+- Description: This diagram details the workflows related to rescuing and caring for animals.
+
+### 4. Blog Management Module
+
+![Level 1 DFD for Blog Management](link_to_blog_management_dfd_image)
+
+- Description: This diagram shows the processes involved in creating, updating, and managing blog posts.
+
+### 5. Donation Module
+
+![Level 1 DFD for Donations](link_to_donation_dfd_image)
+
+- Description: This diagram outlines how donations are processed and tracked.
+
+### 6. Volunteer Management Module
+
+![Level 1 DFD for Volunteer Management](link_to_volunteer_management_dfd_image)
+
+- Description: This diagram details processes for recruiting and managing volunteers.
+
+## Entity-Relationship Diagram
+
+![ER Diagram](link_to_er_diagram_image)
+
+- Description: This comprehensive ER diagram details the database tables and relationships, representing entities such as Users, Pets, Donations, Blogs, and Volunteers.
