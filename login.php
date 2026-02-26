@@ -5,31 +5,41 @@ include 'config.php';
 $error = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $password = $_POST['password'];
-
-    $sql = "SELECT * FROM users WHERE email = '$email'";
-    $result = $conn->query($sql);
-
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        if ($password === $row['password']) {
-            $_SESSION['user_id'] = $row['id'];
-            $_SESSION['role'] = $row['role'];
-            $_SESSION['username'] = $row['username'];
-
-            if ($row['role'] == 'admin')
-                header("Location: admin/index.php");
-            else if ($row['role'] == 'volunteer' || $row['role'] == 'rescuer')
-                header("Location: volunteer/index.php");
-            else
-                header("Location: index.php");
-            exit();
-        } else {
-            $error = "Invalid password.";
-        }
+    // Validate CSRF
+    $csrf = $_POST['csrf_token'] ?? '';
+    if (!validateCsrfToken($csrf)) {
+        $error = "Invalid security token. Please try again.";
     } else {
-        $error = "No user found with that email.";
+        $email = $_POST['email'];
+        $password = $_POST['password'];
+
+        $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            if ($password === $row['password']) {
+                session_regenerate_id(true);
+                $_SESSION['user_id'] = $row['id'];
+                $_SESSION['role'] = $row['role'];
+                $_SESSION['username'] = $row['username'];
+
+                if ($row['role'] == 'admin')
+                    header("Location: admin/index.php");
+                else if ($row['role'] == 'volunteer' || $row['role'] == 'rescuer')
+                    header("Location: volunteer/index.php");
+                else
+                    header("Location: index.php");
+                exit();
+            } else {
+                $error = "Invalid password.";
+            }
+        } else {
+            $error = "No user found with that email.";
+        }
+        $stmt->close();
     }
 }
 ?>
@@ -129,6 +139,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <?php endif; ?>
 
             <form method="POST" class="space-y-6">
+                <?php echo csrfField(); ?>
                 <div>
                     <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Email</label>
                     <input type="email" name="email" required placeholder="you@example.com" class="form-input">

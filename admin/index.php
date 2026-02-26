@@ -28,6 +28,28 @@ $recentApps = $conn->query("SELECT aa.*, u.username, p.name as pet_name FROM ado
 // Recent Rescues
 $recentRescues = $conn->query("SELECT * FROM rescue_reports ORDER BY reported_at DESC LIMIT 5");
 
+// Analytics Data — Adoptions per month (last 6 months)
+$adoptionTrend = [];
+for ($i = 5; $i >= 0; $i--) {
+    $monthStart = date('Y-m-01', strtotime("-$i months"));
+    $monthEnd = date('Y-m-t', strtotime("-$i months"));
+    $label = date('M', strtotime("-$i months"));
+    $cnt = $conn->query("SELECT COUNT(*) as c FROM adoption_applications WHERE application_date BETWEEN '$monthStart' AND '$monthEnd'")->fetch_assoc()['c'];
+    $adoptionTrend[] = ['label' => $label, 'count' => (int) $cnt];
+}
+
+// Pet type distribution
+$petTypes = $conn->query("SELECT type, COUNT(*) as cnt FROM pets GROUP BY type ORDER BY cnt DESC");
+$typeData = [];
+while ($t = $petTypes->fetch_assoc())
+    $typeData[] = $t;
+
+// Rescue status distribution
+$rescueStatuses = $conn->query("SELECT status, COUNT(*) as cnt FROM rescue_reports GROUP BY status");
+$statusData = [];
+while ($s = $rescueStatuses->fetch_assoc())
+    $statusData[] = $s;
+
 // Current User (for sidebar)
 $uid = $_SESSION['user_id'];
 $userQuery = $conn->query("SELECT * FROM users WHERE id=$uid");
@@ -38,6 +60,7 @@ $hideNavbar = true;
 $hideFooter = true;
 include '../includes/header.php';
 ?>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <div class="flex min-h-screen">
     <!-- Sidebar -->
@@ -166,8 +189,82 @@ include '../includes/header.php';
                     </div>
                 </div>
             </div>
+
+            <!-- Analytics Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+                <!-- Adoption Trends -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 lg:col-span-2">
+                    <h3 class="font-serif text-xl mb-4">Adoption Applications Trend</h3>
+                    <canvas id="adoptionChart" height="120"></canvas>
+                </div>
+
+                <!-- Pet Types -->
+                <div class="bg-white rounded-2xl shadow-sm p-6">
+                    <h3 class="font-serif text-xl mb-4">Pet Types</h3>
+                    <canvas id="petTypeChart" height="200"></canvas>
+                </div>
+
+                <!-- Rescue Status -->
+                <div class="bg-white rounded-2xl shadow-sm p-6 lg:col-span-3">
+                    <h3 class="font-serif text-xl mb-4">Rescue Reports by Status</h3>
+                    <div class="max-w-md mx-auto">
+                        <canvas id="rescueChart" height="150"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 </div>
+
+<script>
+    // Adoption Trends Bar Chart
+    new Chart(document.getElementById('adoptionChart'), {
+        type: 'bar',
+        data: {
+            labels: <?php echo json_encode(array_column($adoptionTrend, 'label')); ?>,
+            datasets: [{
+                label: 'Applications',
+                data: <?php echo json_encode(array_column($adoptionTrend, 'count')); ?>,
+                backgroundColor: 'rgba(212, 163, 115, 0.6)',
+                borderColor: '#D4A373',
+                borderWidth: 2,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+    });
+
+    // Pet Type Doughnut
+    new Chart(document.getElementById('petTypeChart'), {
+        type: 'doughnut',
+        data: {
+            labels: <?php echo json_encode(array_column($typeData, 'type')); ?>,
+            datasets: [{
+                data: <?php echo json_encode(array_map('intval', array_column($typeData, 'cnt'))); ?>,
+                backgroundColor: ['#D4A373', '#E07A5F', '#00A884', '#6366F1', '#F59E0B', '#EC4899'],
+                borderWidth: 0
+            }]
+        },
+        options: { responsive: true, cutout: '65%' }
+    });
+
+    // Rescue Status Doughnut
+    new Chart(document.getElementById('rescueChart'), {
+        type: 'doughnut',
+        data: {
+            labels: <?php echo json_encode(array_column($statusData, 'status')); ?>,
+            datasets: [{
+                data: <?php echo json_encode(array_map('intval', array_column($statusData, 'cnt'))); ?>,
+                backgroundColor: ['#EF4444', '#F59E0B', '#3B82F6', '#10B981', '#6B7280'],
+                borderWidth: 0
+            }]
+        },
+        options: { responsive: true, cutout: '65%' }
+    });
+</script>
 
 <?php include '../includes/footer.php'; ?>

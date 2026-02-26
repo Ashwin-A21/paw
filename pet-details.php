@@ -11,6 +11,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_comment']) && iss
         $stmt->bind_param("iis", $petId, $_SESSION['user_id'], $commentText);
         $stmt->execute();
         $stmt->close();
+
+        // Notify pet owner about the comment
+        include_once 'includes/notify.php';
+        $pStmt = $conn->prepare("SELECT added_by, name FROM pets WHERE id = ?");
+        $pStmt->bind_param("i", $petId);
+        $pStmt->execute();
+        $pRow = $pStmt->get_result()->fetch_assoc();
+        $pStmt->close();
+        if ($pRow && $pRow['added_by'] != $_SESSION['user_id']) {
+            createNotification(
+                $conn,
+                $pRow['added_by'],
+                'comment',
+                $_SESSION['username'] . ' commented on your pet "' . $pRow['name'] . '"',
+                'pet-details.php?id=' . $petId . '#comments'
+            );
+        }
+
         header("Location: pet-details.php?id=$petId#comments");
         exit();
     }
@@ -22,10 +40,16 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
     exit();
 }
 
-$pet_id = mysqli_real_escape_string($conn, $_GET['id']);
+$pet_id = (int) $_GET['id'];
 
-// Fetch Pet Details
-$sql = "SELECT * FROM pets WHERE id = '$pet_id'";
+// Fetch Pet Details with Poster Info
+$sql = "SELECT p.*, 
+        u.username as poster_username, u.email as poster_email, u.phone as poster_phone,
+        u.profile_image as poster_image, u.role as poster_role, u.created_at as poster_since,
+        u.is_verified as poster_verified, u.lives_saved as poster_lives_saved
+        FROM pets p
+        LEFT JOIN users u ON p.added_by = u.id
+        WHERE p.id = $pet_id";
 $result = $conn->query($sql);
 
 if ($result->num_rows == 0) {
@@ -35,22 +59,51 @@ if ($result->num_rows == 0) {
 
 $pet = $result->fetch_assoc();
 
+// Fetch current user for comments
+$currentUser = null;
+if (isset($_SESSION['user_id'])) {
+    $uid = (int) $_SESSION['user_id'];
+    $uStmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
+    $uStmt->bind_param("i", $uid);
+    $uStmt->execute();
+    $uResult = $uStmt->get_result();
+    if ($uResult && $uResult->num_rows > 0) {
+        $currentUser = $uResult->fetch_assoc();
+    }
+    $uStmt->close();
+}
+
 // Handle Status Update (Owner only)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status']) && isset($_SESSION['user_id']) && $_SESSION['user_id'] == $pet['added_by']) {
-    $newStatus = mysqli_real_escape_string($conn, $_POST['status']);
-    $conn->query("UPDATE pets SET status='$newStatus' WHERE id='$pet_id'");
+    $allowedStatuses = ['Available', 'Adopted', 'Pending'];
+    $newStatus = $_POST['status'];
+    if (in_array($newStatus, $allowedStatuses)) {
+        $updStmt = $conn->prepare("UPDATE pets SET status = ? WHERE id = ?");
+        $updStmt->bind_param("si", $newStatus, $pet_id);
+        $updStmt->execute();
+        $updStmt->close();
+    }
     header("Location: pet-details.php?id=$pet_id");
     exit();
 }
 
 // Navigation: Previous & Next
-$prevSql = "SELECT id FROM pets WHERE id < '$pet_id' AND status='Available' ORDER BY id DESC LIMIT 1";
-$nextSql = "SELECT id FROM pets WHERE id > '$pet_id' AND status='Available' ORDER BY id ASC LIMIT 1";
+$prevStmt = $conn->prepare("SELECT id FROM pets WHERE id < ? AND status='Available' ORDER BY id DESC LIMIT 1");
+$prevStmt->bind_param("i", $pet_id);
+$prevStmt->execute();
+$prevPet = $prevStmt->get_result()->fetch_assoc();
+$prevStmt->close();
 
-$prevPet = $conn->query($prevSql)->fetch_assoc();
-$nextPet = $conn->query($nextSql)->fetch_assoc();
+$nextStmt = $conn->prepare("SELECT id FROM pets WHERE id > ? AND status='Available' ORDER BY id ASC LIMIT 1");
+$nextStmt->bind_param("i", $pet_id);
+$nextStmt->execute();
+$nextPet = $nextStmt->get_result()->fetch_assoc();
+$nextStmt->close();
 
 $basePath = '';
+$pageTitle = htmlspecialchars($pet['name']) . ' - Adopt on Paw Pal';
+$ogImage = 'uploads/pets/' . rawurlencode($pet['image']);
+$ogDescription = htmlspecialchars(substr($pet['description'], 0, 160));
 include 'includes/header.php';
 ?>
 
@@ -90,117 +143,286 @@ include 'includes/header.php';
             </div>
         </div>
 
-        <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 flex flex-col md:flex-row">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Main Content (2 cols) -->
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 flex flex-col md:flex-row">
 
-            <!-- Image Section -->
-            <div class="md:w-1/2 relative h-96 md:h-auto bg-gray-100">
-                <img src="uploads/pets/<?php echo rawurlencode($pet['image']); ?>"
-                    alt="<?php echo htmlspecialchars($pet['name']); ?>" class="w-full h-full object-cover">
+                    <!-- Image Section -->
+                    <div class="md:w-1/2 relative h-96 md:h-auto bg-gray-100">
+                        <img src="uploads/pets/<?php echo rawurlencode($pet['image']); ?>"
+                            alt="<?php echo htmlspecialchars($pet['name']); ?>" class="w-full h-full object-cover">
 
-                <div class="absolute top-6 left-6">
-                    <span
-                        class="px-4 py-2 bg-white/90 backdrop-blur rounded-full text-xs font-bold uppercase tracking-widest text-paw-dark shadow-sm">
-                        <?php echo $pet['status']; ?>
-                    </span>
+                        <div class="absolute top-6 left-6">
+                            <span
+                                class="px-4 py-2 bg-white/90 backdrop-blur rounded-full text-xs font-bold uppercase tracking-widest text-paw-dark shadow-sm">
+                                <?php echo $pet['status']; ?>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Details Section -->
+                    <div class="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+                        <div class="mb-2 flex items-center gap-3">
+                            <span class="text-paw-accent font-bold uppercase tracking-widest text-sm">
+                                <?php echo htmlspecialchars($pet['breed']); ?>
+                            </span>
+                            <span class="w-1 h-1 rounded-full bg-gray-300"></span>
+                            <span class="text-gray-500 font-medium text-sm">
+                                <?php echo htmlspecialchars($pet['type']); ?>
+                            </span>
+                        </div>
+
+                        <h1 class="font-serif text-5xl text-paw-dark mb-6">
+                            <?php echo htmlspecialchars($pet['name']); ?>
+                        </h1>
+
+                        <div class="grid grid-cols-2 gap-6 mb-8">
+                            <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-center">
+                                <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">Age</p>
+                                <p class="text-paw-dark font-serif text-xl">
+                                    <?php echo htmlspecialchars($pet['age']); ?>
+                                </p>
+                            </div>
+                            <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-center">
+                                <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">Gender</p>
+                                <p class="text-paw-dark font-serif text-xl flex items-center justify-center gap-2">
+                                    <?php echo htmlspecialchars($pet['gender']); ?>
+                                    <?php if ($pet['gender'] == 'Male'): ?>
+                                        <i data-lucide="mars" class="w-4 h-4 text-blue-400"></i>
+                                    <?php else: ?>
+                                        <i data-lucide="venus" class="w-4 h-4 text-pink-400"></i>
+                                    <?php endif; ?>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="prose prose-stone mb-8 text-gray-600 leading-relaxed">
+                            <h3 class="font-serif text-2xl text-paw-dark mb-4">About
+                                <?php echo htmlspecialchars($pet['name']); ?>
+                            </h3>
+                            <p>
+                                <?php echo nl2br(htmlspecialchars($pet['description'])); ?>
+                            </p>
+                        </div>
+
+                        <div class="mt-auto pt-8 border-t border-gray-100 flex gap-4">
+                            <?php if (isset($_SESSION['user_id'])): ?>
+
+                                <?php if ($_SESSION['user_id'] == $pet['added_by']): ?>
+                                    <!-- Owner View: Change Status -->
+                                    <form method="POST" class="flex-1 flex gap-2">
+                                        <input type="hidden" name="update_status" value="1">
+                                        <select name="status"
+                                            class="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent bg-white">
+                                            <option value="Available" <?php echo $pet['status'] == 'Available' ? 'selected' : ''; ?>>
+                                                Available</option>
+                                            <option value="Adopted" <?php echo $pet['status'] == 'Adopted' ? 'selected' : ''; ?>>Adopted
+                                            </option>
+                                            <option value="Pending" <?php echo $pet['status'] == 'Pending' ? 'selected' : ''; ?>>Pending
+                                            </option>
+                                        </select>
+                                        <button type="submit"
+                                            class="px-6 py-3 bg-paw-dark text-white rounded-xl font-bold uppercase tracking-widest hover:bg-paw-accent transition-colors">
+                                            Update
+                                        </button>
+                                    </form>
+                                <?php elseif ($pet['status'] == 'Available'): ?>
+                                    <a href="adopt-apply.php?pet=<?php echo $pet['id']; ?>"
+                                        class="flex-1 py-4 bg-paw-accent text-white rounded-xl text-center font-bold uppercase tracking-widest border border-transparent hover:bg-paw-dark transition-all shadow-lg shadow-paw-accent/20">
+                                        Adopt Me
+                                    </a>
+                                <?php else: ?>
+                                    <button disabled
+                                        class="flex-1 py-4 bg-gray-200 text-gray-400 rounded-xl text-center font-bold uppercase tracking-widest cursor-not-allowed">
+                                        Not Available
+                                    </button>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <a href="login.php?redirect=pet-details.php?id=<?php echo $pet['id']; ?>"
+                                    class="flex-1 py-4 bg-paw-dark text-white rounded-xl text-center font-bold uppercase tracking-widest hover:bg-paw-accent transition-all shadow-lg">
+                                    Login to Adopt
+                                </a>
+                            <?php endif; ?>
+
+                            <button onclick="sharePet()" id="shareBtn"
+                                class="px-6 py-4 border border-gray-200 rounded-xl text-paw-gray hover:bg-gray-50 transition-colors relative"
+                                title="Share">
+                                <i data-lucide="share-2" class="w-5 h-5"></i>
+                                <span id="shareTooltip"
+                                    class="absolute -top-10 left-1/2 -translate-x-1/2 bg-paw-dark text-white text-xs px-3 py-1 rounded-lg opacity-0 transition-opacity pointer-events-none whitespace-nowrap">Link
+                                    copied!</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Details Section -->
-            <div class="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
-                <div class="mb-2 flex items-center gap-3">
-                    <span class="text-paw-accent font-bold uppercase tracking-widest text-sm">
-                        <?php echo htmlspecialchars($pet['breed']); ?>
-                    </span>
-                    <span class="w-1 h-1 rounded-full bg-gray-300"></span>
-                    <span class="text-gray-500 font-medium text-sm">
-                        <?php echo htmlspecialchars($pet['type']); ?>
-                    </span>
-                </div>
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Posted By Card -->
+                <?php if (!empty($pet['poster_username'])): ?>
+                    <div class="bg-white rounded-3xl shadow-sm p-6 border border-gray-100">
+                        <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Posted By</p>
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="relative w-12 h-12 rounded-full overflow-hidden border-2 border-gray-100 flex-shrink-0">
+                                <img src="<?php
+                                $pImgSrc = 'https://api.dicebear.com/9.x/toon-head/svg?seed=' . urlencode($pet['poster_username']);
+                                if (!empty($pet['poster_image'])) {
+                                    if (strpos($pet['poster_image'], 'http') === 0) {
+                                        $pImgSrc = $pet['poster_image'];
+                                    } else if (file_exists('uploads/users/' . $pet['poster_image'])) {
+                                        $pImgSrc = 'uploads/users/' . rawurlencode($pet['poster_image']);
+                                    }
+                                }
+                                echo $pImgSrc;
+                                ?>" class="w-full h-full object-cover" alt="Poster">
+                                <?php if ($pet['poster_verified']): ?>
+                                    <div class="absolute -bottom-0.5 -right-0.5 bg-blue-500 text-white p-0.5 rounded-full border-2 border-white">
+                                        <i data-lucide="badge-check" class="w-3 h-3"></i>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                            <div>
+                                <p class="font-bold text-paw-dark">
+                                    <?php echo htmlspecialchars($pet['poster_username']); ?>
+                                </p>
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest bg-paw-accent/10 text-paw-accent">
+                                        <?php echo ucfirst($pet['poster_role']); ?>
+                                    </span>
+                                    <?php if (($pet['poster_lives_saved'] ?? 0) > 0): ?>
+                                        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest bg-green-100 text-green-700 flex items-center gap-0.5">
+                                            <i data-lucide="heart" class="w-2.5 h-2.5 fill-current"></i>
+                                            <?php echo $pet['poster_lives_saved']; ?>
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
 
-                <h1 class="font-serif text-5xl text-paw-dark mb-6">
-                    <?php echo htmlspecialchars($pet['name']); ?>
-                </h1>
-
-                <div class="grid grid-cols-2 gap-6 mb-8">
-                    <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-center">
-                        <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">Age</p>
-                        <p class="text-paw-dark font-serif text-xl">
-                            <?php echo htmlspecialchars($pet['age']); ?>
-                        </p>
-                    </div>
-                    <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 text-center">
-                        <p class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-1">Gender</p>
-                        <p class="text-paw-dark font-serif text-xl flex items-center justify-center gap-2">
-                            <?php echo htmlspecialchars($pet['gender']); ?>
-                            <?php if ($pet['gender'] == 'Male'): ?>
-                                <i data-lucide="mars" class="w-4 h-4 text-blue-400"></i>
-                            <?php else: ?>
-                                <i data-lucide="venus" class="w-4 h-4 text-pink-400"></i>
+                        <div class="space-y-3">
+                            <?php if (!empty($pet['poster_phone'])): ?>
+                                <div class="flex items-center gap-3 text-sm">
+                                    <div class="p-2 bg-green-50 rounded-lg">
+                                        <i data-lucide="phone" class="w-4 h-4 text-green-600"></i>
+                                    </div>
+                                    <a href="tel:<?php echo htmlspecialchars($pet['poster_phone']); ?>" class="text-paw-dark hover:text-paw-accent transition-colors">
+                                        <?php echo htmlspecialchars($pet['poster_phone']); ?>
+                                    </a>
+                                </div>
                             <?php endif; ?>
-                        </p>
+
+                            <?php if (!empty($pet['poster_email'])): ?>
+                                <div class="flex items-center gap-3 text-sm">
+                                    <div class="p-2 bg-blue-50 rounded-lg">
+                                        <i data-lucide="mail" class="w-4 h-4 text-blue-500"></i>
+                                    </div>
+                                    <a href="mailto:<?php echo htmlspecialchars($pet['poster_email']); ?>" class="text-paw-dark hover:text-paw-accent transition-colors truncate">
+                                        <?php echo htmlspecialchars($pet['poster_email']); ?>
+                                    </a>
+                                </div>
+                            <?php endif; ?>
+
+                            <div class="flex items-center gap-3 text-sm">
+                                <div class="p-2 bg-purple-50 rounded-lg">
+                                    <i data-lucide="calendar" class="w-4 h-4 text-purple-500"></i>
+                                </div>
+                                <span class="text-paw-gray">
+                                    Member since <?php echo date('M Y', strtotime($pet['poster_since'])); ?>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <!-- Quick Info Card -->
+                <div class="bg-white rounded-3xl shadow-sm p-6 border border-gray-100">
+                    <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Quick Info</p>
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-paw-accent/10 rounded-lg">
+                                <i data-lucide="paw-print" class="w-4 h-4 text-paw-accent"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400">Type</p>
+                                <p class="text-sm font-bold text-paw-dark"><?php echo htmlspecialchars(ucfirst($pet['type'])); ?></p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-blue-50 rounded-lg">
+                                <i data-lucide="clock" class="w-4 h-4 text-blue-500"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-400">Listed On</p>
+                                <p class="text-sm font-bold text-paw-dark"><?php echo date('M d, Y', strtotime($pet['added_at'])); ?></p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="prose prose-stone mb-8 text-gray-600 leading-relaxed">
-                    <h3 class="font-serif text-2xl text-paw-dark mb-4">About
-                        <?php echo htmlspecialchars($pet['name']); ?>
-                    </h3>
-                    <p>
-                        <?php echo nl2br(htmlspecialchars($pet['description'])); ?>
-                    </p>
-                </div>
-
-                <div class="mt-auto pt-8 border-t border-gray-100 flex gap-4">
-                    <?php if (isset($_SESSION['user_id'])): ?>
-
-                        <?php if ($_SESSION['user_id'] == $pet['added_by']): ?>
-                            <!-- Owner View: Change Status -->
-                            <form method="POST" class="flex-1 flex gap-2">
-                                <input type="hidden" name="update_status" value="1">
-                                <select name="status"
-                                    class="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent bg-white">
-                                    <option value="Available" <?php echo $pet['status'] == 'Available' ? 'selected' : ''; ?>>
-                                        Available</option>
-                                    <option value="Adopted" <?php echo $pet['status'] == 'Adopted' ? 'selected' : ''; ?>>Adopted
-                                    </option>
-                                    <option value="Pending" <?php echo $pet['status'] == 'Pending' ? 'selected' : ''; ?>>Pending
-                                    </option>
-                                </select>
-                                <button type="submit"
-                                    class="px-6 py-3 bg-paw-dark text-white rounded-xl font-bold uppercase tracking-widest hover:bg-paw-accent transition-colors">
-                                    Update
-                                </button>
-                            </form>
-                        <?php elseif ($pet['status'] == 'Available'): ?>
-                            <a href="adopt-apply.php?pet=<?php echo $pet['id']; ?>"
-                                class="flex-1 py-4 bg-paw-accent text-white rounded-xl text-center font-bold uppercase tracking-widest border border-transparent hover:bg-paw-dark transition-all shadow-lg shadow-paw-accent/20">
-                                Adopt Me
-                            </a>
-                        <?php else: ?>
-                            <button disabled
-                                class="flex-1 py-4 bg-gray-200 text-gray-400 rounded-xl text-center font-bold uppercase tracking-widest cursor-not-allowed">
-                                Not Available
-                            </button>
-                        <?php endif; ?>
-                    <?php else: ?>
-                        <a href="login.php?redirect=pet-details.php?id=<?php echo $pet['id']; ?>"
-                            class="flex-1 py-4 bg-paw-dark text-white rounded-xl text-center font-bold uppercase tracking-widest hover:bg-paw-accent transition-all shadow-lg">
-                            Login to Adopt
-                        </a>
-                    <?php endif; ?>
-
-                    <button onclick="sharePet()" id="shareBtn"
-                        class="px-6 py-4 border border-gray-200 rounded-xl text-paw-gray hover:bg-gray-50 transition-colors relative"
-                        title="Share">
-                        <i data-lucide="share-2" class="w-5 h-5"></i>
-                        <span id="shareTooltip"
-                            class="absolute -top-10 left-1/2 -translate-x-1/2 bg-paw-dark text-white text-xs px-3 py-1 rounded-lg opacity-0 transition-opacity pointer-events-none whitespace-nowrap">Link
-                            copied!</span>
-                    </button>
-                </div>
+                <!-- Share Button -->
+                <button onclick="sharePet()"
+                    class="w-full py-3 bg-white border border-gray-200 rounded-2xl text-sm font-bold uppercase tracking-widest text-paw-gray hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 relative">
+                    <i data-lucide="share-2" class="w-4 h-4"></i> Share Pet
+                    <span id="shareTooltip2"
+                        class="absolute -top-10 left-1/2 -translate-x-1/2 bg-paw-dark text-white text-xs px-3 py-1 rounded-lg opacity-0 transition-opacity pointer-events-none whitespace-nowrap">Link
+                        copied!</span>
+                </button>
             </div>
         </div>
     </div>
+
+    <!-- Medical Records -->
+    <?php
+    $medStmt = $conn->prepare("SELECT * FROM pet_medical_records WHERE pet_id = ? ORDER BY date DESC");
+    if ($medStmt) {
+        $medStmt->bind_param("i", $pet['id']);
+        $medStmt->execute();
+        $medRecords = $medStmt->get_result();
+        $medStmt->close();
+    }
+    ?>
+    <?php if (isset($medRecords) && $medRecords->num_rows > 0): ?>
+        <div class="max-w-6xl mx-auto mt-8">
+            <div class="bg-white rounded-3xl shadow-sm p-8 border border-gray-100">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
+                        <i data-lucide="stethoscope" class="w-5 h-5 text-green-600"></i>
+                    </div>
+                    <h2 class="font-serif text-2xl text-paw-dark">Medical Records</h2>
+                </div>
+                <div class="space-y-4">
+                    <?php while ($med = $medRecords->fetch_assoc()):
+                        $typeIcons = [
+                            'Vaccination' => ['syringe', 'bg-blue-50 text-blue-600'],
+                            'Checkup' => ['stethoscope', 'bg-green-50 text-green-600'],
+                            'Surgery' => ['scissors', 'bg-red-50 text-red-600'],
+                            'Treatment' => ['pill', 'bg-purple-50 text-purple-600'],
+                            'Other' => ['file-text', 'bg-gray-50 text-gray-600'],
+                        ];
+                        $icon = $typeIcons[$med['record_type']] ?? $typeIcons['Other'];
+                    ?>
+                        <div class="flex items-start gap-4 p-4 bg-gray-50 rounded-2xl">
+                            <div class="p-2 rounded-xl <?php echo $icon[1]; ?> flex-shrink-0">
+                                <i data-lucide="<?php echo $icon[0]; ?>" class="w-4 h-4"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <p class="font-bold text-sm text-paw-dark"><?php echo htmlspecialchars($med['record_type']); ?></p>
+                                    <p class="text-xs text-gray-400"><?php echo date('M d, Y', strtotime($med['date'])); ?></p>
+                                </div>
+                                <p class="text-sm text-paw-gray mt-1"><?php echo htmlspecialchars($med['description']); ?></p>
+                                <?php if (!empty($med['vet_name'])): ?>
+                                    <p class="text-xs text-gray-400 mt-1">Dr. <?php echo htmlspecialchars($med['vet_name']); ?></p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endwhile; ?>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
 
     <!-- Comments / Log Notes Section -->
     <div class="max-w-6xl mx-auto mt-12" id="comments">
@@ -215,6 +437,7 @@ include 'includes/header.php';
             <?php if (isset($_SESSION['user_id'])): ?>
                 <!-- Comment Form -->
                 <form method="POST" class="mb-8">
+                    <?php echo csrfField(); ?>
                     <input type="hidden" name="add_comment" value="1">
                     <input type="hidden" name="entity_id" value="<?php echo $pet['id']; ?>">
                     <div class="flex gap-4">
@@ -255,7 +478,12 @@ include 'includes/header.php';
             <!-- Existing Comments -->
             <div class="space-y-6">
                 <?php
-                $commentsQuery = $conn->query("SELECT c.*, u.username, u.profile_image, u.role FROM comments c JOIN users u ON c.user_id = u.id WHERE c.entity_type = 'pet' AND c.entity_id = '{$pet['id']}' ORDER BY c.created_at DESC");
+                $entityType = 'pet';
+                $entityId = $pet['id'];
+                $cStmt = $conn->prepare("SELECT c.*, u.username, u.profile_image, u.role FROM comments c JOIN users u ON c.user_id = u.id WHERE c.entity_type = ? AND c.entity_id = ? ORDER BY c.created_at DESC");
+                $cStmt->bind_param("si", $entityType, $entityId);
+                $cStmt->execute();
+                $commentsQuery = $cStmt->get_result();
                 if ($commentsQuery && $commentsQuery->num_rows > 0):
                     while ($comment = $commentsQuery->fetch_assoc()):
                         $cImgSrc = 'https://api.dicebear.com/9.x/toon-head/svg?seed=' . urlencode($comment['username']);

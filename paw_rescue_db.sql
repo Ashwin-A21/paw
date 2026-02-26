@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 15, 2026 at 07:03 AM
+-- Generation Time: Feb 26, 2026 at 11:05 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -62,10 +62,40 @@ CREATE TABLE `blogs` (
 
 INSERT INTO `blogs` (`id`, `title`, `slug`, `content`, `author_id`, `author`, `image`, `is_published`, `created_at`, `status`) VALUES
 (1, 'Why Adopt a Pet?', 'why-adopt-a-pet', 'Adopting a pet saves two lives: the one you adopt and the one who takes their place in the shelter. Every year, millions of animals end up in shelters. By adopting, you give them a second chance at happiness while also gaining a loyal companion.\n\nAdopted pets are often already vaccinated, spayed/neutered, and microchipped, saving you time and money. Plus, shelters can help match you with a pet that fits your lifestyle.\n\nMake a difference today – adopt, don\'t shop!', 1, 'Admin', NULL, 1, '2026-02-02 05:26:50', 'approved'),
-(2, 'How to Prepare Your Home for a New Pet', 'prepare-home-new-pet', 'Bringing a new pet home is exciting! Here are some tips to prepare:\n\n1. Pet-proof your home by removing hazardous items\n2. Set up a comfortable sleeping area\n3. Stock up on food, treats, and toys\n4. Schedule a vet visit\n5. Be patient during the adjustment period\n\nRemember, your new pet may need time to settle in. Give them love and patience!', 1, 'Admin', NULL, 0, '2026-02-02 05:26:50', 'rejected'),
+(2, 'How to Prepare Your Home for a New Pet ', 'prepare-home-new-pet', 'Bringing a new pet home is exciting! Here are some tips to prepare:\r\n\r\n1. Pet-proof your home by removing hazardous items\r\n2. Set up a comfortable sleeping area\r\n3. Stock up on food, treats, and toys\r\n4. Schedule a vet visit\r\n5. Be patient during the adjustment period\r\n\r\nRemember, your new pet may need time to settle in. Give them love and patience!', 1, 'Admin', '1771146134_#vibzztime #memes.jpg', 1, '2026-02-02 05:26:50', 'rejected'),
 (3, 'duck found missing', NULL, 'duck u ', 3, 'Sarah Volunteer', '1771130501_credits~bugsfreeelife.jpg', 1, '2026-02-12 10:50:39', 'approved'),
 (4, 'sf', NULL, 'sdfdf', 1, 'Admin', '', 1, '2026-02-12 11:09:39', 'approved'),
-(5, 'sdfsd samoosa', NULL, 'dsf3rsf', 3, 'Sarah G Volunteer', '1771050906_download (8).jpg', 1, '2026-02-14 06:35:06', 'approved');
+(5, 'sdfsd samoosa', NULL, 'dsf3rsf', 3, 'Sarah G Volunteer', '1771050906_download (8).jpg', 1, '2026-02-14 06:35:06', 'approved'),
+(6, 'Doge after one sniff of \'Fresh Mountain Breeze', NULL, 'They said the new Ariel scent was uplifting. They didn\'t warn him it would literally lift him to another dimension. Current status: eyes at half-mast, tail optional, existential crisis included.\r\n\r\nStarted as \'let\'s do whites together\'… ended with him face-down in his own powder masterpiece like a tiny Scarface. Somebody get this dog some milk and a therapist.', 3, 'Sarah G Volunteer', '1771147297_#vibzztime #memes.jpg', 1, '2026-02-15 09:19:36', 'approved'),
+(7, 'Kya be… Atankwadi? (Dogesh edition)', NULL, 'Puddle mein selfie le raha tha boss, par expression dekh – jaise bol raha ho \'tu mera area mein kya kar raha hai be?\'. Dogesh ne aaj ragging ka new level unlock kar diya. Who hurt you bhai? 🥶 #StreetDogSavage #KyabeAtankwadi #IndianDogMemes', 5, 'MeowMeow trust ', '1771150473_8163_____.jpg', 1, '2026-02-15 10:14:33', 'approved');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `comments`
+--
+
+CREATE TABLE `comments` (
+  `id` int(11) NOT NULL,
+  `entity_type` enum('pet','rescue') NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `comment` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `comments`
+--
+
+INSERT INTO `comments` (`id`, `entity_type`, `entity_id`, `user_id`, `comment`, `created_at`) VALUES
+(1, 'rescue', 2, 1, 'it wass a great and thrilling experience , poor dog was stuck but sucessfully rescued by our team', '2026-02-15 09:27:42'),
+(2, 'rescue', 2, 1, 'heheheh', '2026-02-15 09:28:20'),
+(3, 'rescue', 2, 5, 'great job mate', '2026-02-15 09:30:51'),
+(4, 'rescue', 4, 5, 'druggie doggie', '2026-02-15 09:53:58'),
+(5, 'pet', 7, 5, 'looks cute btw', '2026-02-15 09:57:32'),
+(6, 'pet', 6, 5, 'Damnn.. i need this fellow', '2026-02-15 09:58:02'),
+(7, 'pet', 7, 1, 'the best patti', '2026-02-26 10:00:02');
 
 -- --------------------------------------------------------
 
@@ -119,7 +149,9 @@ CREATE TABLE `feedback` (
 
 INSERT INTO `feedback` (`id`, `user_id`, `rating`, `message`, `created_at`) VALUES
 (1, 3, 4, 'nicee', '2026-02-15 05:33:31'),
-(2, 1, 4, 'nicee', '2026-02-15 05:38:06');
+(3, 1, 4, 'nicee', '2026-02-15 06:05:23'),
+(4, 5, 5, 'great website for bringing out newer innovation and idea into existence .', '2026-02-15 08:55:29'),
+(5, 5, 5, 'Wonderfull website .. made a lot of donation money ..heheheh', '2026-02-15 10:11:23');
 
 -- --------------------------------------------------------
 
@@ -183,8 +215,9 @@ CREATE TABLE `rescue_reports` (
 
 INSERT INTO `rescue_reports` (`id`, `reporter_id`, `reporter_name`, `contact_phone`, `location`, `latitude`, `longitude`, `description`, `animal_type`, `urgency`, `image`, `status`, `assigned_to`, `reported_at`, `updated_at`) VALUES
 (1, NULL, 'Anonymous', '9876543210', 'Near City Park, Main Street', NULL, NULL, 'Injured stray dog found near the park. Appears to have a leg injury and is limping.', 'Dog', 'High', NULL, 'Rescued', 4, '2026-02-02 05:26:50', '2026-02-11 11:41:41'),
-(2, 5, 'Ash', '897654235', 'near the old abounded house pet stuck under the pipeline', 12.70606400, 74.90422900, 'its an emergency , urgent help needed', NULL, 'Medium', '', 'In Progress', NULL, '2026-02-02 07:17:42', '2026-02-12 10:55:34'),
-(3, NULL, 'test', '786523545', 'xsfcsdf', 28.42341000, 76.98806800, 'sdfsf', NULL, 'Medium', '1771050797_download (9).jpg', 'Reported', NULL, '2026-02-14 06:33:17', '2026-02-14 06:33:17');
+(2, 5, 'Ash', '897654235', 'near the old abounded house pet stuck under the pipeline', 12.70606400, 74.90422900, 'its an emergency , urgent help needed', NULL, 'Medium', '', 'Rescued', NULL, '2026-02-02 07:17:42', '2026-02-15 09:01:23'),
+(3, NULL, 'test', '786523545', 'xsfcsdf', 28.42341000, 76.98806800, 'sdfsf', NULL, 'Medium', '1771050797_download (9).jpg', 'Rescued', NULL, '2026-02-14 06:33:17', '2026-02-26 09:57:12'),
+(4, 5, 'Meow Meow ', '9876543223', 'as marked ', 28.63002500, 77.22498200, 'dog is high on drugs ', NULL, 'Critical', '1771147929_#vibzztime #memes.jpg', 'Reported', NULL, '2026-02-15 09:32:09', '2026-02-15 09:32:09');
 
 -- --------------------------------------------------------
 
@@ -208,7 +241,8 @@ CREATE TABLE `role_requests` (
 --
 
 INSERT INTO `role_requests` (`id`, `user_id`, `requested_role`, `organization_name`, `organization_type`, `document_proof`, `status`, `created_at`) VALUES
-(1, 3, 'volunteer', '', 'Individual', '1771133427_download.png', 'Approved', '2026-02-15 05:30:27');
+(1, 3, 'volunteer', '', 'Individual', '1771133427_download.png', 'Approved', '2026-02-15 05:30:27'),
+(2, 5, 'organization', 'Meoww', 'Individual', '1771145783_😏.jpg', 'Approved', '2026-02-15 08:56:23');
 
 -- --------------------------------------------------------
 
@@ -248,7 +282,6 @@ CREATE TABLE `users` (
   `dob` date DEFAULT NULL,
   `profile_image` varchar(255) DEFAULT NULL,
   `lives_saved` int(11) DEFAULT 0,
-  `organization_type` enum('Individual','Charity','Organization','Trust') DEFAULT NULL,
   `organization_name` varchar(150) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -256,12 +289,12 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `email`, `password`, `phone`, `address`, `role`, `is_verified`, `created_at`, `gender`, `dob`, `profile_image`, `lives_saved`, `organization_type`, `organization_name`) VALUES
-(1, 'Admin', 'admin@paw.com', '1234', '2345678', NULL, 'admin', 1, '2026-02-02 05:26:50', '', '0000-00-00', 'https://api.dicebear.com/9.x/toon-head/svg?seed=Charlie', 0, NULL, NULL),
-(2, 'John User', 'john@example.com', '1234', NULL, NULL, 'user', 1, '2026-02-02 05:26:50', NULL, NULL, NULL, 0, NULL, NULL),
-(3, 'Sarah G Volunteer', 'sarah@volunteer.com', '12345', '987654321', NULL, 'volunteer', 1, '2026-02-02 05:26:50', '', '0000-00-00', 'https://api.dicebear.com/9.x/toon-head/svg?seed=Aneka', 6, 'Individual', ''),
-(4, 'Mike Rescuer', 'mike@rescuer.com', '1234', NULL, NULL, 'rescuer', 1, '2026-02-02 05:26:50', NULL, NULL, NULL, 8, NULL, NULL),
-(5, 'Ash lord', 'ash@gmail.com', '12345', '9897654321', NULL, 'organization', 1, '2026-02-02 05:27:38', '', '2002-10-21', 'https://api.dicebear.com/9.x/adventurer/svg?seed=Aneka', 9, 'Trust', NULL);
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `phone`, `address`, `role`, `is_verified`, `created_at`, `gender`, `dob`, `profile_image`, `lives_saved`, `organization_name`) VALUES
+(1, 'Admin', 'admin@paw.com', '1234', '2345678', NULL, 'admin', 1, '2026-02-02 05:26:50', '', '0000-00-00', 'https://api.dicebear.com/9.x/toon-head/svg?seed=Charlie', 3, NULL),
+(2, 'John User', 'john@example.com', '1234', NULL, NULL, 'user', 1, '2026-02-02 05:26:50', NULL, NULL, NULL, 3, NULL),
+(3, 'Sarah G Volunteer', 'sarah@volunteer.com', '12345', '987654321', NULL, 'volunteer', 1, '2026-02-02 05:26:50', '', '0000-00-00', 'https://api.dicebear.com/9.x/toon-head/svg?seed=Aneka', 6, ''),
+(4, 'Mike Rescuer', 'mike@rescuer.com', '1234', NULL, NULL, 'rescuer', 1, '2026-02-02 05:26:50', NULL, NULL, NULL, 8, NULL),
+(5, 'MeowMeow trust ', 'ash@gmail.com', '12345', '9897654321', 'Kerala 671324', 'organization', 1, '2026-02-02 05:27:38', '', '2002-10-21', 'https://api.dicebear.com/9.x/toon-head/svg?seed=Charlie', 10, 'Meoww');
 
 --
 -- Indexes for dumped tables
@@ -281,6 +314,14 @@ ALTER TABLE `adoption_applications`
 ALTER TABLE `blogs`
   ADD PRIMARY KEY (`id`),
   ADD KEY `author_id` (`author_id`);
+
+--
+-- Indexes for table `comments`
+--
+ALTER TABLE `comments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `idx_entity` (`entity_type`,`entity_id`);
 
 --
 -- Indexes for table `contact_messages`
@@ -352,7 +393,13 @@ ALTER TABLE `adoption_applications`
 -- AUTO_INCREMENT for table `blogs`
 --
 ALTER TABLE `blogs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `comments`
+--
+ALTER TABLE `comments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `contact_messages`
@@ -370,7 +417,7 @@ ALTER TABLE `donations`
 -- AUTO_INCREMENT for table `feedback`
 --
 ALTER TABLE `feedback`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `pets`
@@ -382,13 +429,13 @@ ALTER TABLE `pets`
 -- AUTO_INCREMENT for table `rescue_reports`
 --
 ALTER TABLE `rescue_reports`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `role_requests`
 --
 ALTER TABLE `role_requests`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `tasks`
@@ -418,6 +465,12 @@ ALTER TABLE `adoption_applications`
 --
 ALTER TABLE `blogs`
   ADD CONSTRAINT `blogs_ibfk_1` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `comments`
+--
+ALTER TABLE `comments`
+  ADD CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `feedback`
@@ -450,26 +503,6 @@ ALTER TABLE `role_requests`
 ALTER TABLE `tasks`
   ADD CONSTRAINT `tasks_ibfk_1` FOREIGN KEY (`assigned_to`) REFERENCES `users` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `tasks_ibfk_2` FOREIGN KEY (`rescue_report_id`) REFERENCES `rescue_reports` (`id`) ON DELETE SET NULL;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `comments`
---
-
-CREATE TABLE IF NOT EXISTS `comments` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `entity_type` enum('pet','rescue') NOT NULL,
-  `entity_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `comment` text NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  KEY `entity_type` (`entity_type`, `entity_id`),
-  KEY `user_id` (`user_id`),
-  CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -25,7 +25,8 @@ if (!isset($_GET['id']) || empty($_GET['id'])) {
 $rescue_id = (int) $_GET['id'];
 
 // Fetch rescue report
-$sql = "SELECT r.*, u.username as reporter_username, u.profile_image as reporter_image, 
+$sql = "SELECT r.*, u.username as reporter_username, u.profile_image as reporter_image,
+        u.email as reporter_email, u.role as reporter_role, u.is_verified as reporter_verified,
         a.username as assignee_username, a.profile_image as assignee_image
         FROM rescue_reports r 
         LEFT JOIN users u ON r.reporter_id = u.id 
@@ -51,6 +52,11 @@ if (isset($_SESSION['user_id'])) {
 }
 
 $basePath = '';
+$pageTitle = 'Rescue Report #' . $rescue['id'] . ' - Paw Pal';
+$ogDescription = htmlspecialchars(substr($rescue['description'], 0, 160));
+if (!empty($rescue['image'])) {
+    $ogImage = 'uploads/rescues/' . rawurlencode($rescue['image']);
+}
 include 'includes/header.php';
 
 $statusColors = [
@@ -190,10 +196,28 @@ $urgencyClass = $urgencyColors[$rescue['urgency']] ?? 'bg-gray-100 text-gray-700
                             <p class="font-bold text-paw-dark">
                                 <?php echo htmlspecialchars($rescue['reporter_username'] ?? $rescue['reporter_name'] ?? 'Anonymous'); ?>
                             </p>
+                            <?php if (!empty($rescue['reporter_role'])): ?>
+                                <span
+                                    class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest bg-paw-alert/10 text-paw-alert">
+                                    <?php echo ucfirst($rescue['reporter_role']); ?>
+                                </span>
+                            <?php endif; ?>
                             <?php if (!empty($rescue['contact_phone'])): ?>
-                                <p class="text-xs text-paw-gray flex items-center gap-1">
+                                <p class="text-xs text-paw-gray flex items-center gap-1 mt-1">
                                     <i data-lucide="phone" class="w-3 h-3"></i>
-                                    <?php echo htmlspecialchars($rescue['contact_phone']); ?>
+                                    <a href="tel:<?php echo htmlspecialchars($rescue['contact_phone']); ?>"
+                                        class="hover:text-paw-alert transition-colors">
+                                        <?php echo htmlspecialchars($rescue['contact_phone']); ?>
+                                    </a>
+                                </p>
+                            <?php endif; ?>
+                            <?php if (!empty($rescue['reporter_email'])): ?>
+                                <p class="text-xs text-paw-gray flex items-center gap-1 mt-1">
+                                    <i data-lucide="mail" class="w-3 h-3"></i>
+                                    <a href="mailto:<?php echo htmlspecialchars($rescue['reporter_email']); ?>"
+                                        class="hover:text-paw-alert transition-colors">
+                                        <?php echo htmlspecialchars($rescue['reporter_email']); ?>
+                                    </a>
                                 </p>
                             <?php endif; ?>
                         </div>

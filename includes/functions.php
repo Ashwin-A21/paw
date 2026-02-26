@@ -1,10 +1,16 @@
 <?php
 // includes/functions.php
 
-function handleFileUpload($file, $targetDir, $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'])
+function handleFileUpload($file, $targetDir, $allowedTypes = ['jpg', 'jpeg', 'png', 'gif', 'webp'])
 {
     if (!isset($file['name']) || empty($file['name'])) {
         return null;
+    }
+
+    // Max file size: 5MB
+    $maxSize = 5 * 1024 * 1024;
+    if ($file['size'] > $maxSize) {
+        return ['error' => 'File too large. Maximum size is 5MB.'];
     }
 
     if (!is_dir($targetDir)) {
@@ -15,11 +21,25 @@ function handleFileUpload($file, $targetDir, $allowedTypes = ['jpg', 'jpeg', 'pn
     $fileType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
     if (!in_array($fileType, $allowedTypes)) {
-        return ['error' => 'Invalid file type.'];
+        return ['error' => 'Invalid file type. Allowed: ' . implode(', ', $allowedTypes)];
+    }
+
+    // Validate MIME type
+    $allowedMimes = [
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'png' => 'image/png',
+        'gif' => 'image/gif',
+        'webp' => 'image/webp'
+    ];
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $detectedMime = $finfo->file($file['tmp_name']);
+    $validMimes = array_values(array_intersect_key($allowedMimes, array_flip($allowedTypes)));
+    if (!in_array($detectedMime, $validMimes)) {
+        return ['error' => 'File MIME type mismatch. Detected: ' . $detectedMime];
     }
 
     // Sanitize filename
-    // Remove special chars, replace spaces with underscores, lower case
     $fileNameWithoutExt = pathinfo($fileName, PATHINFO_FILENAME);
     $cleanName = preg_replace('/[^a-zA-Z0-9]/', '_', $fileNameWithoutExt);
     $cleanName = strtolower($cleanName);

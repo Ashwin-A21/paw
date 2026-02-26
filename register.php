@@ -6,34 +6,42 @@ $error = "";
 $success = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = mysqli_real_escape_string($conn, $_POST['username']);
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $password = mysqli_real_escape_string($conn, $_POST['password']);
-    $phone = mysqli_real_escape_string($conn, $_POST['phone']);
-    $gender = mysqli_real_escape_string($conn, $_POST['gender']);
-    $dob = mysqli_real_escape_string($conn, $_POST['dob']);
-
-    $role = $_POST['role'] ?? 'user';
-
-    // Validate role
-    $allowedRoles = ['user', 'volunteer', 'rescuer'];
-    if (!in_array($role, $allowedRoles)) {
-        $role = 'user';
-    }
-
-    $check = "SELECT id FROM users WHERE email = '$email'";
-    $result = $conn->query($check);
-
-    if ($result->num_rows > 0) {
-        $error = "Email already registered.";
+    // Validate CSRF
+    $csrf = $_POST['csrf_token'] ?? '';
+    if (!validateCsrfToken($csrf)) {
+        $error = "Invalid security token. Please try again.";
     } else {
-        $sql = "INSERT INTO users (username, email, password, role, phone, gender, dob) 
-                VALUES ('$username', '$email', '$password', '$role', '$phone', '$gender', '$dob')";
-        if ($conn->query($sql) === TRUE) {
-            $success = "Registration successful! You can now login.";
-        } else {
-            $error = "Something went wrong. Please try again.";
+        $username = $_POST['username'];
+        $email = $_POST['email'];
+        $password = $_POST['password'];
+        $phone = $_POST['phone'];
+        $gender = $_POST['gender'];
+        $dob = $_POST['dob'];
+
+        $role = $_POST['role'] ?? 'user';
+        $allowedRoles = ['user', 'volunteer', 'rescuer'];
+        if (!in_array($role, $allowedRoles)) {
+            $role = 'user';
         }
+
+        $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            $error = "Email already registered.";
+        } else {
+            $stmt2 = $conn->prepare("INSERT INTO users (username, email, password, role, phone, gender, dob) VALUES (?, ?, ?, ?, ?, ?, ?)");
+            $stmt2->bind_param("sssssss", $username, $email, $password, $role, $phone, $gender, $dob);
+            if ($stmt2->execute()) {
+                $success = "Registration successful! You can now login.";
+            } else {
+                $error = "Something went wrong. Please try again.";
+            }
+            $stmt2->close();
+        }
+        $stmt->close();
     }
 }
 ?>
@@ -138,6 +146,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <?php endif; ?>
 
             <form method="POST" class="space-y-4">
+                <?php echo csrfField(); ?>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm uppercase tracking-widest font-semibold mb-2">Full Name</label>

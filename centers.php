@@ -1,6 +1,7 @@
 <?php
 session_start();
 include 'config.php';
+include_once 'includes/pagination.php';
 
 // Filter by Type
 $typeFilter = isset($_GET['type']) ? mysqli_real_escape_string($conn, $_GET['type']) : '';
@@ -26,7 +27,23 @@ if (!empty($typeFilter)) {
 }
 $sql .= " ORDER BY lives_saved DESC";
 
+// Count total for pagination
+$countSql = str_replace("SELECT *, ", "SELECT COUNT(*) as total ", $sql);
+// Simpler count approach
+$countSql2 = "SELECT COUNT(*) as total FROM users WHERE is_verified = 1 AND role != 'admin'";
+if (!empty($typeFilter)) {
+    if ($typeFilter === 'Individual')
+        $countSql2 .= " AND role != 'organization'";
+    elseif ($typeFilter === 'Organization')
+        $countSql2 .= " AND role = 'organization'";
+}
+$totalItems = $conn->query($countSql2)->fetch_assoc()['total'];
+$currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+$pagination = getPaginationData($totalItems, 9, $currentPage);
+
+$sql .= " LIMIT {$pagination['perPage']} OFFSET {$pagination['offset']}";
 $centers = $conn->query($sql);
+$paginationUrl = 'centers.php' . (!empty($typeFilter) ? '?type=' . urlencode($typeFilter) : '');
 
 // Function to calculate Paw Score
 function calculatePawScore($conn, $userId, $livesSaved)
@@ -127,7 +144,7 @@ include 'includes/header.php';
     <div class="max-w-7xl mx-auto">
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <?php
-            $rank = 1;
+            $rank = $pagination['offset'] + 1;
             while ($center = $centers->fetch_assoc()):
                 $isTop3 = $rank <= 3;
                 $pawScore = calculatePawScore($conn, $center['id'], $center['lives_saved']);
@@ -135,7 +152,7 @@ include 'includes/header.php';
 
                 // Determine display name: prefer organization_name, then username
                 $displayName = !empty($center['organization_name']) ? $center['organization_name'] : $center['username'];
-                
+
                 $effectiveType = $center['effective_type'] ?? 'Individual';
                 $userRole = !empty($center['role']) ? ucfirst($center['role']) : 'Member';
                 ?>
@@ -264,6 +281,8 @@ include 'includes/header.php';
                 <p class="text-gray-400">Be the first to join our trusted network!</p>
             </div>
         <?php endif; ?>
+
+        <?php renderPagination($pagination['currentPage'], $pagination['totalPages'], $paginationUrl); ?>
     </div>
 </section>
 

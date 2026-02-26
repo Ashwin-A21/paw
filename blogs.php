@@ -2,7 +2,15 @@
 session_start();
 include 'config.php';
 
-$blogs = $conn->query("SELECT b.*, u.username as author_username, u.role as author_role FROM blogs b LEFT JOIN users u ON b.author_id = u.id WHERE b.is_published=1 AND b.status='approved' ORDER BY b.created_at DESC");
+include_once 'includes/pagination.php';
+
+// Count total blogs
+$countResult = $conn->query("SELECT COUNT(*) as total FROM blogs WHERE is_published=1 AND status='approved'");
+$totalItems = $countResult->fetch_assoc()['total'];
+$currentPage = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+$pagination = getPaginationData($totalItems, 9, $currentPage);
+
+$blogs = $conn->query("SELECT b.*, u.username as author_username, u.role as author_role FROM blogs b LEFT JOIN users u ON b.author_id = u.id WHERE b.is_published=1 AND b.status='approved' ORDER BY b.created_at DESC LIMIT {$pagination['perPage']} OFFSET {$pagination['offset']}");
 
 // Fetch current user if logged in
 $currentUser = null;
@@ -111,6 +119,8 @@ include 'includes/header.php';
                 <p class="text-paw-gray">Check back soon for updates, stories, and tips!</p>
             </div>
         <?php endif; ?>
+
+        <?php renderPagination($pagination['currentPage'], $pagination['totalPages'], 'blogs.php'); ?>
     </div>
 </section>
 
