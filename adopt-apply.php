@@ -8,10 +8,16 @@ if (!isset($_GET['pet'])) {
 }
 
 $petId = (int) $_GET['pet'];
-$pet = $conn->query("SELECT * FROM pets WHERE id=$petId")->fetch_assoc();
+$pet = $conn->query("SELECT p.*, u.username as owner_name FROM pets p LEFT JOIN users u ON p.added_by = u.id WHERE p.id=$petId")->fetch_assoc();
 
 if (!$pet) {
     header("Location: adopt.php");
+    exit();
+}
+
+// Block users from applying to their own pets
+if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $pet['added_by']) {
+    header("Location: pet-details.php?id=$petId");
     exit();
 }
 
@@ -40,6 +46,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($stmt->execute()) {
                 $message = "success";
+
+                // Notify pet owner about the new application
+                if ($pet['added_by'] && $pet['added_by'] != $userId) {
+                    include_once 'includes/notify.php';
+                    $applicantName = $_SESSION['username'] ?? 'Someone';
+                    createNotification(
+                        $conn,
+                        $pet['added_by'],
+                        'adoption_application',
+                        $applicantName . ' wants to adopt your pet "' . $pet['name'] . '"! Review their application.',
+                        'manage-applications.php'
+                    );
+                }
             } else {
                 $error = "Something went wrong. Please try again.";
             }

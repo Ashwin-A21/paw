@@ -237,7 +237,9 @@ if (isset($isTransparentHeader) && $isTransparentHeader) {
 
                     <div class="hidden md:flex items-center gap-4">
                         <!-- Dark Mode Toggle -->
-                        <button onclick="toggleDarkMode()" class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer" title="Toggle dark mode">
+                        <button onclick="toggleDarkMode()"
+                            class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+                            title="Toggle dark mode">
                             <i data-lucide="sun" class="w-5 h-5 hidden dark:block text-yellow-400"></i>
                             <i data-lucide="moon" class="w-5 h-5 block dark:hidden text-paw-dark"></i>
                         </button>
@@ -349,6 +351,11 @@ if (isset($isTransparentHeader) && $isTransparentHeader) {
                                             class="flex items-center gap-3 px-5 py-2.5 text-sm text-gray-700 hover:bg-paw-bg hover:text-paw-accent transition-colors">
                                             <i data-lucide="heart" class="w-4 h-4"></i>
                                             My Pets
+                                        </a>
+                                        <a href="<?php echo $basePath; ?>manage-applications.php"
+                                            class="flex items-center gap-3 px-5 py-2.5 text-sm text-gray-700 hover:bg-paw-bg hover:text-paw-accent transition-colors">
+                                            <i data-lucide="inbox" class="w-4 h-4"></i>
+                                            Applications
                                         </a>
                                         <a href="<?php echo $basePath; ?>public/my-rescues.php"
                                             class="flex items-center gap-3 px-5 py-2.5 text-sm text-gray-700 hover:bg-paw-bg hover:text-paw-accent transition-colors">

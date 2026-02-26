@@ -82,6 +82,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_status']) && i
         $updStmt->bind_param("si", $newStatus, $pet_id);
         $updStmt->execute();
         $updStmt->close();
+
+        // If the pet was marked as Adopted, notify commenters
+        if ($newStatus === 'Adopted') {
+            include_once 'includes/notify.php';
+            $commentersStmt = $conn->prepare("SELECT DISTINCT user_id FROM comments WHERE entity_id = ? AND entity_type = 'pet' AND user_id != ?");
+            $commentersStmt->bind_param("ii", $pet_id, $pet['added_by']);
+            $commentersStmt->execute();
+            $commentersResult = $commentersStmt->get_result();
+            while ($commenter = $commentersResult->fetch_assoc()) {
+                createNotification(
+                    $conn,
+                    $commenter['user_id'],
+                    'pet_adopted_commenter',
+                    '🐾 Good news! "' . $pet['name'] . '" was just adopted. View their info and your old comments.',
+                    'pet-details.php?id=' . $pet_id
+                );
+            }
+            $commentersStmt->close();
+        }
     }
     header("Location: pet-details.php?id=$pet_id");
     exit();
@@ -206,15 +225,15 @@ include 'includes/header.php';
                             </p>
                         </div>
 
-                        <div class="mt-auto pt-8 border-t border-gray-100 flex gap-4">
+                        <div class="mt-auto pt-8 border-t border-gray-100 flex flex-wrap gap-4">
                             <?php if (isset($_SESSION['user_id'])): ?>
 
                                 <?php if ($_SESSION['user_id'] == $pet['added_by']): ?>
                                     <!-- Owner View: Change Status -->
-                                    <form method="POST" class="flex-1 flex gap-2">
+                                    <form method="POST" class="flex-1 flex flex-wrap sm:flex-nowrap gap-2 min-w-[200px]">
                                         <input type="hidden" name="update_status" value="1">
                                         <select name="status"
-                                            class="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent bg-white">
+                                            class="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent bg-white min-w-[120px]">
                                             <option value="Available" <?php echo $pet['status'] == 'Available' ? 'selected' : ''; ?>>
                                                 Available</option>
                                             <option value="Adopted" <?php echo $pet['status'] == 'Adopted' ? 'selected' : ''; ?>>Adopted
@@ -223,10 +242,33 @@ include 'includes/header.php';
                                             </option>
                                         </select>
                                         <button type="submit"
-                                            class="px-6 py-3 bg-paw-dark text-white rounded-xl font-bold uppercase tracking-widest hover:bg-paw-accent transition-colors">
+                                            class="px-6 py-3 bg-paw-dark text-white rounded-xl font-bold uppercase tracking-widest hover:bg-paw-accent transition-colors flex-shrink-0">
                                             Update
                                         </button>
                                     </form>
+                                    <?php
+                                    // Count pending applications for this pet
+                                    $appCountStmt = $conn->prepare("SELECT COUNT(*) as cnt FROM adoption_applications WHERE pet_id = ? AND owner_response = 'Pending'");
+                                    if ($appCountStmt) {
+                                        $appCountStmt->bind_param("i", $pet_id);
+                                        $appCountStmt->execute();
+                                        $appCountRow = $appCountStmt->get_result()->fetch_assoc();
+                                        $pendingAppCount = $appCountRow['cnt'] ?? 0;
+                                        $appCountStmt->close();
+                                    } else {
+                                        $pendingAppCount = 0;
+                                    }
+                                    ?>
+                                    <a href="manage-applications.php"
+                                        class="relative px-6 py-3 border-2 border-paw-accent text-paw-accent rounded-xl font-bold uppercase tracking-widest hover:bg-paw-accent hover:text-white transition-colors flex items-center gap-2 text-sm whitespace-nowrap"
+                                        title="View adoption applications">
+                                        <i data-lucide="inbox" class="w-4 h-4"></i> Applications
+                                        <?php if ($pendingAppCount > 0): ?>
+                                            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                                                <?php echo $pendingAppCount; ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </a>
                                 <?php elseif ($pet['status'] == 'Available'): ?>
                                     <a href="adopt-apply.php?pet=<?php echo $pet['id']; ?>"
                                         class="flex-1 py-4 bg-paw-accent text-white rounded-xl text-center font-bold uppercase tracking-widest border border-transparent hover:bg-paw-dark transition-all shadow-lg shadow-paw-accent/20">

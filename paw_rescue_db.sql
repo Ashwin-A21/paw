@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 26, 2026 at 12:04 PM
+-- Generation Time: Feb 26, 2026 at 12:56 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -34,6 +34,8 @@ CREATE TABLE `adoption_applications` (
   `message` text DEFAULT NULL,
   `status` enum('Pending','Approved','Rejected') DEFAULT 'Pending',
   `admin_notes` text DEFAULT NULL,
+  `owner_response` enum('Pending','Deal','No Deal') DEFAULT 'Pending',
+  `owner_notes` text DEFAULT NULL,
   `application_date` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -41,8 +43,9 @@ CREATE TABLE `adoption_applications` (
 -- Dumping data for table `adoption_applications`
 --
 
-INSERT INTO `adoption_applications` (`id`, `user_id`, `pet_id`, `message`, `status`, `admin_notes`, `application_date`) VALUES
-(1, 1, 7, 'i would like to adopt chommu if its not yet adopted ,plsss\r\n. Finaly price 5K\r\n', 'Pending', NULL, '2026-02-26 10:39:09');
+INSERT INTO `adoption_applications` (`id`, `user_id`, `pet_id`, `message`, `status`, `admin_notes`, `owner_response`, `owner_notes`, `application_date`) VALUES
+(1, 1, 7, 'i would like to adopt chommu if its not yet adopted ,plsss\r\n. Finaly price 5K\r\n', 'Approved', NULL, 'Deal', 'make sure to treat it well', '2026-02-26 10:39:09'),
+(2, 3, 6, 'i love husky a lot ,and i promise to take goodcare', 'Pending', NULL, 'Deal', 'hope u treat him well', '2026-02-26 11:50:19');
 
 -- --------------------------------------------------------
 
@@ -103,7 +106,10 @@ INSERT INTO `comments` (`id`, `entity_type`, `entity_id`, `user_id`, `comment`, 
 (5, 'pet', 7, 5, 'looks cute btw', '2026-02-15 09:57:32'),
 (6, 'pet', 6, 5, 'Damnn.. i need this fellow', '2026-02-15 09:58:02'),
 (7, 'pet', 7, 1, 'the best patti', '2026-02-26 10:00:02'),
-(8, 'pet', 7, 1, 'sarahh is the dog adopted ??', '2026-02-26 10:38:32');
+(8, 'pet', 7, 1, 'sarahh is the dog adopted ??', '2026-02-26 10:38:32'),
+(9, 'pet', 7, 3, 'not yet , u can contact me for the deal', '2026-02-26 11:27:20'),
+(10, 'pet', 6, 1, 'up for sale', '2026-02-26 11:48:48'),
+(11, 'pet', 6, 5, 'sad for me ...', '2026-02-26 11:55:40');
 
 -- --------------------------------------------------------
 
@@ -157,7 +163,8 @@ CREATE TABLE `favorites` (
 INSERT INTO `favorites` (`id`, `user_id`, `pet_id`, `created_at`) VALUES
 (1, 1, 6, '2026-02-26 10:56:56'),
 (2, 1, 7, '2026-02-26 10:56:58'),
-(3, 1, 3, '2026-02-26 10:57:05');
+(3, 1, 3, '2026-02-26 10:57:05'),
+(4, 3, 1, '2026-02-26 11:26:55');
 
 -- --------------------------------------------------------
 
@@ -204,7 +211,12 @@ CREATE TABLE `notifications` (
 --
 
 INSERT INTO `notifications` (`id`, `user_id`, `type`, `message`, `link`, `is_read`, `created_at`) VALUES
-(1, 3, 'comment', 'Admin commented on your pet \"chommu\"', 'pet-details.php?id=7#comments', 0, '2026-02-26 10:38:32');
+(1, 3, 'comment', 'Admin commented on your pet \"chommu\"', 'pet-details.php?id=7#comments', 1, '2026-02-26 10:38:32'),
+(2, 1, 'adoption_application', 'Sarah G Volunteer wants to adopt your pet \"bogra\"! Review their application.', 'manage-applications.php', 0, '2026-02-26 11:50:19'),
+(3, 1, 'adoption_deal', '🎉 Great news! Your adoption application for \"chommu\" has been accepted! It\'s a Deal!', 'pet-details.php?id=7', 0, '2026-02-26 11:50:46'),
+(4, 3, 'adoption_deal', '🎉 Great news! Your adoption application for \"bogra\" has been accepted! It\'s a Deal!', 'pet-details.php?id=6', 0, '2026-02-26 11:54:02'),
+(5, 5, 'pet_adopted_commenter', '🐾 Good news! \"bogra\" was just adopted by Sarah G Volunteer. View their info and your old comments.', 'pet-details.php?id=6', 1, '2026-02-26 11:54:02'),
+(6, 1, 'comment', 'MeowMeow trust  commented on your pet \"bogra\"', 'pet-details.php?id=6#comments', 0, '2026-02-26 11:55:40');
 
 -- --------------------------------------------------------
 
@@ -235,8 +247,8 @@ INSERT INTO `pets` (`id`, `name`, `type`, `breed`, `age`, `gender`, `description
 (3, 'Arjun', 'dog', 'German Shepherd', '3 years', 'Male', 'Arjun is a loyal and intelligent German Shepherd. He has been trained in basic commands and is very protective.', '1771130365_german_shepherd_dog_guide.avif', 'Available', 1, '2026-02-02 05:26:50'),
 (4, 'Luna', 'cat', 'Persian', '2 years', 'Female', 'Luna is a beautiful Persian cat with a fluffy white coat. She enjoys quiet environments and gentle handling.', '1771130405_Persian_in_Cat_Cafe.jpg', 'Available', 1, '2026-02-02 05:26:50'),
 (5, 'Max', 'dog', 'Golden Retriever', '4 years', 'Male', 'Max is a gentle giant who loves everyone he meets. Perfect for families looking for a loyal companion.', '1771130471_Untitled_design-40.jpg', 'Available', 1, '2026-02-02 05:26:50'),
-(6, 'bogra', 'dog', 'Siberian Husky', '6', 'Male', 'The Siberian Husky is a breed of medium-sized working sled dog. The breed belongs to the Spitz genetic family. It is recognizable by its thickly furred double coat, erect triangular ears, and distinctive markings, and is smaller than the similar-looking Alaskan Malamute', '1771130092_images.webp', 'Available', 1, '2026-02-15 04:34:52'),
-(7, 'chommu', 'dog', 'street dog ', '7', 'Male', 'cutiepie chommu , keralas one and only chommu', '1771133524_download (11).jpg', 'Available', 3, '2026-02-15 05:32:04');
+(6, 'bogra', 'dog', 'Siberian Husky', '6', 'Male', 'The Siberian Husky is a breed of medium-sized working sled dog. The breed belongs to the Spitz genetic family. It is recognizable by its thickly furred double coat, erect triangular ears, and distinctive markings, and is smaller than the similar-looking Alaskan Malamute', '1771130092_images.webp', 'Adopted', 1, '2026-02-15 04:34:52'),
+(7, 'chommu', 'dog', 'street dog ', '7', 'Male', 'cutiepie chommu , keralas one and only chommu', '1771133524_download (11).jpg', 'Adopted', 3, '2026-02-15 05:32:04');
 
 -- --------------------------------------------------------
 
@@ -300,7 +312,8 @@ INSERT INTO `rescue_reports` (`id`, `reporter_id`, `reporter_name`, `contact_pho
 (1, NULL, 'Anonymous', '9876543210', 'Near City Park, Main Street', NULL, NULL, 'Injured stray dog found near the park. Appears to have a leg injury and is limping.', 'Dog', 'High', NULL, 'Rescued', 4, '2026-02-02 05:26:50', '2026-02-11 11:41:41'),
 (2, 5, 'Ash', '897654235', 'near the old abounded house pet stuck under the pipeline', 12.70606400, 74.90422900, 'its an emergency , urgent help needed', NULL, 'Medium', '', 'Rescued', NULL, '2026-02-02 07:17:42', '2026-02-15 09:01:23'),
 (3, NULL, 'test', '786523545', 'xsfcsdf', 28.42341000, 76.98806800, 'sdfsf', NULL, 'Medium', '1771050797_download (9).jpg', 'Rescued', NULL, '2026-02-14 06:33:17', '2026-02-26 09:57:12'),
-(4, 5, 'Meow Meow ', '9876543223', 'as marked ', 28.63002500, 77.22498200, 'dog is high on drugs ', NULL, 'Critical', '1771147929_#vibzztime #memes.jpg', 'Reported', NULL, '2026-02-15 09:32:09', '2026-02-15 09:32:09');
+(4, 5, 'Meow Meow ', '9876543223', 'as marked ', 28.63002500, 77.22498200, 'dog is high on drugs ', NULL, 'Critical', '1771147929_#vibzztime #memes.jpg', 'Reported', NULL, '2026-02-15 09:32:09', '2026-02-15 09:32:09'),
+(5, NULL, 'Ash123', '987654324343', 'hurry up', 28.61587100, 77.22410200, 'urgent', NULL, 'Critical', '', 'Reported', NULL, '2026-02-26 11:26:14', '2026-02-26 11:26:14');
 
 -- --------------------------------------------------------
 
@@ -549,7 +562,7 @@ ALTER TABLE `volunteer_shifts`
 -- AUTO_INCREMENT for table `adoption_applications`
 --
 ALTER TABLE `adoption_applications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `blogs`
@@ -561,7 +574,7 @@ ALTER TABLE `blogs`
 -- AUTO_INCREMENT for table `comments`
 --
 ALTER TABLE `comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `contact_messages`
@@ -579,7 +592,7 @@ ALTER TABLE `donations`
 -- AUTO_INCREMENT for table `favorites`
 --
 ALTER TABLE `favorites`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `feedback`
@@ -591,7 +604,7 @@ ALTER TABLE `feedback`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `pets`
@@ -615,7 +628,7 @@ ALTER TABLE `pet_medical_records`
 -- AUTO_INCREMENT for table `rescue_reports`
 --
 ALTER TABLE `rescue_reports`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `role_requests`

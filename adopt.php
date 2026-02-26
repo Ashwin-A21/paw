@@ -195,20 +195,31 @@ include 'includes/header.php';
 
                             <div class="pt-6 border-t border-gray-100 mt-auto">
                                 <div class="flex gap-3">
-                                    <a href="pet-details.php?id=<?php echo $pet['id']; ?>"
-                                        class="flex-1 py-3 border border-paw-dark text-paw-dark rounded-xl text-center text-sm font-bold uppercase tracking-widest hover:bg-paw-dark hover:text-white transition-colors">
-                                        Details
-                                    </a>
-                                    <?php if (isset($_SESSION['user_id'])): ?>
-                                        <a href="adopt-apply.php?pet=<?php echo $pet['id']; ?>"
+                                    <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] == $pet['added_by']): ?>
+                                        <a href="pet-details.php?id=<?php echo $pet['id']; ?>"
+                                            class="flex-1 py-3 border border-paw-dark text-paw-dark rounded-xl text-center text-sm font-bold uppercase tracking-widest hover:bg-paw-dark hover:text-white transition-colors">
+                                            Manage
+                                        </a>
+                                        <a href="manage-applications.php"
                                             class="flex-1 py-3 bg-paw-accent text-white rounded-xl text-center text-sm font-bold uppercase tracking-widest hover:bg-paw-dark transition-colors shadow-lg shadow-paw-accent/20">
-                                            Adopt
+                                            Applications
                                         </a>
                                     <?php else: ?>
-                                        <a href="login.php"
-                                            class="flex-1 py-3 bg-paw-accent text-white rounded-xl text-center text-sm font-bold uppercase tracking-widest hover:bg-paw-dark transition-colors shadow-lg shadow-paw-accent/20">
-                                            Login to Adopt
+                                        <a href="pet-details.php?id=<?php echo $pet['id']; ?>"
+                                            class="flex-1 py-3 border border-paw-dark text-paw-dark rounded-xl text-center text-sm font-bold uppercase tracking-widest hover:bg-paw-dark hover:text-white transition-colors">
+                                            Details
                                         </a>
+                                        <?php if (isset($_SESSION['user_id'])): ?>
+                                            <a href="adopt-apply.php?pet=<?php echo $pet['id']; ?>"
+                                                class="flex-1 py-3 bg-paw-accent text-white rounded-xl text-center text-sm font-bold uppercase tracking-widest hover:bg-paw-dark transition-colors shadow-lg shadow-paw-accent/20">
+                                                Adopt
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="login.php"
+                                                class="flex-1 py-3 bg-paw-accent text-white rounded-xl text-center text-sm font-bold uppercase tracking-widest hover:bg-paw-dark transition-colors shadow-lg shadow-paw-accent/20">
+                                                Login to Adopt
+                                            </a>
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                 </div>
                             </div>
