@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 26, 2026 at 11:05 AM
+-- Generation Time: Feb 26, 2026 at 12:04 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -36,6 +36,13 @@ CREATE TABLE `adoption_applications` (
   `admin_notes` text DEFAULT NULL,
   `application_date` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `adoption_applications`
+--
+
+INSERT INTO `adoption_applications` (`id`, `user_id`, `pet_id`, `message`, `status`, `admin_notes`, `application_date`) VALUES
+(1, 1, 7, 'i would like to adopt chommu if its not yet adopted ,plsss\r\n. Finaly price 5K\r\n', 'Pending', NULL, '2026-02-26 10:39:09');
 
 -- --------------------------------------------------------
 
@@ -95,7 +102,8 @@ INSERT INTO `comments` (`id`, `entity_type`, `entity_id`, `user_id`, `comment`, 
 (4, 'rescue', 4, 5, 'druggie doggie', '2026-02-15 09:53:58'),
 (5, 'pet', 7, 5, 'looks cute btw', '2026-02-15 09:57:32'),
 (6, 'pet', 6, 5, 'Damnn.. i need this fellow', '2026-02-15 09:58:02'),
-(7, 'pet', 7, 1, 'the best patti', '2026-02-26 10:00:02');
+(7, 'pet', 7, 1, 'the best patti', '2026-02-26 10:00:02'),
+(8, 'pet', 7, 1, 'sarahh is the dog adopted ??', '2026-02-26 10:38:32');
 
 -- --------------------------------------------------------
 
@@ -132,6 +140,28 @@ CREATE TABLE `donations` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `favorites`
+--
+
+CREATE TABLE `favorites` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `pet_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `favorites`
+--
+
+INSERT INTO `favorites` (`id`, `user_id`, `pet_id`, `created_at`) VALUES
+(1, 1, 6, '2026-02-26 10:56:56'),
+(2, 1, 7, '2026-02-26 10:56:58'),
+(3, 1, 3, '2026-02-26 10:57:05');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `feedback`
 --
 
@@ -152,6 +182,29 @@ INSERT INTO `feedback` (`id`, `user_id`, `rating`, `message`, `created_at`) VALU
 (3, 1, 4, 'nicee', '2026-02-15 06:05:23'),
 (4, 5, 5, 'great website for bringing out newer innovation and idea into existence .', '2026-02-15 08:55:29'),
 (5, 5, 5, 'Wonderfull website .. made a lot of donation money ..heheheh', '2026-02-15 10:11:23');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notifications`
+--
+
+CREATE TABLE `notifications` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `type` varchar(50) NOT NULL,
+  `message` text NOT NULL,
+  `link` varchar(255) DEFAULT NULL,
+  `is_read` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `notifications`
+--
+
+INSERT INTO `notifications` (`id`, `user_id`, `type`, `message`, `link`, `is_read`, `created_at`) VALUES
+(1, 3, 'comment', 'Admin commented on your pet \"chommu\"', 'pet-details.php?id=7#comments', 0, '2026-02-26 10:38:32');
 
 -- --------------------------------------------------------
 
@@ -184,6 +237,36 @@ INSERT INTO `pets` (`id`, `name`, `type`, `breed`, `age`, `gender`, `description
 (5, 'Max', 'dog', 'Golden Retriever', '4 years', 'Male', 'Max is a gentle giant who loves everyone he meets. Perfect for families looking for a loyal companion.', '1771130471_Untitled_design-40.jpg', 'Available', 1, '2026-02-02 05:26:50'),
 (6, 'bogra', 'dog', 'Siberian Husky', '6', 'Male', 'The Siberian Husky is a breed of medium-sized working sled dog. The breed belongs to the Spitz genetic family. It is recognizable by its thickly furred double coat, erect triangular ears, and distinctive markings, and is smaller than the similar-looking Alaskan Malamute', '1771130092_images.webp', 'Available', 1, '2026-02-15 04:34:52'),
 (7, 'chommu', 'dog', 'street dog ', '7', 'Male', 'cutiepie chommu , keralas one and only chommu', '1771133524_download (11).jpg', 'Available', 3, '2026-02-15 05:32:04');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pet_images`
+--
+
+CREATE TABLE `pet_images` (
+  `id` int(11) NOT NULL,
+  `pet_id` int(11) NOT NULL,
+  `image` varchar(255) NOT NULL,
+  `sort_order` int(11) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pet_medical_records`
+--
+
+CREATE TABLE `pet_medical_records` (
+  `id` int(11) NOT NULL,
+  `pet_id` int(11) NOT NULL,
+  `record_type` enum('Vaccination','Checkup','Surgery','Treatment','Other') NOT NULL,
+  `description` text NOT NULL,
+  `date` date NOT NULL,
+  `vet_name` varchar(100) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -247,6 +330,24 @@ INSERT INTO `role_requests` (`id`, `user_id`, `requested_role`, `organization_na
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `success_stories`
+--
+
+CREATE TABLE `success_stories` (
+  `id` int(11) NOT NULL,
+  `pet_id` int(11) DEFAULT NULL,
+  `user_id` int(11) NOT NULL,
+  `title` varchar(150) NOT NULL,
+  `story` text NOT NULL,
+  `before_image` varchar(255) DEFAULT NULL,
+  `after_image` varchar(255) DEFAULT NULL,
+  `status` enum('pending','approved','rejected') DEFAULT 'pending',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `tasks`
 --
 
@@ -296,6 +397,22 @@ INSERT INTO `users` (`id`, `username`, `email`, `password`, `phone`, `address`, 
 (4, 'Mike Rescuer', 'mike@rescuer.com', '1234', NULL, NULL, 'rescuer', 1, '2026-02-02 05:26:50', NULL, NULL, NULL, 8, NULL),
 (5, 'MeowMeow trust ', 'ash@gmail.com', '12345', '9897654321', 'Kerala 671324', 'organization', 1, '2026-02-02 05:27:38', '', '2002-10-21', 'https://api.dicebear.com/9.x/toon-head/svg?seed=Charlie', 10, 'Meoww');
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `volunteer_shifts`
+--
+
+CREATE TABLE `volunteer_shifts` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `date` date NOT NULL,
+  `hours` decimal(4,1) NOT NULL,
+  `description` text DEFAULT NULL,
+  `status` enum('Scheduled','Completed','Cancelled') DEFAULT 'Scheduled',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 --
 -- Indexes for dumped tables
 --
@@ -336,9 +453,25 @@ ALTER TABLE `donations`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `favorites`
+--
+ALTER TABLE `favorites`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_fav` (`user_id`,`pet_id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `pet_id` (`pet_id`);
+
+--
 -- Indexes for table `feedback`
 --
 ALTER TABLE `feedback`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `notifications`
+--
+ALTER TABLE `notifications`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
 
@@ -348,6 +481,20 @@ ALTER TABLE `feedback`
 ALTER TABLE `pets`
   ADD PRIMARY KEY (`id`),
   ADD KEY `added_by` (`added_by`);
+
+--
+-- Indexes for table `pet_images`
+--
+ALTER TABLE `pet_images`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `pet_id` (`pet_id`);
+
+--
+-- Indexes for table `pet_medical_records`
+--
+ALTER TABLE `pet_medical_records`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `pet_id` (`pet_id`);
 
 --
 -- Indexes for table `rescue_reports`
@@ -365,6 +512,14 @@ ALTER TABLE `role_requests`
   ADD KEY `user_id` (`user_id`);
 
 --
+-- Indexes for table `success_stories`
+--
+ALTER TABLE `success_stories`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `pet_id` (`pet_id`);
+
+--
 -- Indexes for table `tasks`
 --
 ALTER TABLE `tasks`
@@ -380,6 +535,13 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `email` (`email`);
 
 --
+-- Indexes for table `volunteer_shifts`
+--
+ALTER TABLE `volunteer_shifts`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -387,7 +549,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `adoption_applications`
 --
 ALTER TABLE `adoption_applications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `blogs`
@@ -399,7 +561,7 @@ ALTER TABLE `blogs`
 -- AUTO_INCREMENT for table `comments`
 --
 ALTER TABLE `comments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `contact_messages`
@@ -414,16 +576,40 @@ ALTER TABLE `donations`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `favorites`
+--
+ALTER TABLE `favorites`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT for table `feedback`
 --
 ALTER TABLE `feedback`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
+-- AUTO_INCREMENT for table `notifications`
+--
+ALTER TABLE `notifications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `pets`
 --
 ALTER TABLE `pets`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `pet_images`
+--
+ALTER TABLE `pet_images`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `pet_medical_records`
+--
+ALTER TABLE `pet_medical_records`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `rescue_reports`
@@ -438,6 +624,12 @@ ALTER TABLE `role_requests`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT for table `success_stories`
+--
+ALTER TABLE `success_stories`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `tasks`
 --
 ALTER TABLE `tasks`
@@ -448,6 +640,12 @@ ALTER TABLE `tasks`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+--
+-- AUTO_INCREMENT for table `volunteer_shifts`
+--
+ALTER TABLE `volunteer_shifts`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables
@@ -473,16 +671,41 @@ ALTER TABLE `comments`
   ADD CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `favorites`
+--
+ALTER TABLE `favorites`
+  ADD CONSTRAINT `favorites_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `favorites_ibfk_2` FOREIGN KEY (`pet_id`) REFERENCES `pets` (`id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `feedback`
 --
 ALTER TABLE `feedback`
   ADD CONSTRAINT `feedback_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `pets`
 --
 ALTER TABLE `pets`
   ADD CONSTRAINT `pets_ibfk_1` FOREIGN KEY (`added_by`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `pet_images`
+--
+ALTER TABLE `pet_images`
+  ADD CONSTRAINT `pet_images_ibfk_1` FOREIGN KEY (`pet_id`) REFERENCES `pets` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `pet_medical_records`
+--
+ALTER TABLE `pet_medical_records`
+  ADD CONSTRAINT `pet_medical_records_ibfk_1` FOREIGN KEY (`pet_id`) REFERENCES `pets` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `rescue_reports`
@@ -498,11 +721,24 @@ ALTER TABLE `role_requests`
   ADD CONSTRAINT `role_requests_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `success_stories`
+--
+ALTER TABLE `success_stories`
+  ADD CONSTRAINT `success_stories_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `success_stories_ibfk_2` FOREIGN KEY (`pet_id`) REFERENCES `pets` (`id`) ON DELETE SET NULL;
+
+--
 -- Constraints for table `tasks`
 --
 ALTER TABLE `tasks`
   ADD CONSTRAINT `tasks_ibfk_1` FOREIGN KEY (`assigned_to`) REFERENCES `users` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `tasks_ibfk_2` FOREIGN KEY (`rescue_report_id`) REFERENCES `rescue_reports` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `volunteer_shifts`
+--
+ALTER TABLE `volunteer_shifts`
+  ADD CONSTRAINT `volunteer_shifts_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
