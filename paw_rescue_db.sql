@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 26, 2026 at 12:56 PM
+-- Generation Time: Mar 01, 2026 at 06:28 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -72,12 +72,7 @@ CREATE TABLE `blogs` (
 
 INSERT INTO `blogs` (`id`, `title`, `slug`, `content`, `author_id`, `author`, `image`, `is_published`, `created_at`, `status`) VALUES
 (1, 'Why Adopt a Pet?', 'why-adopt-a-pet', 'Adopting a pet saves two lives: the one you adopt and the one who takes their place in the shelter. Every year, millions of animals end up in shelters. By adopting, you give them a second chance at happiness while also gaining a loyal companion.\n\nAdopted pets are often already vaccinated, spayed/neutered, and microchipped, saving you time and money. Plus, shelters can help match you with a pet that fits your lifestyle.\n\nMake a difference today – adopt, don\'t shop!', 1, 'Admin', NULL, 1, '2026-02-02 05:26:50', 'approved'),
-(2, 'How to Prepare Your Home for a New Pet ', 'prepare-home-new-pet', 'Bringing a new pet home is exciting! Here are some tips to prepare:\r\n\r\n1. Pet-proof your home by removing hazardous items\r\n2. Set up a comfortable sleeping area\r\n3. Stock up on food, treats, and toys\r\n4. Schedule a vet visit\r\n5. Be patient during the adjustment period\r\n\r\nRemember, your new pet may need time to settle in. Give them love and patience!', 1, 'Admin', '1771146134_#vibzztime #memes.jpg', 1, '2026-02-02 05:26:50', 'rejected'),
-(3, 'duck found missing', NULL, 'duck u ', 3, 'Sarah Volunteer', '1771130501_credits~bugsfreeelife.jpg', 1, '2026-02-12 10:50:39', 'approved'),
-(4, 'sf', NULL, 'sdfdf', 1, 'Admin', '', 1, '2026-02-12 11:09:39', 'approved'),
-(5, 'sdfsd samoosa', NULL, 'dsf3rsf', 3, 'Sarah G Volunteer', '1771050906_download (8).jpg', 1, '2026-02-14 06:35:06', 'approved'),
-(6, 'Doge after one sniff of \'Fresh Mountain Breeze', NULL, 'They said the new Ariel scent was uplifting. They didn\'t warn him it would literally lift him to another dimension. Current status: eyes at half-mast, tail optional, existential crisis included.\r\n\r\nStarted as \'let\'s do whites together\'… ended with him face-down in his own powder masterpiece like a tiny Scarface. Somebody get this dog some milk and a therapist.', 3, 'Sarah G Volunteer', '1771147297_#vibzztime #memes.jpg', 1, '2026-02-15 09:19:36', 'approved'),
-(7, 'Kya be… Atankwadi? (Dogesh edition)', NULL, 'Puddle mein selfie le raha tha boss, par expression dekh – jaise bol raha ho \'tu mera area mein kya kar raha hai be?\'. Dogesh ne aaj ragging ka new level unlock kar diya. Who hurt you bhai? 🥶 #StreetDogSavage #KyabeAtankwadi #IndianDogMemes', 5, 'MeowMeow trust ', '1771150473_8163_____.jpg', 1, '2026-02-15 10:14:33', 'approved');
+(2, 'How to Prepare Your Home for a New Pet ', 'prepare-home-new-pet', 'Bringing a new pet home is exciting! Here are some tips to prepare:\r\n\r\n1. Pet-proof your home by removing hazardous items\r\n2. Set up a comfortable sleeping area\r\n3. Stock up on food, treats, and toys\r\n4. Schedule a vet visit\r\n5. Be patient during the adjustment period\r\n\r\nRemember, your new pet may need time to settle in. Give them love and patience!', 1, 'Admin', '1771146134_#vibzztime #memes.jpg', 1, '2026-02-02 05:26:50', 'rejected');
 
 -- --------------------------------------------------------
 
@@ -248,7 +243,7 @@ INSERT INTO `pets` (`id`, `name`, `type`, `breed`, `age`, `gender`, `description
 (4, 'Luna', 'cat', 'Persian', '2 years', 'Female', 'Luna is a beautiful Persian cat with a fluffy white coat. She enjoys quiet environments and gentle handling.', '1771130405_Persian_in_Cat_Cafe.jpg', 'Available', 1, '2026-02-02 05:26:50'),
 (5, 'Max', 'dog', 'Golden Retriever', '4 years', 'Male', 'Max is a gentle giant who loves everyone he meets. Perfect for families looking for a loyal companion.', '1771130471_Untitled_design-40.jpg', 'Available', 1, '2026-02-02 05:26:50'),
 (6, 'bogra', 'dog', 'Siberian Husky', '6', 'Male', 'The Siberian Husky is a breed of medium-sized working sled dog. The breed belongs to the Spitz genetic family. It is recognizable by its thickly furred double coat, erect triangular ears, and distinctive markings, and is smaller than the similar-looking Alaskan Malamute', '1771130092_images.webp', 'Adopted', 1, '2026-02-15 04:34:52'),
-(7, 'chommu', 'dog', 'street dog ', '7', 'Male', 'cutiepie chommu , keralas one and only chommu', '1771133524_download (11).jpg', 'Adopted', 3, '2026-02-15 05:32:04');
+(7, 'chomu', 'dog', 'street dog ', '7', 'Male', 'cutiepie chommu , keralas one and only chommu', '1771133524_download (11).jpg', 'Adopted', 3, '2026-02-15 05:32:04');
 
 -- --------------------------------------------------------
 
@@ -311,8 +306,6 @@ CREATE TABLE `rescue_reports` (
 INSERT INTO `rescue_reports` (`id`, `reporter_id`, `reporter_name`, `contact_phone`, `location`, `latitude`, `longitude`, `description`, `animal_type`, `urgency`, `image`, `status`, `assigned_to`, `reported_at`, `updated_at`) VALUES
 (1, NULL, 'Anonymous', '9876543210', 'Near City Park, Main Street', NULL, NULL, 'Injured stray dog found near the park. Appears to have a leg injury and is limping.', 'Dog', 'High', NULL, 'Rescued', 4, '2026-02-02 05:26:50', '2026-02-11 11:41:41'),
 (2, 5, 'Ash', '897654235', 'near the old abounded house pet stuck under the pipeline', 12.70606400, 74.90422900, 'its an emergency , urgent help needed', NULL, 'Medium', '', 'Rescued', NULL, '2026-02-02 07:17:42', '2026-02-15 09:01:23'),
-(3, NULL, 'test', '786523545', 'xsfcsdf', 28.42341000, 76.98806800, 'sdfsf', NULL, 'Medium', '1771050797_download (9).jpg', 'Rescued', NULL, '2026-02-14 06:33:17', '2026-02-26 09:57:12'),
-(4, 5, 'Meow Meow ', '9876543223', 'as marked ', 28.63002500, 77.22498200, 'dog is high on drugs ', NULL, 'Critical', '1771147929_#vibzztime #memes.jpg', 'Reported', NULL, '2026-02-15 09:32:09', '2026-02-15 09:32:09'),
 (5, NULL, 'Ash123', '987654324343', 'hurry up', 28.61587100, 77.22410200, 'urgent', NULL, 'Critical', '', 'Reported', NULL, '2026-02-26 11:26:14', '2026-02-26 11:26:14');
 
 -- --------------------------------------------------------
