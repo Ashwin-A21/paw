@@ -17,14 +17,21 @@ if (isset($_SESSION['user_id'])) {
     $uid = $_SESSION['user_id'];
     // We assume $conn is available from config.php
     if (isset($conn)) {
-        $uStmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
-        $uStmt->bind_param("i", $uid);
-        $uStmt->execute();
-        $uResult = $uStmt->get_result();
-        if ($uResult && $uResult->num_rows > 0) {
-            $currentUser = $uResult->fetch_assoc();
+        try {
+            $uStmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
+            if ($uStmt) {
+                $uStmt->bind_param("i", $uid);
+                $uStmt->execute();
+                $uResult = $uStmt->get_result();
+                if ($uResult && $uResult->num_rows > 0) {
+                    $currentUser = $uResult->fetch_assoc();
+                }
+                $uStmt->close();
+            }
+        } catch (Throwable $e) {
+            // Gracefully handle any MySQL errors or missing extensions
+            error_log("Header User Fetch Error: " . $e->getMessage());
         }
-        $uStmt->close();
     }
 }
 
@@ -258,13 +265,20 @@ if (isset($isTransparentHeader) && $isTransparentHeader) {
                             <?php
                             // Fetch unread notification count
                             $notifCount = 0;
-                            $ncStmt = $conn->prepare("SELECT COUNT(*) as cnt FROM notifications WHERE user_id = ? AND is_read = 0");
-                            if ($ncStmt) {
-                                $ncStmt->bind_param("i", $_SESSION['user_id']);
-                                $ncStmt->execute();
-                                $ncRow = $ncStmt->get_result()->fetch_assoc();
-                                $notifCount = $ncRow['cnt'] ?? 0;
-                                $ncStmt->close();
+                            if (isset($conn)) {
+                                try {
+                                    $ncStmt = $conn->prepare("SELECT COUNT(*) as cnt FROM notifications WHERE user_id = ? AND is_read = 0");
+                                    if ($ncStmt) {
+                                        $ncStmt->bind_param("i", $_SESSION['user_id']);
+                                        $ncStmt->execute();
+                                        $ncRow = $ncStmt->get_result()->fetch_assoc();
+                                        $notifCount = $ncRow['cnt'] ?? 0;
+                                        $ncStmt->close();
+                                    }
+                                } catch (Throwable $e) {
+                                    // Gracefully handle if notifications table does not exist or if get_result fails
+                                    error_log("Notifications error: " . $e->getMessage());
+                                }
                             }
                             ?>
 
@@ -308,8 +322,13 @@ if (isset($isTransparentHeader) && $isTransparentHeader) {
                                             $imgSrc = $currentUser['profile_image'];
                                         } else {
                                             $paramsPath = $basePath . 'uploads/users/';
-                                            if (file_exists(__DIR__ . '/../uploads/users/' . $currentUser['profile_image'])) {
-                                                $imgSrc = $paramsPath . rawurlencode($currentUser['profile_image']);
+                                            // Safely check file without causing open_basedir warnings or exceptions
+                                            try {
+                                                if (file_exists(__DIR__ . '/../uploads/users/' . $currentUser['profile_image'])) {
+                                                    $imgSrc = $paramsPath . rawurlencode($currentUser['profile_image']);
+                                                }
+                                            } catch (Throwable $e) {
+                                                // ignore
                                             }
                                         }
                                     }

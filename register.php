@@ -24,24 +24,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $role = 'user';
         }
 
-        $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows > 0) {
-            $error = "Email already registered.";
+        if (!preg_match("/^[a-zA-Z\s]+$/", $username)) {
+            $error = "Name can only contain letters and spaces.";
+        } elseif (!preg_match("/^\d{1,10}$/", $phone)) {
+            $error = "Phone number must contain only numbers and cannot exceed 10 digits.";
         } else {
-            $stmt2 = $conn->prepare("INSERT INTO users (username, email, password, role, phone, gender, dob) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt2->bind_param("sssssss", $username, $email, $password, $role, $phone, $gender, $dob);
-            if ($stmt2->execute()) {
-                $success = "Registration successful! You can now login.";
+            $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            $result = $stmt->get_result();
+
+            if ($result->num_rows > 0) {
+                $error = "Email already registered.";
             } else {
-                $error = "Something went wrong. Please try again.";
+                $stmt2 = $conn->prepare("INSERT INTO users (username, email, password, role, phone, gender, dob) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $stmt2->bind_param("sssssss", $username, $email, $password, $role, $phone, $gender, $dob);
+                if ($stmt2->execute()) {
+                    $success = "Registration successful! You can now login.";
+                } else {
+                    $error = "Something went wrong. Please try again.";
+                }
+                $stmt2->close();
             }
-            $stmt2->close();
+            $stmt->close();
         }
-        $stmt->close();
     }
 }
 ?>
@@ -150,7 +156,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm uppercase tracking-widest font-semibold mb-2">Full Name</label>
-                        <input type="text" name="username" required placeholder="John Doe" class="form-input">
+                        <input type="text" name="username" required pattern="[a-zA-Z\s]+" title="Only letters and spaces are allowed" placeholder="John Doe" class="form-input">
                     </div>
                     <div>
                         <label class="block text-sm uppercase tracking-widest font-semibold mb-2">DOB</label>
@@ -170,7 +176,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                     <div>
                         <label class="block text-sm uppercase tracking-widest font-semibold mb-2">Phone</label>
-                        <input type="tel" name="phone" required placeholder="123-456-7890" class="form-input">
+                        <input type="tel" name="phone" required pattern="\d{1,10}" maxlength="10" title="Only numbers, maximum 10 digits" placeholder="1234567890" class="form-input">
                     </div>
                 </div>
 

@@ -46,7 +46,8 @@ $pet_id = (int) $_GET['id'];
 $sql = "SELECT p.*, 
         u.username as poster_username, u.email as poster_email, u.phone as poster_phone,
         u.profile_image as poster_image, u.role as poster_role, u.created_at as poster_since,
-        u.is_verified as poster_verified, u.lives_saved as poster_lives_saved
+        u.is_verified as poster_verified, u.lives_saved as poster_lives_saved,
+        u.address as poster_address
         FROM pets p
         LEFT JOIN users u ON p.added_by = u.id
         WHERE p.id = $pet_id";
@@ -374,6 +375,18 @@ include 'includes/header.php';
                                     Member since <?php echo date('M Y', strtotime($pet['poster_since'])); ?>
                                 </span>
                             </div>
+
+                            <?php if (!empty($pet['poster_address'])): ?>
+                                <div class="flex items-start gap-3 text-sm">
+                                    <div class="p-2 bg-orange-50 rounded-lg shrink-0">
+                                        <i data-lucide="map-pin" class="w-4 h-4 text-orange-500"></i>
+                                    </div>
+                                    <span class="text-paw-gray leading-tight pt-1">
+                                        Pickup Location:<br>
+                                        <strong class="text-paw-dark"><?php echo htmlspecialchars($pet['poster_address']); ?></strong>
+                                    </span>
+                                </div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endif; ?>

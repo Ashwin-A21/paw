@@ -7,10 +7,16 @@ $message = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = $_POST['reporter_name'];
     $phone = $_POST['contact_phone'];
-    $location = $_POST['location'];
-    $description = $_POST['description'];
-    $urgency = $_POST['urgency'] ?? 'Medium';
-    $image = '';
+    
+    if (!preg_match("/^[a-zA-Z\s]+$/", $name)) {
+        $message = "Invalid name. Only letters and spaces allowed.";
+    } elseif (!preg_match("/^\d{1,10}$/", $phone)) {
+        $message = "Invalid phone. Only numbers up to 10 digits allowed.";
+    } else {
+        $location = $_POST['location'];
+        $description = $_POST['description'];
+        $urgency = $_POST['urgency'] ?? 'Medium';
+        $image = '';
 
     include_once 'includes/functions.php';
     if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
@@ -31,10 +37,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Bind parameters
     $stmt->bind_param("isssddsss", $reporterId, $name, $phone, $location, $latitude, $longitude, $description, $urgency, $image);
 
-    if ($stmt->execute()) {
-        $message = "success";
+        if ($stmt->execute()) {
+            $message = "success";
+        }
+        $stmt->close();
     }
-    $stmt->close();
 }
 
 $basePath = '';
@@ -112,6 +119,11 @@ include 'includes/header.php';
                     Home</a>
             </div>
         <?php else: ?>
+            <?php if (!empty($message) && $message !== 'success'): ?>
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 text-sm">
+                    <?php echo htmlspecialchars($message); ?>
+                </div>
+            <?php endif; ?>
             <form method="POST" enctype="multipart/form-data"
                 class="bg-white rounded-3xl shadow-xl p-8 md:p-12 transition-colors duration-300">
                 <div class="grid gap-6">
@@ -142,12 +154,12 @@ include 'includes/header.php';
                     <div class="grid md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Your Name</label>
-                            <input type="text" name="reporter_name" required placeholder="John Doe" class="form-input">
+                            <input type="text" name="reporter_name" required pattern="[a-zA-Z\s]+" title="Only letters and spaces are allowed" placeholder="John Doe" class="form-input">
                         </div>
                         <div>
                             <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Phone
                                 Number</label>
-                            <input type="tel" name="contact_phone" required placeholder="+91 98765 43210"
+                            <input type="tel" name="contact_phone" required pattern="\d{1,10}" maxlength="10" title="Only numbers, maximum 10 digits" placeholder="9876543210"
                                 class="form-input">
                         </div>
                     </div>

@@ -15,6 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $email = mysqli_real_escape_string($conn, $_POST['email']);
 
+    if (!preg_match("/^[a-zA-Z\s]+$/", $username)) {
+        $error = "Name can only contain letters and spaces.";
+    } else {
     // Password Update Logic
     $passwordSql = "";
     if (!empty($_POST['new_password'])) {
@@ -42,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = "Profile updated successfully!";
         } else {
             $error = "Error updating profile: " . $conn->error;
+        }
         }
     }
 }
@@ -103,7 +107,7 @@ $user = $userResult->fetch_assoc();
                                 <label
                                     class="block text-sm uppercase tracking-widest font-semibold mb-3">Username</label>
                                 <input type="text" name="username"
-                                    value="<?php echo htmlspecialchars($user['username']); ?>" required
+                                    value="<?php echo htmlspecialchars($user['username']); ?>" required pattern="[a-zA-Z\s]+" title="Only letters and spaces are allowed"
                                     class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent">
                             </div>
                             <div>

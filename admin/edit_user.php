@@ -26,6 +26,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $gender = mysqli_real_escape_string($conn, $_POST['gender']);
     $dob = mysqli_real_escape_string($conn, $_POST['dob']);
 
+    if (!preg_match("/^[a-zA-Z\s]+$/", $username)) {
+        $error = "Name can only contain letters and spaces.";
+    } elseif (!empty($phone) && !preg_match("/^\d{1,10}$/", $phone)) {
+        $error = "Phone number must contain only numbers and cannot exceed 10 digits.";
+    } else {
     $passwordSql = "";
     if (!empty($_POST['new_password'])) {
         $newPassword = $_POST['new_password']; // No hashing as requested
@@ -36,8 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($conn->query($updateSql)) {
         $message = "User updated successfully!";
-    } else {
-        $error = "Error updating user: " . $conn->error;
+        } else {
+            $error = "Error updating user: " . $conn->error;
+        }
     }
 }
 
@@ -102,7 +108,7 @@ $user = $userResult->fetch_assoc();
                         <div>
                             <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Username</label>
                             <input type="text" name="username"
-                                value="<?php echo htmlspecialchars($user['username']); ?>" required
+                                value="<?php echo htmlspecialchars($user['username']); ?>" required pattern="[a-zA-Z\s]+" title="Only letters and spaces are allowed"
                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent">
                         </div>
                         <div>
@@ -144,7 +150,7 @@ $user = $userResult->fetch_assoc();
                             <div>
                                 <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Phone</label>
                                 <input type="text" name="phone"
-                                    value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>"
+                                    value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" pattern="\d{1,10}" maxlength="10" title="Only numbers, maximum 10 digits"
                                     class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent">
                             </div>
                         </div>

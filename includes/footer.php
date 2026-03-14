@@ -20,8 +20,6 @@
                     <div class="flex flex-col gap-2">
                         <a href="<?php echo $basePath; ?>register.php"
                             class="text-paw-gray hover:text-paw-accent transition-colors w-fit">Volunteer</a>
-                        <a href="#" class="text-paw-gray hover:text-paw-accent transition-colors w-fit">Partner NGOs</a>
-                        <a href="#" class="text-paw-gray hover:text-paw-accent transition-colors w-fit">Donate</a>
                     </div>
                 </div>
                 <div>

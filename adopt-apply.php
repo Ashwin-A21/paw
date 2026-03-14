@@ -8,7 +8,7 @@ if (!isset($_GET['pet'])) {
 }
 
 $petId = (int) $_GET['pet'];
-$pet = $conn->query("SELECT p.*, u.username as owner_name FROM pets p LEFT JOIN users u ON p.added_by = u.id WHERE p.id=$petId")->fetch_assoc();
+$pet = $conn->query("SELECT p.*, u.username as owner_name, u.address as owner_address FROM pets p LEFT JOIN users u ON p.added_by = u.id WHERE p.id=$petId")->fetch_assoc();
 
 if (!$pet) {
     header("Location: adopt.php");
@@ -58,6 +58,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         $applicantName . ' wants to adopt your pet "' . $pet['name'] . '"! Review their application.',
                         'manage-applications.php'
                     );
+                }
+
+                // Notify admin via email
+                $adminQuery = $conn->query("SELECT email FROM users WHERE role='admin' LIMIT 1");
+                if ($adminQuery && $adminQuery->num_rows > 0) {
+                    $admin = $adminQuery->fetch_assoc();
+                    $adminEmail = $admin['email'];
+                    $subject = "New Pet Adoption Application - Paw Pal";
+                    $applicantName = $_SESSION['username'] ?? 'Someone';
+                    $mailMsg = "A new adoption application has been submitted by " . $applicantName . " for the pet '" . $pet['name'] . "'.\n\nApplicant Message:\n" . $msg;
+                    $headers = "From: noreply@pawpal.com\r\n";
+                    @mail($adminEmail, $subject, $mailMsg, $headers);
                 }
             } else {
                 $error = "Something went wrong. Please try again.";
@@ -196,6 +208,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <span class="text-paw-gray"><?php echo htmlspecialchars($pet['breed']); ?></span>
                             <span class="text-paw-gray"><?php echo htmlspecialchars($pet['age']); ?></span>
                             <span class="text-paw-gray"><?php echo $pet['gender']; ?></span>
+                            <?php if (!empty($pet['owner_address'])): ?>
+                            <span class="flex items-center gap-2 text-paw-gray border-l border-gray-300 pl-4 w-full mt-2">
+                                <i data-lucide="map-pin" class="w-4 h-4 text-orange-500"></i> Pickup Location: <strong class="text-paw-dark"><?php echo htmlspecialchars($pet['owner_address']); ?></strong>
+                            </span>
+                            <?php endif; ?>
                         </div>
 
                         <p class="text-paw-gray leading-relaxed mb-8">

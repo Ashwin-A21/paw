@@ -155,7 +155,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         <input type="checkbox" class="w-4 h-4 accent-paw-accent rounded">
                         <span class="text-paw-gray">Remember me</span>
                     </label>
-                    <a href="#" class="text-paw-accent hover:underline">Forgot password?</a>
+                    <a href="forgot-password.php" class="text-paw-accent hover:underline">Forgot password?</a>
                 </div>
 
                 <button type="submit"

@@ -58,7 +58,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $gender = mysqli_real_escape_string($conn, $_POST['gender']);
         $dob = mysqli_real_escape_string($conn, $_POST['dob']);
         $address = mysqli_real_escape_string($conn, $_POST['address']);
-
+        
+        if (!preg_match("/^[a-zA-Z\s]+$/", $username)) {
+            $error = "Name can only contain letters and spaces.";
+        } elseif (!empty($phone) && !preg_match("/^\d{1,10}$/", $phone)) {
+            $error = "Phone number must contain only numbers and cannot exceed 10 digits.";
+        } else {
         // Password Update Logic
         $passwordSql = "";
         if (!empty($_POST['new_password'])) {
@@ -86,6 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $error = "Error updating profile: " . $conn->error;
             }
+        }
         }
     }
     // 3. Handle Feedback Submission
@@ -233,12 +239,13 @@ include '../includes/header.php';
                     <div>
                         <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Full Name</label>
                         <input type="text" name="username" value="<?php echo htmlspecialchars($user['username']); ?>"
-                            required
+                            required pattern="[a-zA-Z\s]+" title="Only letters and spaces are allowed"
                             class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent transition-colors">
                     </div>
                     <div>
                         <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Phone</label>
                         <input type="tel" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>"
+                            pattern="\d{1,10}" maxlength="10" title="Only numbers, maximum 10 digits"
                             class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent transition-colors">
                     </div>
                 </div>

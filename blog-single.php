@@ -136,25 +136,7 @@ if (!$canView) {
                 <?php echo nl2br(htmlspecialchars($blog['content'])); ?>
             </div>
 
-            <!-- Share -->
-            <div class="mt-16 pt-8 border-t border-gray-200">
-                <p class="text-sm uppercase tracking-widest font-semibold text-paw-gray mb-4">Share
-                    this story</p>
-                <div class="flex gap-4">
-                    <a href="#"
-                        class="w-10 h-10 bg-paw-dark rounded-full flex items-center justify-center text-white hover:bg-paw-accent transition-colors">
-                        <i data-lucide="twitter" class="w-4 h-4"></i>
-                    </a>
-                    <a href="#"
-                        class="w-10 h-10 bg-paw-dark rounded-full flex items-center justify-center text-white hover:bg-paw-accent transition-colors">
-                        <i data-lucide="facebook" class="w-4 h-4"></i>
-                    </a>
-                    <a href="#"
-                        class="w-10 h-10 bg-paw-dark rounded-full flex items-center justify-center text-white hover:bg-paw-accent transition-colors">
-                        <i data-lucide="link" class="w-4 h-4"></i>
-                    </a>
-                </div>
-            </div>
+
         </div>
     </article>
 
