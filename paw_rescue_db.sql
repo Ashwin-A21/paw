@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 01, 2026 at 06:28 PM
+-- Generation Time: Mar 15, 2026 at 11:06 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -71,8 +71,7 @@ CREATE TABLE `blogs` (
 --
 
 INSERT INTO `blogs` (`id`, `title`, `slug`, `content`, `author_id`, `author`, `image`, `is_published`, `created_at`, `status`) VALUES
-(1, 'Why Adopt a Pet?', 'why-adopt-a-pet', 'Adopting a pet saves two lives: the one you adopt and the one who takes their place in the shelter. Every year, millions of animals end up in shelters. By adopting, you give them a second chance at happiness while also gaining a loyal companion.\n\nAdopted pets are often already vaccinated, spayed/neutered, and microchipped, saving you time and money. Plus, shelters can help match you with a pet that fits your lifestyle.\n\nMake a difference today – adopt, don\'t shop!', 1, 'Admin', NULL, 1, '2026-02-02 05:26:50', 'approved'),
-(2, 'How to Prepare Your Home for a New Pet ', 'prepare-home-new-pet', 'Bringing a new pet home is exciting! Here are some tips to prepare:\r\n\r\n1. Pet-proof your home by removing hazardous items\r\n2. Set up a comfortable sleeping area\r\n3. Stock up on food, treats, and toys\r\n4. Schedule a vet visit\r\n5. Be patient during the adjustment period\r\n\r\nRemember, your new pet may need time to settle in. Give them love and patience!', 1, 'Admin', '1771146134_#vibzztime #memes.jpg', 1, '2026-02-02 05:26:50', 'rejected');
+(1, 'Why Adopt a Pet?', 'why-adopt-a-pet', 'Adopting a pet saves two lives: the one you adopt and the one who takes their place in the shelter. Every year, millions of animals end up in shelters. By adopting, you give them a second chance at happiness while also gaining a loyal companion.\n\nAdopted pets are often already vaccinated, spayed/neutered, and microchipped, saving you time and money. Plus, shelters can help match you with a pet that fits your lifestyle.\n\nMake a difference today – adopt, don\'t shop!', 1, 'Admin', NULL, 1, '2026-02-02 05:26:50', 'approved');
 
 -- --------------------------------------------------------
 
@@ -105,38 +104,6 @@ INSERT INTO `comments` (`id`, `entity_type`, `entity_id`, `user_id`, `comment`, 
 (9, 'pet', 7, 3, 'not yet , u can contact me for the deal', '2026-02-26 11:27:20'),
 (10, 'pet', 6, 1, 'up for sale', '2026-02-26 11:48:48'),
 (11, 'pet', 6, 5, 'sad for me ...', '2026-02-26 11:55:40');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `contact_messages`
---
-
-CREATE TABLE `contact_messages` (
-  `id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `subject` varchar(150) DEFAULT NULL,
-  `message` text NOT NULL,
-  `is_read` tinyint(1) DEFAULT 0,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `donations`
---
-
-CREATE TABLE `donations` (
-  `id` int(11) NOT NULL,
-  `donor_name` varchar(100) DEFAULT NULL,
-  `donor_email` varchar(100) DEFAULT NULL,
-  `amount` decimal(10,2) NOT NULL,
-  `message` text DEFAULT NULL,
-  `payment_status` enum('Pending','Completed','Failed') DEFAULT 'Pending',
-  `donated_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -243,21 +210,7 @@ INSERT INTO `pets` (`id`, `name`, `type`, `breed`, `age`, `gender`, `description
 (4, 'Luna', 'cat', 'Persian', '2 years', 'Female', 'Luna is a beautiful Persian cat with a fluffy white coat. She enjoys quiet environments and gentle handling.', '1771130405_Persian_in_Cat_Cafe.jpg', 'Available', 1, '2026-02-02 05:26:50'),
 (5, 'Max', 'dog', 'Golden Retriever', '4 years', 'Male', 'Max is a gentle giant who loves everyone he meets. Perfect for families looking for a loyal companion.', '1771130471_Untitled_design-40.jpg', 'Available', 1, '2026-02-02 05:26:50'),
 (6, 'bogra', 'dog', 'Siberian Husky', '6', 'Male', 'The Siberian Husky is a breed of medium-sized working sled dog. The breed belongs to the Spitz genetic family. It is recognizable by its thickly furred double coat, erect triangular ears, and distinctive markings, and is smaller than the similar-looking Alaskan Malamute', '1771130092_images.webp', 'Adopted', 1, '2026-02-15 04:34:52'),
-(7, 'chomu', 'dog', 'street dog ', '7', 'Male', 'cutiepie chommu , keralas one and only chommu', '1771133524_download (11).jpg', 'Adopted', 3, '2026-02-15 05:32:04');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `pet_images`
---
-
-CREATE TABLE `pet_images` (
-  `id` int(11) NOT NULL,
-  `pet_id` int(11) NOT NULL,
-  `image` varchar(255) NOT NULL,
-  `sort_order` int(11) DEFAULT 0,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+(7, 'chommu', 'dog', 'street dog ', '7', 'Male', 'cutiepie chommu , keralas one and only chommu', '1771133524_download (11).jpg', 'Adopted', 3, '2026-02-15 05:32:04');
 
 -- --------------------------------------------------------
 
@@ -305,7 +258,6 @@ CREATE TABLE `rescue_reports` (
 
 INSERT INTO `rescue_reports` (`id`, `reporter_id`, `reporter_name`, `contact_phone`, `location`, `latitude`, `longitude`, `description`, `animal_type`, `urgency`, `image`, `status`, `assigned_to`, `reported_at`, `updated_at`) VALUES
 (1, NULL, 'Anonymous', '9876543210', 'Near City Park, Main Street', NULL, NULL, 'Injured stray dog found near the park. Appears to have a leg injury and is limping.', 'Dog', 'High', NULL, 'Rescued', 4, '2026-02-02 05:26:50', '2026-02-11 11:41:41'),
-(2, 5, 'Ash', '897654235', 'near the old abounded house pet stuck under the pipeline', 12.70606400, 74.90422900, 'its an emergency , urgent help needed', NULL, 'Medium', '', 'Rescued', NULL, '2026-02-02 07:17:42', '2026-02-15 09:01:23'),
 (5, NULL, 'Ash123', '987654324343', 'hurry up', 28.61587100, 77.22410200, 'urgent', NULL, 'Critical', '', 'Reported', NULL, '2026-02-26 11:26:14', '2026-02-26 11:26:14');
 
 -- --------------------------------------------------------
@@ -389,19 +341,21 @@ CREATE TABLE `users` (
   `dob` date DEFAULT NULL,
   `profile_image` varchar(255) DEFAULT NULL,
   `lives_saved` int(11) DEFAULT 0,
-  `organization_name` varchar(150) DEFAULT NULL
+  `organization_name` varchar(150) DEFAULT NULL,
+  `reset_token` varchar(255) DEFAULT NULL,
+  `reset_expiry` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `email`, `password`, `phone`, `address`, `role`, `is_verified`, `created_at`, `gender`, `dob`, `profile_image`, `lives_saved`, `organization_name`) VALUES
-(1, 'Admin', 'admin@paw.com', '1234', '2345678', NULL, 'admin', 1, '2026-02-02 05:26:50', '', '0000-00-00', 'https://api.dicebear.com/9.x/toon-head/svg?seed=Charlie', 3, NULL),
-(2, 'John User', 'john@example.com', '1234', NULL, NULL, 'user', 1, '2026-02-02 05:26:50', NULL, NULL, NULL, 3, NULL),
-(3, 'Sarah G Volunteer', 'sarah@volunteer.com', '12345', '987654321', NULL, 'volunteer', 1, '2026-02-02 05:26:50', '', '0000-00-00', 'https://api.dicebear.com/9.x/toon-head/svg?seed=Aneka', 6, ''),
-(4, 'Mike Rescuer', 'mike@rescuer.com', '1234', NULL, NULL, 'rescuer', 1, '2026-02-02 05:26:50', NULL, NULL, NULL, 8, NULL),
-(5, 'MeowMeow trust ', 'ash@gmail.com', '12345', '9897654321', 'Kerala 671324', 'organization', 1, '2026-02-02 05:27:38', '', '2002-10-21', 'https://api.dicebear.com/9.x/toon-head/svg?seed=Charlie', 10, 'Meoww');
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `phone`, `address`, `role`, `is_verified`, `created_at`, `gender`, `dob`, `profile_image`, `lives_saved`, `organization_name`, `reset_token`, `reset_expiry`) VALUES
+(1, 'Admin', 'admin@paw.com', '1234', '2345678', NULL, 'admin', 1, '2026-02-02 05:26:50', '', '0000-00-00', 'https://api.dicebear.com/9.x/toon-head/svg?seed=Charlie', 3, NULL, NULL, NULL),
+(2, 'John User', 'john@example.com', '1234', NULL, NULL, 'user', 1, '2026-02-02 05:26:50', NULL, NULL, NULL, 3, NULL, NULL, NULL),
+(3, 'Sarah G Volunteer', 'sarah@volunteer.com', '12345', '987654321', NULL, 'volunteer', 1, '2026-02-02 05:26:50', '', '0000-00-00', 'https://api.dicebear.com/9.x/toon-head/svg?seed=Aneka', 6, '', NULL, NULL),
+(4, 'Mike Rescuer', 'mike@rescuer.com', '1234', NULL, NULL, 'rescuer', 1, '2026-02-02 05:26:50', NULL, NULL, NULL, 8, NULL, NULL, NULL),
+(5, 'MeowMeow trust ', 'ashwinambar2002@gmail.com', '1234', '9897654321', 'Kerala 671324', 'organization', 1, '2026-02-02 05:27:38', '', '2002-10-21', 'https://api.dicebear.com/9.x/toon-head/svg?seed=Charlie', 10, 'Meoww', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -447,18 +401,6 @@ ALTER TABLE `comments`
   ADD KEY `idx_entity` (`entity_type`,`entity_id`);
 
 --
--- Indexes for table `contact_messages`
---
-ALTER TABLE `contact_messages`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `donations`
---
-ALTER TABLE `donations`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indexes for table `favorites`
 --
 ALTER TABLE `favorites`
@@ -487,13 +429,6 @@ ALTER TABLE `notifications`
 ALTER TABLE `pets`
   ADD PRIMARY KEY (`id`),
   ADD KEY `added_by` (`added_by`);
-
---
--- Indexes for table `pet_images`
---
-ALTER TABLE `pet_images`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `pet_id` (`pet_id`);
 
 --
 -- Indexes for table `pet_medical_records`
@@ -570,18 +505,6 @@ ALTER TABLE `comments`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
--- AUTO_INCREMENT for table `contact_messages`
---
-ALTER TABLE `contact_messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `donations`
---
-ALTER TABLE `donations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `favorites`
 --
 ALTER TABLE `favorites`
@@ -604,12 +527,6 @@ ALTER TABLE `notifications`
 --
 ALTER TABLE `pets`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
-
---
--- AUTO_INCREMENT for table `pet_images`
---
-ALTER TABLE `pet_images`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `pet_medical_records`
@@ -700,12 +617,6 @@ ALTER TABLE `notifications`
 --
 ALTER TABLE `pets`
   ADD CONSTRAINT `pets_ibfk_1` FOREIGN KEY (`added_by`) REFERENCES `users` (`id`) ON DELETE SET NULL;
-
---
--- Constraints for table `pet_images`
---
-ALTER TABLE `pet_images`
-  ADD CONSTRAINT `pet_images_ibfk_1` FOREIGN KEY (`pet_id`) REFERENCES `pets` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `pet_medical_records`
