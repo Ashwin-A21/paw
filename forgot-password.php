@@ -23,37 +23,59 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             
             // Generate token
             $token = bin2hex(random_bytes(32));
-            $expiry = date("Y-m-d H:i:s", strtotime('+1 hour'));
             
-            $update_stmt = $conn->prepare("UPDATE users SET reset_token = ?, reset_expiry = ? WHERE email = ?");
-            $update_stmt->bind_param("sss", $token, $expiry, $email);
+            $update_stmt = $conn->prepare("UPDATE users SET reset_token = ?, reset_expiry = DATE_ADD(NOW(), INTERVAL 1 HOUR) WHERE email = ?");
+            $update_stmt->bind_param("ss", $token, $email);
             
             if ($update_stmt->execute()) {
-                // Send email
-                $reset_link = "http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/reset-password.php?token=" . $token;
+                // Send email using PHPMailer
+                require 'vendor/autoload.php';
                 
-                $subject = "Password Reset - Paw Pal";
-                $message = "Hi " . $user['username'] . ",\n\n";
-                $message .= "You have requested to reset your password. Click the link below to set a new password:\n";
-                $message .= $reset_link . "\n\n";
-                $message .= "This link will expire in 1 hour.\n";
-                $message .= "If you did not request this, please ignore this email.";
+                $mail = new PHPMailer\PHPMailer\PHPMailer(true);
                 
-                $headers = "From: noreply@pawpal.com\r\n";
-                
-                // Attempt to send email. If it fails (due to XAMPP no SMTP setup), show link for testing.
-                if (@mail($email, $subject, $message, $headers)) {
+                try {
+                    // Server settings
+                    $mail->isSMTP();
+                    $mail->Host       = SMTP_HOST;
+                    $mail->SMTPAuth   = true;
+                    $mail->Username   = SMTP_USER;
+                    $mail->Password   = SMTP_PASS;
+                    $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+                    $mail->Port       = SMTP_PORT;
+
+                    // Recipients
+                    $mail->setFrom(SMTP_FROM, SMTP_FROM_NAME);
+                    $mail->addAddress($email, $user['username']);
+
+                    // Content
+                    $reset_link = "http://" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . "/reset-password.php?token=" . $token;
+                    
+                    $mail->isHTML(true);
+                    $mail->Subject = "Password Reset - Paw Pal";
+                    $mail->Body    = "Hi " . htmlspecialchars($user['username']) . ",<br><br>" .
+                                     "You have requested to reset your password. Click the link below to set a new password:<br>" .
+                                     "<a href='$reset_link' style='padding: 10px 20px; background-color: #2D2825; color: white; text-decoration: none; border-radius: 5px;'>Reset Password</a><br><br>" .
+                                     "Or copy and paste this link: $reset_link<br><br>" .
+                                     "This link will expire in 1 hour.<br>" .
+                                     "If you did not request this, please ignore this email.";
+                    $mail->AltBody = "Hi " . $user['username'] . ",\n\n" .
+                                     "You have requested to reset your password. Click the link below to set a new password:\n" .
+                                     $reset_link . "\n\n" .
+                                     "This link will expire in 1 hour.\n" .
+                                     "If you did not request this, please ignore this email.";
+
+                    $mail->send();
                     $success = "Password reset instructions have been sent to your email.";
-                } else {
-                    $success = "Password reset instructions stored locally. (Local Testing: <a href='$reset_link' class='underline font-bold'>Click here to reset password</a>)";
+                } catch (Exception $e) {
+                    $error = "Email could not be sent. Please try again later. (Mailer Error: {$mail->ErrorInfo})";
                 }
             } else {
                 $error = "Something went wrong. Please try again later.";
             }
             $update_stmt->close();
         } else {
-            // Do not reveal if email exists or not, standard security practice
-            $success = "If your email is registered, you will receive password reset instructions.";
+            // Updated: reveal if email exists as per user request
+            $error = "No user found with this email.";
         }
         $stmt->close();
     }

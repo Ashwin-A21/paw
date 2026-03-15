@@ -19,4 +19,12 @@ if ($conn->connect_error) {
 
 // Load CSRF helper
 require_once __DIR__ . '/includes/csrf.php';
+
+// SMTP Configuration for PHPMailer
+define('SMTP_HOST', 'smtp.gmail.com');
+define('SMTP_PORT', 587); // Use 587 for STARTTLS or 465 for SSL
+define('SMTP_USER', 'ashwinambar2002@gmail.com'); // Replace with your Gmail
+define('SMTP_PASS', 'njxv coua zbma nekb');   // Replace with your Google App Password
+define('SMTP_FROM', 'ashwinambar2002@gmail.com'); // Replace with your Gmail
+define('SMTP_FROM_NAME', 'pawpal');
 ?>
