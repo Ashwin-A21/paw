@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 15, 2026 at 11:06 AM
+-- Generation Time: Mar 16, 2026 at 05:22 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -26,27 +26,8 @@ SET time_zone = "+00:00";
 --
 -- Table structure for table `adoption_applications`
 --
-
-CREATE TABLE `adoption_applications` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) DEFAULT NULL,
-  `pet_id` int(11) DEFAULT NULL,
-  `message` text DEFAULT NULL,
-  `pickup_location` varchar(255) DEFAULT NULL,
-  `status` enum('Pending','Approved','Rejected') DEFAULT 'Pending',
-  `admin_notes` text DEFAULT NULL,
-  `owner_response` enum('Pending','Deal','No Deal') DEFAULT 'Pending',
-  `owner_notes` text DEFAULT NULL,
-  `application_date` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `adoption_applications`
---
-
-INSERT INTO `adoption_applications` (`id`, `user_id`, `pet_id`, `message`, `status`, `admin_notes`, `owner_response`, `owner_notes`, `application_date`) VALUES
-(1, 1, 7, 'i would like to adopt chommu if its not yet adopted ,plsss\r\n. Finaly price 5K\r\n', 'Approved', NULL, 'Deal', 'make sure to treat it well', '2026-02-26 10:39:09'),
-(2, 3, 6, 'i love husky a lot ,and i promise to take goodcare', 'Pending', NULL, 'Deal', 'hope u treat him well', '2026-02-26 11:50:19');
+-- Error reading structure for table paw_rescue_db.adoption_applications: #1932 - Table &#039;paw_rescue_db.adoption_applications&#039; doesn&#039;t exist in engine
+-- Error reading data for table paw_rescue_db.adoption_applications: #1064 - You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near &#039;FROM `paw_rescue_db`.`adoption_applications`&#039; at line 1
 
 -- --------------------------------------------------------
 
@@ -379,14 +360,6 @@ CREATE TABLE `volunteer_shifts` (
 --
 
 --
--- Indexes for table `adoption_applications`
---
-ALTER TABLE `adoption_applications`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `pet_id` (`pet_id`);
-
---
 -- Indexes for table `blogs`
 --
 ALTER TABLE `blogs`
@@ -488,12 +461,6 @@ ALTER TABLE `volunteer_shifts`
 --
 
 --
--- AUTO_INCREMENT for table `adoption_applications`
---
-ALTER TABLE `adoption_applications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
 -- AUTO_INCREMENT for table `blogs`
 --
 ALTER TABLE `blogs`
@@ -574,13 +541,6 @@ ALTER TABLE `volunteer_shifts`
 --
 -- Constraints for dumped tables
 --
-
---
--- Constraints for table `adoption_applications`
---
-ALTER TABLE `adoption_applications`
-  ADD CONSTRAINT `adoption_applications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `adoption_applications_ibfk_2` FOREIGN KEY (`pet_id`) REFERENCES `pets` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `blogs`
