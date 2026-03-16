@@ -270,7 +270,7 @@ include 'includes/header.php';
                                         </div>
                                         <div>
                                             <p class="font-bold text-paw-dark">
-                                                <?php echo htmlspecialchars($app['applicant_name']); ?>
+                                                <?php echo htmlspecialchars($app['adopter_name'] ?? $app['applicant_name']); ?>
                                             </p>
                                             <div class="flex items-center gap-2">
                                                 <span
@@ -301,6 +301,16 @@ include 'includes/header.php';
                                     </p>
                                 </div>
 
+                                <!-- Pickup Location -->
+                                <div class="bg-paw-accent/5 rounded-2xl p-4 mb-4 border border-paw-accent/10">
+                                    <p class="text-xs font-bold uppercase tracking-widest text-paw-accent mb-2">
+                                        <i data-lucide="map-pin" class="w-3 h-3 inline"></i> Pickup Location
+                                    </p>
+                                    <p class="text-sm text-gray-700 font-medium">
+                                        <?php echo htmlspecialchars($app['pickup_location'] ?? 'Not specified'); ?>
+                                    </p>
+                                </div>
+
                                 <!-- Contact Info -->
                                 <div class="flex flex-wrap gap-3 mb-4">
                                     <?php if (!empty($app['applicant_email'])): ?>
@@ -310,7 +320,13 @@ include 'includes/header.php';
                                             <?php echo htmlspecialchars($app['applicant_email']); ?>
                                         </a>
                                     <?php endif; ?>
-                                    <?php if (!empty($app['applicant_phone'])): ?>
+                                    <?php if (!empty($app['adopter_phone'])): ?>
+                                        <a href="tel:<?php echo htmlspecialchars($app['adopter_phone']); ?>"
+                                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-600 rounded-lg text-xs font-medium hover:bg-green-100 transition-colors">
+                                            <i data-lucide="phone" class="w-3 h-3"></i>
+                                            <?php echo htmlspecialchars($app['adopter_phone']); ?>
+                                        </a>
+                                    <?php elseif (!empty($app['applicant_phone'])): ?>
                                         <a href="tel:<?php echo htmlspecialchars($app['applicant_phone']); ?>"
                                             class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-600 rounded-lg text-xs font-medium hover:bg-green-100 transition-colors">
                                             <i data-lucide="phone" class="w-3 h-3"></i>

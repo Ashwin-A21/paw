@@ -19,6 +19,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $status = $_POST['status'];
     $image = 'default_pet.jpg';
 
+    if (!preg_match("/^[a-zA-Z\s]+$/", $name)) {
+        $message = "Invalid name. Only letters and spaces are allowed.";
+    } else {
+
     if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
         $uploadDir = '../uploads/pets/';
         if (!is_dir($uploadDir))
@@ -43,6 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sql = "INSERT INTO pets (name, type, breed, age, gender, description, image, status, added_by) VALUES ('$name', '$type', '$breed', '$age', '$gender', '$description', '$image', '$status', $addedBy)";
         if ($conn->query($sql))
             $message = "Pet added successfully!";
+    }
     }
 }
 
@@ -155,6 +160,7 @@ $pets = $conn->query("SELECT * FROM pets ORDER BY added_at DESC");
                                     <label class="block text-sm uppercase tracking-widest font-semibold mb-2">Pet
                                         Name</label>
                                     <input type="text" name="name" value="<?php echo $editPet['name'] ?? ''; ?>" required
+                                        pattern="[a-zA-Z\s]+" title="Only letters and spaces are allowed"
                                         class="form-input">
                                 </div>
                                 <div>

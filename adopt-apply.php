@@ -30,6 +30,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $userId = $_SESSION['user_id'];
         $msg = $_POST['message'];
+        $adopterName = trim($_POST['adopter_name'] ?? '');
+        $adopterPhone = trim($_POST['adopter_phone'] ?? '');
+
+        if (!preg_match("/^[a-zA-Z\s]+$/", $adopterName)) {
+            $error = "Name can only contain letters and spaces.";
+        } elseif (!preg_match("/^\d{1,10}$/", $adopterPhone)) {
+            $error = "Phone number must be exactly 10 digits.";
+        } else {
 
         // Use Prepared Statements for Security
         $stmt = $conn->prepare("SELECT id FROM adoption_applications WHERE user_id=? AND pet_id=?");
@@ -41,8 +49,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = "You have already applied to adopt this pet.";
         } else {
             $stmt->close();
-            $stmt = $conn->prepare("INSERT INTO adoption_applications (user_id, pet_id, message) VALUES (?, ?, ?)");
-            $stmt->bind_param("iis", $userId, $petId, $msg);
+            $pickupLoc = $_POST['pickup_location'] ?? '';
+            $stmt = $conn->prepare("INSERT INTO adoption_applications (user_id, adopter_name, adopter_phone, pet_id, message, pickup_location) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("ississ", $userId, $adopterName, $adopterPhone, $petId, $msg, $pickupLoc);
 
             if ($stmt->execute()) {
                 $message = "success";
@@ -60,20 +69,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     );
                 }
 
-                // Notify admin via email
-                $adminQuery = $conn->query("SELECT email FROM users WHERE role='admin' LIMIT 1");
-                if ($adminQuery && $adminQuery->num_rows > 0) {
-                    $admin = $adminQuery->fetch_assoc();
-                    $adminEmail = $admin['email'];
-                    $subject = "New Pet Adoption Application - Paw Pal";
-                    $applicantName = $_SESSION['username'] ?? 'Someone';
-                    $mailMsg = "A new adoption application has been submitted by " . $applicantName . " for the pet '" . $pet['name'] . "'.\n\nApplicant Message:\n" . $msg;
-                    $headers = "From: noreply@pawpal.com\r\n";
-                    @mail($adminEmail, $subject, $mailMsg, $headers);
+                // Notify admin via PHPMailer
+                require 'vendor/autoload.php';
+                $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+
+                try {
+                    $mail->isSMTP();
+                    $mail->Host       = SMTP_HOST;
+                    $mail->SMTPAuth   = true;
+                    $mail->Username   = SMTP_USER;
+                    $mail->Password   = SMTP_PASS;
+                    $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+                    $mail->Port       = SMTP_PORT;
+
+                    $mail->setFrom(SMTP_FROM, SMTP_FROM_NAME);
+                    $adminQuery = $conn->query("SELECT email FROM users WHERE role='admin' LIMIT 1");
+                    if ($adminQuery && $adminQuery->num_rows > 0) {
+                        $admin = $adminQuery->fetch_assoc();
+                        $mail->addAddress($admin['email'], 'Paw Pal Administrator');
+                    } else {
+                        $mail->addAddress(SMTP_FROM, 'Admin');
+                    }
+
+                    $mail->isHTML(true);
+                    $mail->Subject = "New Adoption Application - " . $pet['name'];
+                    $mail->Body    = "
+                        <h2>New Adoption Request</h2>
+                        <p><strong>Pet:</strong> " . htmlspecialchars($pet['name']) . " (" . $pet['type'] . ")</p>
+                        <p><strong>Adopter Name:</strong> " . htmlspecialchars($adopterName) . "</p>
+                        <p><strong>Adopter Phone:</strong> " . htmlspecialchars($adopterPhone) . "</p>
+                        <p><strong>Pickup Location:</strong> " . htmlspecialchars($pickupLoc) . "</p>
+                        <p><strong>Message:</strong><br>" . nl2br(htmlspecialchars($msg)) . "</p>
+                    ";
+                    $mail->AltBody = "New Adoption Request for " . $pet['name'] . "\nAdopter: $adopterName\nPhone: $adopterPhone\nLocation: $pickupLoc\nMessage: $msg";
+
+                    $mail->send();
+                } catch (Exception $e) {
+                    // Fail silently or log error
                 }
             } else {
                 $error = "Something went wrong. Please try again.";
             }
+        }
         }
         $stmt->close();
     }
@@ -239,13 +276,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <?php echo htmlspecialchars($pet['name']); ?>
                                 </h3>
 
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                    <?php
+                                    $currentUser = null;
+                                    if (isset($_SESSION['user_id'])) {
+                                        $uId = $_SESSION['user_id'];
+                                        $currentUser = $conn->query("SELECT username, phone FROM users WHERE id=$uId")->fetch_assoc();
+                                    }
+                                    ?>
+                                    <div>
+                                        <label class="block text-sm uppercase tracking-widest font-semibold mb-2">Your Name</label>
+                                        <input type="text" name="adopter_name" required 
+                                            value="<?php echo htmlspecialchars($currentUser['username'] ?? ''); ?>"
+                                            pattern="[a-zA-Z\s]+" title="Only letters and spaces"
+                                            class="form-input">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm uppercase tracking-widest font-semibold mb-2">Phone Number</label>
+                                        <input type="tel" name="adopter_phone" required 
+                                            value="<?php echo htmlspecialchars($currentUser['phone'] ?? ''); ?>"
+                                            pattern="\d{1,10}" maxlength="10" title="Exactly 10 digits"
+                                            class="form-input">
+                                    </div>
+                                </div>
+
                                 <div class="mb-6">
-                                    <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Tell
-                                        us about
-                                        yourself</label>
+                                    <label class="block text-sm uppercase tracking-widest font-semibold mb-2">About Your Decision</label>
                                     <textarea name="message" required rows="5"
                                         placeholder="Why would you be a great pet parent? Tell us about your home, experience with pets, and why you want to adopt..."
                                         class="form-input resize-none"></textarea>
+                                </div>
+
+                                <div class="mb-6">
+                                    <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Suggested Pickup Location</label>
+                                    <input type="text" name="pickup_location" required 
+                                        value="<?php echo htmlspecialchars($pet['owner_address'] ?? ''); ?>"
+                                        placeholder="Where would you like to meet for the adoption?"
+                                        class="form-input">
+                                    <p class="text-xs text-paw-gray mt-2 italic">Suggested based on owner's location. Feel free to adjust.</p>
                                 </div>
 
                                 <button type="submit"

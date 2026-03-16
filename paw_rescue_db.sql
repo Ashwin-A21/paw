@@ -32,6 +32,7 @@ CREATE TABLE `adoption_applications` (
   `user_id` int(11) DEFAULT NULL,
   `pet_id` int(11) DEFAULT NULL,
   `message` text DEFAULT NULL,
+  `pickup_location` varchar(255) DEFAULT NULL,
   `status` enum('Pending','Approved','Rejected') DEFAULT 'Pending',
   `admin_notes` text DEFAULT NULL,
   `owner_response` enum('Pending','Deal','No Deal') DEFAULT 'Pending',

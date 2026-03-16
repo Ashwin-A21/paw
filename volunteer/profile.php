@@ -15,9 +15,12 @@ $error = "";
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $phone = mysqli_real_escape_string($conn, $_POST['phone'] ?? '');
 
     if (!preg_match("/^[a-zA-Z\s]+$/", $username)) {
         $error = "Name can only contain letters and spaces.";
+    } elseif (!empty($phone) && !preg_match("/^\d{1,10}$/", $phone)) {
+        $error = "Phone number must contain only numbers and cannot exceed 10 digits.";
     } else {
     // Password Update Logic
     $passwordSql = "";
@@ -40,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($error)) {
-        $updateSql = "UPDATE users SET username='$username', email='$email' $passwordSql WHERE id=$userId";
+        $updateSql = "UPDATE users SET username='$username', email='$email', phone='$phone' $passwordSql WHERE id=$userId";
         if ($conn->query($updateSql)) {
             $_SESSION['username'] = $username;
             $message = "Profile updated successfully!";
@@ -95,6 +98,12 @@ include '../includes/header.php';
                             <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Email</label>
                             <input type="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>"
                                 required
+                                class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent">
+                        </div>
+                        <div>
+                            <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Phone</label>
+                            <input type="tel" name="phone" value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>"
+                                pattern="\d{1,10}" maxlength="10" title="Only numbers, maximum 10 digits"
                                 class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent">
                         </div>
                     </div>

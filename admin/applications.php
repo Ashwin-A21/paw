@@ -95,12 +95,14 @@ $applications = $conn->query("SELECT aa.*, u.username, u.email, p.name as pet_na
                             <?php while ($app = $applications->fetch_assoc()): ?>
                                 <tr class="hover:bg-gray-50 transition-colors">
                                     <td class="px-6 py-4">
-                                        <p class="font-medium"><?php echo htmlspecialchars($app['username']); ?></p>
-                                        <p class="text-sm text-paw-gray"><?php echo htmlspecialchars($app['email']); ?></p>
+                                        <p class="font-medium"><?php echo htmlspecialchars($app['adopter_name'] ?? $app['username']); ?></p>
+                                        <p class="text-sm text-paw-gray"><?php echo htmlspecialchars($app['adopter_phone'] ?? ''); ?></p>
+                                        <p class="text-[10px] text-paw-gray"><?php echo htmlspecialchars($app['email']); ?></p>
                                     </td>
                                     <td class="px-6 py-4">
                                         <p class="font-medium"><?php echo htmlspecialchars($app['pet_name']); ?></p>
                                         <p class="text-sm text-paw-gray capitalize"><?php echo $app['type']; ?></p>
+                                        <p class="text-[10px] text-paw-accent font-bold mt-1 uppercase tracking-widest">Pickup: <?php echo htmlspecialchars($app['pickup_location'] ?? 'N/A'); ?></p>
                                     </td>
                                     <td class="px-6 py-4 text-paw-gray">
                                         <?php echo date('M d, Y', strtotime($app['application_date'])); ?>

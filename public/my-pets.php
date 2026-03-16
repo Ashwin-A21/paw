@@ -21,6 +21,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $status = 'Available'; // Default status for user-added pets
     $image = 'default_pet.jpg';
 
+    if (!preg_match("/^[a-zA-Z\s]+$/", $name)) {
+        $error = "Pet name can only contain letters and spaces.";
+    } else {
+
     // Image Upload
     include_once '../includes/functions.php';
     if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
@@ -33,35 +37,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if (isset($_POST['pet_id']) && !empty($_POST['pet_id'])) {
-        // Update existing pet (Check ownership)
-        $petId = (int) $_POST['pet_id'];
-        $checkOwner = $conn->query("SELECT id FROM pets WHERE id=$petId AND added_by=$userId");
+        if (isset($_POST['pet_id']) && !empty($_POST['pet_id'])) {
+            // Update existing pet (Check ownership)
+            $petId = (int) $_POST['pet_id'];
+            $checkOwner = $conn->query("SELECT id FROM pets WHERE id=$petId AND added_by=$userId");
 
-        if ($checkOwner->num_rows > 0) {
-            $sql = "UPDATE pets SET name='$name', type='$type', breed='$breed', age='$age', gender='$gender', description='$description'";
-            if ($image !== 'default_pet.jpg') {
-                $sql .= ", image='$image'";
+            if ($checkOwner->num_rows > 0) {
+                $sql = "UPDATE pets SET name='$name', type='$type', breed='$breed', age='$age', gender='$gender', description='$description'";
+                if ($image !== 'default_pet.jpg') {
+                    $sql .= ", image='$image'";
+                }
+                $sql .= " WHERE id=$petId";
+
+                if ($conn->query($sql)) {
+                    $message = "Pet details updated successfully!";
+                } else {
+                    $error = "Error updating pet: " . $conn->error;
+                }
+            } else {
+                $error = "You are not authorized to edit this pet.";
             }
-            $sql .= " WHERE id=$petId";
+        } else {
+            // Add new pet
+            $sql = "INSERT INTO pets (name, type, breed, age, gender, description, image, status, added_by) 
+                    VALUES ('$name', '$type', '$breed', '$age', '$gender', '$description', '$image', '$status', $userId)";
 
             if ($conn->query($sql)) {
-                $message = "Pet details updated successfully!";
+                $message = "Pet listed for adoption successfully!";
             } else {
-                $error = "Error updating pet: " . $conn->error;
+                $error = "Error adding pet: " . $conn->error;
             }
-        } else {
-            $error = "You are not authorized to edit this pet.";
-        }
-    } else {
-        // Add new pet
-        $sql = "INSERT INTO pets (name, type, breed, age, gender, description, image, status, added_by) 
-                VALUES ('$name', '$type', '$breed', '$age', '$gender', '$description', '$image', '$status', $userId)";
-
-        if ($conn->query($sql)) {
-            $message = "Pet listed for adoption successfully!";
-        } else {
-            $error = "Error adding pet: " . $conn->error;
         }
     }
 }
@@ -142,6 +147,7 @@ include '../includes/header.php';
                     <div>
                         <label class="block text-sm uppercase tracking-widest font-semibold mb-2">Pet Name</label>
                         <input type="text" name="name" value="<?php echo $editPet['name'] ?? ''; ?>" required
+                            pattern="[a-zA-Z\s]+" title="Only letters and spaces are allowed"
                             class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent transition-colors"
                             placeholder="e.g. Bella">
                     </div>

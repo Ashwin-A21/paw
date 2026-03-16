@@ -149,7 +149,7 @@ $user = $userResult->fetch_assoc();
                             </div>
                             <div>
                                 <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Phone</label>
-                                <input type="text" name="phone"
+                                <input type="tel" name="phone"
                                     value="<?php echo htmlspecialchars($user['phone'] ?? ''); ?>" pattern="\d{1,10}" maxlength="10" title="Only numbers, maximum 10 digits"
                                     class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent">
                             </div>
