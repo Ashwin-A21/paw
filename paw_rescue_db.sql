@@ -26,8 +26,20 @@ SET time_zone = "+00:00";
 --
 -- Table structure for table `adoption_applications`
 --
--- Error reading structure for table paw_rescue_db.adoption_applications: #1932 - Table &#039;paw_rescue_db.adoption_applications&#039; doesn&#039;t exist in engine
--- Error reading data for table paw_rescue_db.adoption_applications: #1064 - You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near &#039;FROM `paw_rescue_db`.`adoption_applications`&#039; at line 1
+
+CREATE TABLE `adoption_applications` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `pet_id` int(11) NOT NULL,
+  `adopter_name` varchar(100) NOT NULL,
+  `adopter_phone` varchar(20) NOT NULL,
+  `message` text DEFAULT NULL,
+  `pickup_location` varchar(255) DEFAULT NULL,
+  `status` enum('Pending','Approved','Rejected') DEFAULT 'Pending',
+  `owner_response` enum('Pending','Deal','No Deal') DEFAULT 'Pending',
+  `owner_notes` text DEFAULT NULL,
+  `application_date` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -367,6 +379,14 @@ ALTER TABLE `blogs`
   ADD KEY `author_id` (`author_id`);
 
 --
+-- Indexes for table `adoption_applications`
+--
+ALTER TABLE `adoption_applications`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `pet_id` (`pet_id`);
+
+--
 -- Indexes for table `comments`
 --
 ALTER TABLE `comments`
@@ -467,6 +487,12 @@ ALTER TABLE `blogs`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
+-- AUTO_INCREMENT for table `adoption_applications`
+--
+ALTER TABLE `adoption_applications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `comments`
 --
 ALTER TABLE `comments`
@@ -547,6 +573,13 @@ ALTER TABLE `volunteer_shifts`
 --
 ALTER TABLE `blogs`
   ADD CONSTRAINT `blogs_ibfk_1` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `adoption_applications`
+--
+ALTER TABLE `adoption_applications`
+  ADD CONSTRAINT `adoption_applications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `adoption_applications_ibfk_2` FOREIGN KEY (`pet_id`) REFERENCES `pets` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `comments`
