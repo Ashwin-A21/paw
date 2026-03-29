@@ -188,6 +188,7 @@ CREATE TABLE `pets` (
   `age` varchar(20) DEFAULT NULL,
   `gender` enum('Male','Female') NOT NULL,
   `description` text DEFAULT NULL,
+  `location` varchar(255) DEFAULT NULL,
   `image` varchar(255) DEFAULT 'default_pet.jpg',
   `status` enum('Available','Adopted','Pending') DEFAULT 'Available',
   `added_by` int(11) DEFAULT NULL,

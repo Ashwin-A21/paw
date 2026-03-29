@@ -271,10 +271,10 @@ include 'includes/header.php';
                                         <?php endif; ?>
                                     </a>
                                 <?php elseif ($pet['status'] == 'Available'): ?>
-                                    <a href="adopt-apply.php?pet=<?php echo $pet['id']; ?>"
-                                        class="flex-1 py-4 bg-paw-accent text-white rounded-xl text-center font-bold uppercase tracking-widest border border-transparent hover:bg-paw-dark transition-all shadow-lg shadow-paw-accent/20">
-                                        Adopt Me
-                                    </a>
+                                    <div id="adoptActionBtn" class="flex-1 w-full sm:w-auto min-w-[200px] flex flex-col justify-center">
+                                        <button disabled class="w-full py-4 bg-gray-200 text-gray-400 rounded-xl text-center font-bold uppercase tracking-widest cursor-not-allowed">Checking Location...</button>
+                                        <p id="distanceMessage" class="text-sm font-bold mt-2 text-center text-gray-500">Please allow location access to verify radius.</p>
+                                    </div>
                                 <?php else: ?>
                                     <button disabled
                                         class="flex-1 py-4 bg-gray-200 text-gray-400 rounded-xl text-center font-bold uppercase tracking-widest cursor-not-allowed">
@@ -376,16 +376,20 @@ include 'includes/header.php';
                                 </span>
                             </div>
 
-                            <?php if (!empty($pet['poster_address'])): ?>
-                                <div class="flex items-start gap-3 text-sm">
+                            <?php 
+                            $displayAddress = !empty($pet['location']) ? $pet['location'] : $pet['poster_address'];
+                            if (!empty($displayAddress)): 
+                            ?>
+                                <div class="flex items-start gap-3 text-sm mb-4">
                                     <div class="p-2 bg-orange-50 rounded-lg shrink-0">
                                         <i data-lucide="map-pin" class="w-4 h-4 text-orange-500"></i>
                                     </div>
                                     <span class="text-paw-gray leading-tight pt-1">
                                         Pickup Location:<br>
-                                        <strong class="text-paw-dark"><?php echo htmlspecialchars($pet['poster_address']); ?></strong>
+                                        <strong class="text-paw-dark"><?php echo htmlspecialchars($displayAddress); ?></strong>
                                     </span>
                                 </div>
+                                <div id="petMapContainer" class="hidden w-full mt-4 rounded-xl overflow-hidden border border-gray-100 shadow-sm"></div>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -607,9 +611,112 @@ include 'includes/header.php';
         } else {
             navigator.clipboard.writeText(url).then(() => {
                 const tooltip = document.getElementById('shareTooltip');
-                tooltip.style.opacity = '1';
-                setTimeout(() => { tooltip.style.opacity = '0'; }, 2000);
+                if(tooltip) {
+                    tooltip.style.opacity = '1';
+                    setTimeout(() => { tooltip.style.opacity = '0'; }, 2000);
+                }
             });
+        }
+    }
+
+    // Geolocation and mapping logic
+    const posterAddress = "<?php echo addslashes(!empty($pet['location']) ? $pet['location'] : ($pet['poster_address'] ?? '')); ?>";
+    const applyLink = "adopt-apply.php?pet=<?php echo $pet['id']; ?>";
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const adoptActionBtn = document.getElementById('adoptActionBtn');
+        const mapContainer = document.getElementById('petMapContainer');
+
+        if (posterAddress) {
+            // First fetch the pet's coordinates even if user isn't logged in / doesn't want to adopt
+            // so we can display the map
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(posterAddress)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        const petLat = parseFloat(data[0].lat);
+                        const petLon = parseFloat(data[0].lon);
+                        
+                        showMap(petLat, petLon);
+
+                        if(adoptActionBtn) {
+                            checkUserDistance(petLat, petLon);
+                        }
+                    } else if(adoptActionBtn) {
+                        // Could not find pet's geocode, just allow adoption
+                        enableAdoptBtn();
+                    }
+                })
+                .catch(() => {
+                    if(adoptActionBtn) enableAdoptBtn();
+                });
+        } else if(adoptActionBtn) {
+            // No poster address
+            enableAdoptBtn();
+        }
+
+        function checkUserDistance(petLat, petLon) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const userLat = position.coords.latitude;
+                        const userLon = position.coords.longitude;
+                        
+                        const dist = calculateDistance(userLat, userLon, petLat, petLon);
+                        
+                        if (dist <= 10) {
+                            enableAdoptBtn();
+                        } else {
+                            disableAdoptBtn("User is not within the 10km of the pet");
+                        }
+                    },
+                    (error) => {
+                        let msg = "Could not verify your location to adopt.";
+                        if(error.code === error.PERMISSION_DENIED) {
+                            msg = "Please allow location access to adopt.";
+                        }
+                        disableAdoptBtn(msg);
+                    }
+                );
+            } else {
+                disableAdoptBtn("Geolocation not supported by your browser.");
+            }
+        }
+    });
+
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; 
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c; // Distance in km
+    }
+
+    function enableAdoptBtn() {
+        const btnContainer = document.getElementById('adoptActionBtn');
+        if(btnContainer) {
+            btnContainer.innerHTML = `<a href="${applyLink}" class="block w-full py-4 bg-paw-accent text-white rounded-xl text-center font-bold uppercase tracking-widest border border-transparent hover:bg-paw-dark transition-all shadow-lg shadow-paw-accent/20">Adopt Me</a>`;
+        }
+    }
+
+    function disableAdoptBtn(message) {
+        const btnContainer = document.getElementById('adoptActionBtn');
+        if(btnContainer) {
+            btnContainer.innerHTML = `
+                <button disabled class="w-full py-4 bg-gray-200 text-gray-500 rounded-xl text-center font-bold uppercase tracking-widest cursor-not-allowed">Not Available</button>
+                <p class="text-sm font-bold mt-2 text-center text-red-500">${message}</p>
+            `;
+        }
+    }
+
+    function showMap(lat, lon) {
+        const mapContainer = document.getElementById('petMapContainer');
+        if(mapContainer) {
+            mapContainer.innerHTML = `<iframe width="100%" height="200" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://www.openstreetmap.org/export/embed.html?bbox=${lon-0.01}%2C${lat-0.01}%2C${lon+0.01}%2C${lat+0.01}&amp;layer=mapnik&amp;marker=${lat}%2C${lon}"></iframe>`;
+            mapContainer.classList.remove('hidden');
         }
     }
 </script>

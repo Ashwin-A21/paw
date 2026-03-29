@@ -18,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $age = mysqli_real_escape_string($conn, $_POST['age']);
     $gender = $_POST['gender'];
     $description = mysqli_real_escape_string($conn, $_POST['description']);
+    $location = mysqli_real_escape_string($conn, $_POST['location'] ?? '');
     $status = 'Available'; // Default status for user-added pets
     $image = 'default_pet.jpg';
 
@@ -43,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $checkOwner = $conn->query("SELECT id FROM pets WHERE id=$petId AND added_by=$userId");
 
             if ($checkOwner->num_rows > 0) {
-                $sql = "UPDATE pets SET name='$name', type='$type', breed='$breed', age='$age', gender='$gender', description='$description'";
+                $sql = "UPDATE pets SET name='$name', type='$type', breed='$breed', age='$age', gender='$gender', description='$description', location='$location'";
                 if ($image !== 'default_pet.jpg') {
                     $sql .= ", image='$image'";
                 }
@@ -59,8 +60,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         } else {
             // Add new pet
-            $sql = "INSERT INTO pets (name, type, breed, age, gender, description, image, status, added_by) 
-                    VALUES ('$name', '$type', '$breed', '$age', '$gender', '$description', '$image', '$status', $userId)";
+            $sql = "INSERT INTO pets (name, type, breed, age, gender, description, location, image, status, added_by) 
+                    VALUES ('$name', '$type', '$breed', '$age', '$gender', '$description', '$location', '$image', '$status', $userId)";
 
             if ($conn->query($sql)) {
                 $message = "Pet listed for adoption successfully!";
@@ -201,6 +202,19 @@ include '../includes/header.php';
                 </div>
 
                 <div>
+                    <label class="block text-sm uppercase tracking-widest font-semibold mb-2">Pet Specific Location (Optional)</label>
+                    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+                    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+                    <div class="flex flex-col gap-3">
+                        <input type="text" name="location" id="locationInput" value="<?php echo htmlspecialchars($editPet['location'] ?? ''); ?>"
+                            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent transition-colors"
+                            placeholder="e.g. Address or City (Uses your profile location if left blank)">
+                        <p class="text-xs text-gray-400">Or click on the map below to select a precise location:</p>
+                        <div id="mapSelector" class="w-full h-[300px] rounded-xl border border-gray-200" style="z-index: 0;"></div>
+                    </div>
+                </div>
+
+                <div>
                     <label class="block text-sm uppercase tracking-widest font-semibold mb-2">Photo</label>
                     <div class="flex items-center gap-4">
                         <?php if ($editPet && $editPet['image']): ?>
@@ -285,5 +299,59 @@ include '../includes/header.php';
         <?php endif; ?>
     </div>
 </section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const map = L.map('mapSelector').setView([20.5937, 78.9629], 5); // Default map center (India)
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        let marker = null;
+        const locInput = document.getElementById('locationInput');
+
+        // If there's already an address, try to geocode it to place the marker
+        if (locInput.value) {
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locInput.value)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if(data && data.length > 0) {
+                        const lat = parseFloat(data[0].lat);
+                        const lon = parseFloat(data[0].lon);
+                        map.setView([lat, lon], 13);
+                        marker = L.marker([lat, lon]).addTo(map);
+                    }
+                });
+        }
+
+        map.on('click', function(e) {
+            const lat = e.latlng.lat;
+            const lng = e.latlng.lng;
+            
+            if (marker) {
+                map.removeLayer(marker);
+            }
+            marker = L.marker([lat, lng]).addTo(map);
+
+            // Reverse Geocode
+            const oldVal = locInput.value;
+            locInput.value = "Fetching address...";
+            
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.display_name) {
+                        locInput.value = data.display_name;
+                    } else {
+                        locInput.value = `${lat}, ${lng}`;
+                    }
+                })
+                .catch(() => {
+                    locInput.value = `${lat}, ${lng}`;
+                });
+        });
+    });
+</script>
 
 <?php include '../includes/footer.php'; ?>

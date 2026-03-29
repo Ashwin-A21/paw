@@ -245,9 +245,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <span class="text-paw-gray"><?php echo htmlspecialchars($pet['breed']); ?></span>
                             <span class="text-paw-gray"><?php echo htmlspecialchars($pet['age']); ?></span>
                             <span class="text-paw-gray"><?php echo $pet['gender']; ?></span>
-                            <?php if (!empty($pet['owner_address'])): ?>
+                            <?php 
+                            $displayAddress = !empty($pet['location']) ? $pet['location'] : $pet['owner_address'];
+                            if (!empty($displayAddress)): 
+                            ?>
                             <span class="flex items-center gap-2 text-paw-gray border-l border-gray-300 pl-4 w-full mt-2">
-                                <i data-lucide="map-pin" class="w-4 h-4 text-orange-500"></i> Pickup Location: <strong class="text-paw-dark"><?php echo htmlspecialchars($pet['owner_address']); ?></strong>
+                                <i data-lucide="map-pin" class="w-4 h-4 text-orange-500"></i> Pickup Location: <strong class="text-paw-dark"><?php echo htmlspecialchars($displayAddress); ?></strong>
                             </span>
                             <?php endif; ?>
                         </div>
@@ -271,7 +274,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 </a>
                             </div>
                         <?php else: ?>
-                            <form method="POST" class="bg-white rounded-2xl p-8 shadow-lg">
+                            <div id="distanceCheckContainer" class="bg-white rounded-2xl p-8 shadow-lg text-center">
+                                <i data-lucide="map-pin" class="w-8 h-8 mx-auto text-paw-gray mb-4 animate-pulse"></i>
+                                <p id="distanceMessage" class="font-bold text-gray-500">Checking your location to verify 10km adoption radius...</p>
+                            </div>
+                            <form method="POST" id="applyForm" class="bg-white rounded-2xl p-8 shadow-lg" style="display:none;">
                                 <h3 class="font-serif text-2xl mb-6">Apply to Adopt
                                     <?php echo htmlspecialchars($pet['name']); ?>
                                 </h3>
@@ -310,10 +317,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="mb-6">
                                     <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Suggested Pickup Location</label>
                                     <input type="text" name="pickup_location" required 
-                                        value="<?php echo htmlspecialchars($pet['owner_address'] ?? ''); ?>"
+                                        value="<?php echo htmlspecialchars(!empty($pet['location']) ? $pet['location'] : ($pet['owner_address'] ?? '')); ?>"
                                         placeholder="Where would you like to meet for the adoption?"
                                         class="form-input">
-                                    <p class="text-xs text-paw-gray mt-2 italic">Suggested based on owner's location. Feel free to adjust.</p>
+                                    <p class="text-xs text-paw-gray mt-2 italic">Suggested based on owner's chosen location. Feel free to adjust.</p>
                                 </div>
 
                                 <button type="submit"
@@ -330,6 +337,92 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <script>
         lucide.createIcons();
+
+        // Distance Check Logic
+        const posterAddress = "<?php echo addslashes(!empty($pet['location']) ? $pet['location'] : ($pet['owner_address'] ?? '')); ?>";
+        const formEl = document.getElementById('applyForm');
+        const checkContainer = document.getElementById('distanceCheckContainer');
+        const msgEl = document.getElementById('distanceMessage');
+
+        document.addEventListener("DOMContentLoaded", function() {
+            if (!formEl) return; // User not logged in, no form
+
+            if (!posterAddress) {
+                allowApply();
+                return;
+            }
+
+            // Fetch pet location
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(posterAddress)}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        const petLat = parseFloat(data[0].lat);
+                        const petLon = parseFloat(data[0].lon);
+                        checkUserDistance(petLat, petLon);
+                    } else {
+                        allowApply(); // fallback
+                    }
+                })
+                .catch(() => allowApply());
+
+            function checkUserDistance(petLat, petLon) {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const userLat = position.coords.latitude;
+                            const userLon = position.coords.longitude;
+                            
+                            const dist = calculateDistance(userLat, userLon, petLat, petLon);
+                            
+                            if (dist <= 10) {
+                                allowApply();
+                            } else {
+                                denyApply("User is not within the 10km of the pet");
+                            }
+                        },
+                        (error) => {
+                            let msg = "Could not verify your location.";
+                            if(error.code === error.PERMISSION_DENIED) {
+                                msg = "Please allow location access to adopt.";
+                            }
+                            denyApply(msg);
+                        }
+                    );
+                } else {
+                    denyApply("Geolocation not supported by your browser.");
+                }
+            }
+        });
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; 
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c; // Distance in km
+        }
+
+        function allowApply() {
+            if(checkContainer) checkContainer.style.display = 'none';
+            if(formEl) formEl.style.display = 'block';
+        }
+
+        function denyApply(message) {
+            if(msgEl) {
+                msgEl.innerText = message;
+                msgEl.className = "font-bold text-red-500 mt-2";
+                
+                const icon = checkContainer.querySelector('i');
+                if(icon) {
+                    icon.classList.remove('animate-pulse');
+                    icon.classList.add('text-red-500');
+                }
+            }
+        }
     </script>
 </body>
 

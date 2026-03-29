@@ -29,7 +29,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } elseif (!preg_match("/^\d{1,10}$/", $phone)) {
             $error = "Phone number must contain only numbers and cannot exceed 10 digits.";
         } else {
-            $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+            $dobDate = new DateTime($dob);
+            $today = new DateTime();
+            $age = $today->diff($dobDate)->y;
+
+            if ($dobDate > $today) {
+                $error = "Date of birth cannot be in the future.";
+            } elseif ($age < 14) {
+                $error = "You must be at least 14 years old to create an account.";
+            } else {
+                $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
             $stmt->bind_param("s", $email);
             $stmt->execute();
             $result = $stmt->get_result();
@@ -46,7 +55,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
                 $stmt2->close();
             }
-            $stmt->close();
+            }
+            if (!$error) {
+                $stmt->close();
+            }
         }
     }
 }
@@ -160,7 +172,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                     <div>
                         <label class="block text-sm uppercase tracking-widest font-semibold mb-2">DOB</label>
-                        <input type="date" name="dob" required class="form-input">
+                        <input type="date" name="dob" required class="form-input" max="<?php echo date('Y-m-d', strtotime('-14 years')); ?>">
                     </div>
                 </div>
 
