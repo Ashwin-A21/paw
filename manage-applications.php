@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['app_action'])) {
     if ($verifyResult) {
         if ($action === 'Deal') {
             // Approve: set owner_response, update pet status to Pending
-            $updStmt = $conn->prepare("UPDATE adoption_applications SET owner_response = 'Deal', owner_notes = ? WHERE id = ?");
+            $updStmt = $conn->prepare("UPDATE adoption_applications SET status = 'Approved', owner_response = 'Deal', owner_notes = ? WHERE id = ?");
             $updStmt->bind_param("si", $ownerNotes, $appId);
             $updStmt->execute();
             $updStmt->close();
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['app_action'])) {
             $petStmt->close();
 
             // Reject all other pending applications for this pet
-            $rejectStmt = $conn->prepare("UPDATE adoption_applications SET owner_response = 'No Deal', owner_notes = 'Another applicant was selected.' WHERE pet_id = ? AND id != ? AND owner_response = 'Pending'");
+            $rejectStmt = $conn->prepare("UPDATE adoption_applications SET status = 'Rejected', owner_response = 'No Deal', owner_notes = 'Another applicant was selected.' WHERE pet_id = ? AND id != ? AND owner_response = 'Pending'");
             $rejectStmt->bind_param("ii", $verifyResult['pet_id'], $appId);
             $rejectStmt->execute();
             $rejectStmt->close();
@@ -55,13 +55,67 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['app_action'])) {
                 'pet-details.php?id=' . $verifyResult['pet_id']
             );
 
-            // Get Applicant Name for commenter notifications
-            $appUserStmt = $conn->prepare("SELECT username FROM users WHERE id = ?");
+            // Get Applicant Info (for email and notifications)
+            $appUserStmt = $conn->prepare("SELECT username, email FROM users WHERE id = ?");
             $appUserStmt->bind_param("i", $verifyResult['user_id']);
             $appUserStmt->execute();
             $appUserRes = $appUserStmt->get_result()->fetch_assoc();
             $applicantUsername = $appUserRes['username'];
+            $applicantEmail = $appUserRes['email'];
             $appUserStmt->close();
+
+            // Get Seller Info for email
+            $sellerStmt = $conn->prepare("SELECT username, email, phone FROM users WHERE id = ?");
+            $sellerStmt->bind_param("i", $userId);
+            $sellerStmt->execute();
+            $sellerUser = $sellerStmt->get_result()->fetch_assoc();
+            $sellerStmt->close();
+
+            // Send Email Notification to Adopter
+            if (file_exists('vendor/autoload.php')) {
+                require_once 'vendor/autoload.php';
+                $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+                try {
+                    $mail->isSMTP();
+                    $mail->Host       = SMTP_HOST;
+                    $mail->SMTPAuth   = true;
+                    $mail->Username   = SMTP_USER;
+                    $mail->Password   = SMTP_PASS;
+                    $mail->SMTPSecure = PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+                    $mail->Port       = SMTP_PORT;
+
+                    $mail->setFrom(SMTP_FROM, SMTP_FROM_NAME);
+                    $mail->addAddress($applicantEmail, $applicantUsername);
+
+                    $mail->isHTML(true);
+                    $mail->Subject = "Adoption Deal Accepted! - Paw Pal";
+
+                    $sName = htmlspecialchars($sellerUser['username'] ?? 'Paw Pal User');
+                    $sPhone = htmlspecialchars($sellerUser['phone'] ?? 'Not provided');
+                    $sEmail = htmlspecialchars($sellerUser['email'] ?? 'Not provided');
+                    $pName = htmlspecialchars($verifyResult['pet_name']);
+                    $oNotes = nl2br(htmlspecialchars($ownerNotes));
+
+                    $mail->Body = "
+                        <div style='font-family: sans-serif; color: #333;'>
+                            <h2 style='color: #4CAF50;'>Congratulations! 🎉</h2>
+                            <p>Your adoption application for <strong>$pName</strong> has been accepted by the seller!</p>
+                            " . (!empty($oNotes) ? "<p style='background: #f9f9f9; padding: 15px; border-left: 4px solid #4CAF50;'><strong>Message from Seller:</strong><br>$oNotes</p>" : "") . "
+                            <hr style='border: 1px solid #eee; margin: 20px 0;'>
+                            <h3 style='color: #555;'>Seller Contact Details</h3>
+                            <p>Please contact the seller to finalize the pickup and adoption process:</p>
+                            <ul>
+                                <li><strong>Name:</strong> $sName</li>
+                                <li><strong>Phone:</strong> $sPhone</li>
+                                <li><strong>Email:</strong> $sEmail</li>
+                            </ul>
+                            <br>
+                            <p>Thank you for using Paw Pal to save a life!</p>
+                        </div>
+                    ";
+                    $mail->send();
+                } catch (Exception $e) {}
+            }
 
             // Notify all commenters that the pet was adopted
             $commentersStmt = $conn->prepare("SELECT DISTINCT user_id FROM comments WHERE entity_id = ? AND entity_type = 'pet' AND user_id != ? AND user_id != ?");
@@ -98,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['app_action'])) {
 
             $successMsg = "Deal! You've accepted this application. The applicant has been notified.";
         } elseif ($action === 'No Deal') {
-            $updStmt = $conn->prepare("UPDATE adoption_applications SET owner_response = 'No Deal', owner_notes = ? WHERE id = ?");
+            $updStmt = $conn->prepare("UPDATE adoption_applications SET status = 'Rejected', owner_response = 'No Deal', owner_notes = ? WHERE id = ?");
             $updStmt->bind_param("si", $ownerNotes, $appId);
             $updStmt->execute();
             $updStmt->close();

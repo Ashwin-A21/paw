@@ -6,23 +6,28 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 }
 include '../config.php';
 
-// Handle Status Update
-if (isset($_POST['update_status'])) {
-    $appId = (int) $_POST['app_id'];
-    $status = $_POST['status'];
-    $conn->query("UPDATE adoption_applications SET status='$status' WHERE id=$appId");
+$view = isset($_GET['view']) ? $_GET['view'] : 'all';
 
-    if ($status === 'Approved') {
-        $app = $conn->query("SELECT pet_id FROM adoption_applications WHERE id=$appId")->fetch_assoc();
-        $conn->query("UPDATE pets SET status='Adopted' WHERE id=" . $app['pet_id']);
-    }
+if ($view === 'history') {
+    // Successful adoptions only (detailed view)
+    $applications = $conn->query("SELECT aa.*, 
+                                      u_adopter.username as adopter_name, u_adopter.email as adopter_email, u_adopter.phone as adopter_phone,
+                                      u_seller.username as seller_name, u_seller.email as seller_email, u_seller.phone as seller_phone,
+                                      p.name as pet_name, p.type, p.breed, p.image as pet_image
+                               FROM adoption_applications aa 
+                               JOIN users u_adopter ON aa.user_id = u_adopter.id 
+                               JOIN pets p ON aa.pet_id = p.id 
+                               JOIN users u_seller ON p.added_by = u_seller.id 
+                               WHERE aa.owner_response = 'Deal'
+                               ORDER BY aa.application_date DESC");
+} else {
+    // All applications
+    $applications = $conn->query("SELECT aa.*, u.username, u.email, p.name as pet_name, p.type 
+                                  FROM adoption_applications aa 
+                                  JOIN users u ON aa.user_id = u.id 
+                                  JOIN pets p ON aa.pet_id = p.id 
+                                  ORDER BY aa.application_date DESC");
 }
-
-$applications = $conn->query("SELECT aa.*, u.username, u.email, p.name as pet_name, p.type 
-                              FROM adoption_applications aa 
-                              JOIN users u ON aa.user_id = u.id 
-                              JOIN pets p ON aa.pet_id = p.id 
-                              ORDER BY aa.application_date DESC");
 ?>
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
@@ -68,70 +73,87 @@ $applications = $conn->query("SELECT aa.*, u.username, u.email, p.name as pet_na
         <!-- Main Content -->
         <main class="flex-1 p-8 overflow-y-auto">
             <div class="max-w-5xl mx-auto">
-                <h1 class="font-serif text-4xl mb-8">Adoption Applications</h1>
+                <h1 class="font-serif text-4xl mb-2">Adoption Applications</h1>
+                <p class="text-paw-gray mb-8">Manage and track all adoption activities on the platform.</p>
+
+                <!-- Tabs -->
+                <div class="flex gap-4 mb-8 border-b border-gray-100">
+                    <a href="applications.php?view=all" 
+                       class="pb-4 px-2 text-sm font-bold uppercase tracking-widest transition-all <?php echo $view !== 'history' ? 'text-paw-accent border-b-2 border-paw-accent' : 'text-paw-gray hover:text-paw-dark'; ?>">
+                        All Requests
+                    </a>
+                    <a href="applications.php?view=history" 
+                       class="pb-4 px-2 text-sm font-bold uppercase tracking-widest transition-all <?php echo $view === 'history' ? 'text-paw-accent border-b-2 border-paw-accent' : 'text-paw-gray hover:text-paw-dark'; ?>">
+                        Success History
+                    </a>
+                </div>
 
                 <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
                     <table class="w-full">
                         <thead class="bg-gray-50">
-                            <tr>
-                                <th
-                                    class="text-left px-6 py-4 text-xs uppercase tracking-widest font-semibold text-paw-gray">
-                                    Applicant</th>
-                                <th
-                                    class="text-left px-6 py-4 text-xs uppercase tracking-widest font-semibold text-paw-gray">
-                                    Pet</th>
-                                <th
-                                    class="text-left px-6 py-4 text-xs uppercase tracking-widest font-semibold text-paw-gray">
-                                    Date</th>
-                                <th
-                                    class="text-left px-6 py-4 text-xs uppercase tracking-widest font-semibold text-paw-gray">
-                                    Status</th>
-                                <th
-                                    class="text-right px-6 py-4 text-xs uppercase tracking-widest font-semibold text-paw-gray">
-                                    Action</th>
-                            </tr>
+                                <?php if ($view === 'history'): ?>
+                                    <th class="text-left px-6 py-4 text-xs uppercase tracking-widest font-semibold text-paw-gray">Pet</th>
+                                    <th class="text-left px-6 py-4 text-xs uppercase tracking-widest font-semibold text-paw-gray">Adopter</th>
+                                    <th class="text-left px-6 py-4 text-xs uppercase tracking-widest font-semibold text-paw-gray">Seller</th>
+                                    <th class="text-left px-6 py-4 text-xs uppercase tracking-widest font-semibold text-paw-gray">Date & Location</th>
+                                <?php else: ?>
+                                    <th class="text-left px-6 py-4 text-xs uppercase tracking-widest font-semibold text-paw-gray">Applicant</th>
+                                    <th class="text-left px-6 py-4 text-xs uppercase tracking-widest font-semibold text-paw-gray">Pet</th>
+                                    <th class="text-left px-6 py-4 text-xs uppercase tracking-widest font-semibold text-paw-gray">Date</th>
+                                    <th class="text-left px-6 py-4 text-xs uppercase tracking-widest font-semibold text-paw-gray">Result</th>
+                                <?php endif; ?>
                         </thead>
                         <tbody class="divide-y divide-gray-50">
-                            <?php while ($app = $applications->fetch_assoc()): ?>
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-6 py-4">
-                                        <p class="font-medium"><?php echo htmlspecialchars($app['adopter_name'] ?? $app['username']); ?></p>
-                                        <p class="text-sm text-paw-gray"><?php echo htmlspecialchars($app['adopter_phone'] ?? ''); ?></p>
-                                        <p class="text-[10px] text-paw-gray"><?php echo htmlspecialchars($app['email']); ?></p>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <p class="font-medium"><?php echo htmlspecialchars($app['pet_name']); ?></p>
-                                        <p class="text-sm text-paw-gray capitalize"><?php echo $app['type']; ?></p>
-                                        <p class="text-[10px] text-paw-accent font-bold mt-1 uppercase tracking-widest">Pickup: <?php echo htmlspecialchars($app['pickup_location'] ?? 'N/A'); ?></p>
-                                    </td>
-                                    <td class="px-6 py-4 text-paw-gray">
-                                        <?php echo date('M d, Y', strtotime($app['application_date'])); ?>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span
-                                            class="px-3 py-1 text-xs rounded-full 
-                                        <?php echo $app['status'] === 'Pending' ? 'bg-yellow-50 text-yellow-700' :
-                                            ($app['status'] === 'Approved' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'); ?>">
-                                            <?php echo $app['status']; ?>
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-right">
-                                        <form method="POST" class="inline-flex gap-2">
-                                            <input type="hidden" name="app_id" value="<?php echo $app['id']; ?>">
-                                            <select name="status"
-                                                class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-paw-accent">
-                                                <option value="Pending" <?php echo $app['status'] === 'Pending' ? 'selected' : ''; ?>>Pending</option>
-                                                <option value="Approved" <?php echo $app['status'] === 'Approved' ? 'selected' : ''; ?>>Approved</option>
-                                                <option value="Rejected" <?php echo $app['status'] === 'Rejected' ? 'selected' : ''; ?>>Rejected</option>
-                                            </select>
-                                            <button type="submit" name="update_status"
-                                                class="px-4 py-1.5 bg-paw-accent text-white rounded-lg text-sm font-medium hover:bg-paw-dark transition-colors">
-                                                Update
-                                            </button>
-                                        </form>
-                                    </td>
+                            <?php if ($applications->num_rows > 0): ?>
+                                <?php while ($app = $applications->fetch_assoc()): ?>
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <?php if ($view === 'history'): ?>
+                                            <!-- History View Items -->
+                                            <td class="px-6 py-4">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
+                                                        <img src="../uploads/pets/<?php echo rawurlencode($app['pet_image']); ?>" class="w-full h-full object-cover">
+                                                    </div>
+                                                    <p class="font-bold text-sm"><?php echo htmlspecialchars($app['pet_name']); ?></p>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <p class="font-medium text-sm"><?php echo htmlspecialchars($app['adopter_name']); ?></p>
+                                                <p class="text-[10px] text-paw-gray italic"><?php echo htmlspecialchars($app['adopter_email']); ?></p>
+                                            </td>
+                                            <td class="px-6 py-4 text-sm text-paw-gray">
+                                                <?php echo htmlspecialchars($app['seller_name']); ?>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <p class="text-xs"><?php echo date('M d, Y', strtotime($app['application_date'])); ?></p>
+                                                <p class="text-[10px] text-paw-accent italic"><?php echo htmlspecialchars($app['pickup_location'] ?: 'Standard'); ?></p>
+                                            </td>
+                                        <?php else: ?>
+                                            <!-- All View Items -->
+                                            <td class="px-6 py-4">
+                                                <p class="font-medium"><?php echo htmlspecialchars($app['adopter_name'] ?? $app['username']); ?></p>
+                                                <p class="text-[10px] text-paw-gray"><?php echo htmlspecialchars($app['email']); ?></p>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <p class="font-medium"><?php echo htmlspecialchars($app['pet_name']); ?></p>
+                                                <p class="text-sm text-paw-gray capitalize"><?php echo $app['type']; ?></p>
+                                            </td>
+                                            <td class="px-6 py-4 text-paw-gray text-sm">
+                                                <?php echo date('M d, Y', strtotime($app['application_date'])); ?>
+                                            </td>
+                                            <td class="px-6 py-4">
+                                                <span class="px-3 py-1 text-[10px] rounded-full <?php echo $app['owner_response'] === 'Pending' ? 'bg-gray-100 text-gray-600' : ($app['owner_response'] === 'Deal' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-600'); ?>">
+                                                    <?php echo $app['owner_response'] === 'Deal' ? '🤝 Deal' : ($app['owner_response'] === 'No Deal' ? '❌ No Deal' : 'Pending'); ?>
+                                                </span>
+                                            </td>
+                                        <?php endif; ?>
+                                    </tr>
+                                <?php endwhile; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="4" class="px-6 py-12 text-center text-paw-gray italic">No records found.</td>
                                 </tr>
-                            <?php endwhile; ?>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>

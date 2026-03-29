@@ -221,9 +221,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </a>
                 </div>
             <?php else: ?>
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
                     <!-- Pet Image -->
-                    <div class="rounded-2xl overflow-hidden shadow-xl h-[500px]">
+                    <div class="rounded-2xl overflow-hidden shadow-xl h-[500px] lg:sticky lg:top-32">
                         <img src="<?php echo file_exists('uploads/pets/' . $pet['image']) ? 'uploads/pets/' . rawurlencode($pet['image']) : 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800'; ?>"
                             alt="<?php echo htmlspecialchars($pet['name']); ?>" class="w-full h-full object-cover">
                     </div>
@@ -378,7 +378,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             if (dist <= 10) {
                                 allowApply();
                             } else {
-                                denyApply("User is not within the 10km of the pet");
+                                allowApply(true);
                             }
                         },
                         (error) => {
@@ -406,9 +406,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             return R * c; // Distance in km
         }
 
-        function allowApply() {
+        function allowApply(outsideRange = false) {
             if(checkContainer) checkContainer.style.display = 'none';
             if(formEl) formEl.style.display = 'block';
+
+            if (outsideRange && !document.getElementById('distWarning')) {
+                const distMsg = document.createElement('div');
+                distMsg.id = 'distWarning';
+                distMsg.className = 'bg-yellow-50 border border-yellow-200 text-yellow-800 p-4 rounded-xl mb-6 text-sm flex gap-3 items-start';
+                distMsg.innerHTML = '<i data-lucide="info" class="w-5 h-5 flex-shrink-0 mt-0.5"></i><p>You are located <strong>more than 10km away</strong> from this pet. Please specify an alternative <strong>proposed pickup location</strong> below to help the owner coordinate the adoption.</p>';
+                formEl.insertBefore(distMsg, formEl.children[1]);
+                lucide.createIcons();
+                
+                const pickLoc = document.querySelector('input[name="pickup_location"]');
+                if(pickLoc) {
+                    pickLoc.classList.add('border-yellow-400', 'bg-yellow-50');
+                }
+            }
         }
 
         function denyApply(message) {

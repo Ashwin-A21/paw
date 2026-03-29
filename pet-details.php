@@ -276,10 +276,44 @@ include 'includes/header.php';
                                         <p id="distanceMessage" class="text-sm font-bold mt-2 text-center text-gray-500">Please allow location access to verify radius.</p>
                                     </div>
                                 <?php else: ?>
-                                    <button disabled
-                                        class="flex-1 py-4 bg-gray-200 text-gray-400 rounded-xl text-center font-bold uppercase tracking-widest cursor-not-allowed">
-                                        Not Available
-                                    </button>
+                                    <?php 
+                                    $isAdopter = false;
+                                    $ownerNotes = '';
+                                    if (isset($_SESSION['user_id'])) {
+                                        $adopterStmt = $conn->prepare("SELECT owner_notes FROM adoption_applications WHERE pet_id = ? AND user_id = ? AND owner_response = 'Deal'");
+                                        if ($adopterStmt) {
+                                            $uIDForBind = $_SESSION['user_id'];
+                                            $adopterStmt->bind_param("ii", $pet_id, $uIDForBind);
+                                            $adopterStmt->execute();
+                                            $adopterRes = $adopterStmt->get_result();
+                                            if ($adopterRes && $adopterRes->num_rows > 0) {
+                                                $isAdopter = true;
+                                                $ownerNotes = $adopterRes->fetch_assoc()['owner_notes'];
+                                            }
+                                            $adopterStmt->close();
+                                        }
+                                    }
+                                    ?>
+                                    <?php if ($isAdopter): ?>
+                                        <div class="flex-1 w-full flex flex-col gap-3">
+                                            <div class="bg-green-50 border border-green-200 p-4 rounded-xl shadow-sm">
+                                                <p class="text-green-800 font-bold uppercase tracking-widest text-sm flex items-center gap-2">
+                                                    <i data-lucide="party-popper" class="w-5 h-5 text-green-600"></i> You got the deal!
+                                                </p>
+                                                <?php if (!empty($ownerNotes)): ?>
+                                                    <div class="mt-3 pt-3 border-t border-green-200">
+                                                        <p class="text-[10px] font-bold uppercase tracking-widest text-green-600 mb-1">Message from Seller</p>
+                                                        <p class="text-sm text-green-800 italic">"<?php echo nl2br(htmlspecialchars($ownerNotes)); ?>"</p>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    <?php else: ?>
+                                        <button disabled
+                                            class="flex-1 py-4 bg-gray-200 text-gray-400 rounded-xl text-center font-bold uppercase tracking-widest cursor-not-allowed">
+                                            Adopted
+                                        </button>
+                                    <?php endif; ?>
                                 <?php endif; ?>
                             <?php else: ?>
                                 <a href="login.php?redirect=pet-details.php?id=<?php echo $pet['id']; ?>"
@@ -667,7 +701,7 @@ include 'includes/header.php';
                         if (dist <= 10) {
                             enableAdoptBtn();
                         } else {
-                            disableAdoptBtn("User is not within the 10km of the pet");
+                            enableAdoptBtn(true);
                         }
                     },
                     (error) => {
@@ -695,10 +729,13 @@ include 'includes/header.php';
         return R * c; // Distance in km
     }
 
-    function enableAdoptBtn() {
+    function enableAdoptBtn(outsideRange = false) {
         const btnContainer = document.getElementById('adoptActionBtn');
         if(btnContainer) {
             btnContainer.innerHTML = `<a href="${applyLink}" class="block w-full py-4 bg-paw-accent text-white rounded-xl text-center font-bold uppercase tracking-widest border border-transparent hover:bg-paw-dark transition-all shadow-lg shadow-paw-accent/20">Adopt Me</a>`;
+            if (outsideRange) {
+                btnContainer.innerHTML += `<p class="text-xs font-bold mt-2 text-center text-yellow-600 px-2">You are >10km away. You will need to propose a meeting location.</p>`;
+            }
         }
     }
 
