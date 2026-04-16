@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 16, 2026 at 05:22 AM
+-- Generation Time: Apr 16, 2026 at 07:39 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -41,6 +41,14 @@ CREATE TABLE `adoption_applications` (
   `application_date` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `adoption_applications`
+--
+
+INSERT INTO `adoption_applications` (`id`, `user_id`, `pet_id`, `adopter_name`, `adopter_phone`, `message`, `pickup_location`, `status`, `owner_response`, `owner_notes`, `application_date`) VALUES
+(1, 5, 1, 'MeowMeow trust', '9897654321', 'can i adopt this pet ', 'mangalore', 'Rejected', 'No Deal', '', '2026-03-29 04:41:09'),
+(2, 4, 9, 'Mike Rescuer', '9897654321', 'sdf', 'hosangadi ,kerala ', 'Approved', 'Deal', 'we can proceed with the meeting on 8-06-2025 .\r\n\r\nplease contact 8113812257', '2026-03-29 06:55:21');
+
 -- --------------------------------------------------------
 
 --
@@ -66,9 +74,9 @@ CREATE TABLE `blogs` (
 
 INSERT INTO `blogs` (`id`, `title`, `slug`, `content`, `author_id`, `author`, `image`, `is_published`, `created_at`, `status`) VALUES
 (1, 'Why Adopt a Pet?', 'why-adopt-a-pet', 'Adopting a pet saves two lives: the one you adopt and the one who takes their place in the shelter. Every year, millions of animals end up in shelters. By adopting, you give them a second chance at happiness while also gaining a loyal companion.\n\nAdopted pets are often already vaccinated, spayed/neutered, and microchipped, saving you time and money. Plus, shelters can help match you with a pet that fits your lifestyle.\n\nMake a difference today – adopt, don\'t shop!', 1, 'Admin', NULL, 1, '2026-02-02 05:26:50', 'approved'),
-(2, 'Essential Vaccinations for Your New Puppy', 'essential-vaccinations-puppy', 'Bringing a new puppy home is exciting, but their health should be your top priority. Core vaccines, such as those for Parvovirus, Distemper, and Adenovirus, are crucial for their survival. Depending on your location and lifestyle, non-core vaccines like Bordetella (kennel cough) and Lyme disease might also be recommended. Always consult with your local veterinarian to establish a proper vaccination schedule starting at 6-8 weeks of age.', 1, 'Admin', 'puppy_vaccination_1774762638386.png', 1, '2026-03-29 10:00:00', 'approved'),
-(3, 'Understanding Feline Leukemia Virus (FeLV)', 'understanding-feline-leukemia-virus', 'Feline Leukemia Virus (FeLV) is one of the most common infectious diseases in cats, affecting their immune system and predisposing them to various infections and illness. It is primarily spread through close contact, such as grooming, sharing water bowls, or bite wounds. If you are adopting a new cat, it is highly recommended to get them tested for FeLV, especially if you have other cats at home. There is a vaccine available, so discuss prevention strategies with your vet.', 1, 'Admin', 'feline_leukemia_1774762653191.png', 1, '2026-03-29 10:00:00', 'approved'),
-(4, 'Post-Adoption De-worming and Parasite Control', 'post-adoption-parasite-control', 'Many rescued animals unfortunately come with unwanted guests: internal parasites. Roundworms, hookworms, and tapeworms are common and can cause serious health issues like malnutrition, anemia, or gastrointestinal distress. Once you adopt a pet, schedule a fecal exam as soon as possible. Deworming protocols are highly effective, and maintaining a regular monthly preventative treatment will keep both your pet and your human family safe from zoonotic diseases.', 1, 'Admin', 'parasite_control_1774762670534.png', 1, '2026-03-29 10:00:00', 'approved');
+(2, 'Essential Vaccinations for Your New Puppy', 'essential-vaccinations-puppy', 'Bringing a new puppy home is exciting, but their health should be your top priority. Core vaccines, such as those for Parvovirus, Distemper, and Adenovirus, are crucial for their survival. Depending on your location and lifestyle, non-core vaccines like Bordetella (kennel cough) and Lyme disease might also be recommended. Always consult with your local veterinarian to establish a proper vaccination schedule starting at 6-8 weeks of age.\r\n\r\n💉 The \"Core\" Four: Non-Negotiable Protection\r\n\r\nThese vaccines are considered vital to all puppies, regardless of their lifestyle or location, because the diseases they prevent are highly contagious and often fatal.Parvovirus (Parvo): A severe, life-threatening gastrointestinal virus. It is incredibly hardy and can live in the soil for years.Distemper: Affects the respiratory, gastrointestinal, and nervous systems. It is often fatal and survivors can have permanent neurological damage.Canine Hepatitis (Adenovirus): Targets the liver, kidneys, and lungs.Rabies: Mandatory by law in most regions. It is 100% fatal and can be transmitted to humans.\r\n\r\n🌲 Lifestyle & \"Non-Core\" Vaccines\r\n\r\nDepending on where you live (like the lush environments of Kerala) or if your puppy will be socialized at daycare, your vet may suggest these:Leptospirosis: Bacteria found in soil and water contaminated by wildlife urine. Highly relevant for pups in tropical or rainy climates.Bordetella & Parainfluenza: Known as \"Kennel Cough.\" Essential if your puppy will visit groomers, boarding facilities, or dog parks.Lyme Disease: Recommended if you live in tick-heavy areas or enjoy hiking with your dog.\r\n\r\n📅 Standard Vaccination Timeline\r\n\r\nPuppies receive antibodies from their mother\'s milk, but these fade around 6–8 weeks, leaving a \"protection gap.\"\r\nPuppy Age              :        Recommended Vaccines\r\n6–8 Weeks             :      Distemper, Parvovirus (DHPP)\r\n10–12 Weeks       :     DHPP Booster, Leptospirosis, Bordetella\r\n14–16 Weeks        :      DHPP Booster, Rabies, Lepto Booster\r\n12 Months               :      Full Booster Series (to move to adult schedule)', 1, 'Admin', 'puppy_vaccination_1774762638386.png', 1, '2026-03-29 04:30:00', 'approved'),
+(3, 'Understanding Feline Leukemia Virus (FeLV)', 'understanding-feline-leukemia-virus', 'Feline Leukemia Virus (FeLV) is one of the most common infectious diseases in cats, affecting their immune system and predisposing them to various infections and illness. It is primarily spread through close contact, such as grooming, sharing water bowls, or bite wounds. If you are adopting a new cat, it is highly recommended to get them tested for FeLV, especially if you have other cats at home. There is a vaccine available, so discuss prevention strategies with your vet.', 1, 'Admin', 'feline_leukemia_1774762653191.png', 1, '2026-03-29 04:30:00', 'approved'),
+(4, 'Post-Adoption De-worming and Parasite Control', 'post-adoption-parasite-control', 'Many rescued animals unfortunately come with unwanted guests: internal parasites. Roundworms, hookworms, and tapeworms are common and can cause serious health issues like malnutrition, anemia, or gastrointestinal distress. Once you adopt a pet, schedule a fecal exam as soon as possible. Deworming protocols are highly effective, and maintaining a regular monthly preventative treatment will keep both your pet and your human family safe from zoonotic diseases.\r\n\r\nThe Hidden Dangers of \"Uninvited Guests\" :\r\nWhile some symptoms are obvious, many parasites are \"silent\" until they’ve caused significant internal damage. Rescued animals, especially those from crowded shelters or the street, have a much higher exposure risk.\r\n\r\nHeartworms: Transmitted by mosquitoes, these are life-threatening and far more difficult (and expensive) to treat than to prevent.\r\n\r\nCoccidia & Giardia: These microscopic protozoa often thrive in shelter environments and require specific diagnostic tests beyond a standard de-wormer.\r\n\r\nExternal Parasites: Fleas and ticks aren\'t just itchy; they are primary vectors for tapeworms and Lyme disease.\r\n\r\nThe First Veterinary Visit: What to Expect\r\nYour first appointment shouldn\'t just be a physical exam. To ensure a clean bill of health, come prepared for the following:\r\n\r\nThe Fecal Float Test: This identifies eggs from roundworms, hookworms, and whipworms.\r\n\r\nBlood Screening: Essential for detecting heartworm disease and certain tick-borne illnesses.\r\n\r\nThe \"Puppy/Kitten\" Series: Young rescues often require multiple rounds of de-worming (usually every 2 weeks) to catch parasites at different life cycles. ', 1, 'Admin', 'parasite_control_1774762670534.png', 1, '2026-03-29 04:30:00', 'approved');
 
 -- --------------------------------------------------------
 
@@ -123,7 +131,9 @@ INSERT INTO `favorites` (`id`, `user_id`, `pet_id`, `created_at`) VALUES
 (1, 1, 6, '2026-02-26 10:56:56'),
 (2, 1, 7, '2026-02-26 10:56:58'),
 (3, 1, 3, '2026-02-26 10:57:05'),
-(4, 3, 1, '2026-02-26 11:26:55');
+(4, 3, 1, '2026-02-26 11:26:55'),
+(5, 1, 9, '2026-03-29 05:56:42'),
+(6, 4, 9, '2026-03-29 06:56:31');
 
 -- --------------------------------------------------------
 
@@ -175,7 +185,11 @@ INSERT INTO `notifications` (`id`, `user_id`, `type`, `message`, `link`, `is_rea
 (3, 1, 'adoption_deal', '🎉 Great news! Your adoption application for \"chommu\" has been accepted! It\'s a Deal!', 'pet-details.php?id=7', 0, '2026-02-26 11:50:46'),
 (4, 3, 'adoption_deal', '🎉 Great news! Your adoption application for \"bogra\" has been accepted! It\'s a Deal!', 'pet-details.php?id=6', 0, '2026-02-26 11:54:02'),
 (5, 5, 'pet_adopted_commenter', '🐾 Good news! \"bogra\" was just adopted by Sarah G Volunteer. View their info and your old comments.', 'pet-details.php?id=6', 1, '2026-02-26 11:54:02'),
-(6, 1, 'comment', 'MeowMeow trust  commented on your pet \"bogra\"', 'pet-details.php?id=6#comments', 0, '2026-02-26 11:55:40');
+(6, 1, 'comment', 'MeowMeow trust  commented on your pet \"bogra\"', 'pet-details.php?id=6#comments', 0, '2026-02-26 11:55:40'),
+(7, 1, 'adoption_application', 'MeowMeow trust  wants to adopt your pet \"Bella\"! Review their application.', 'manage-applications.php', 0, '2026-03-29 04:41:09'),
+(8, 5, 'adoption_no_deal', 'Your adoption application for \"Bella\" was declined by the owner.', 'adopt.php', 0, '2026-03-29 04:45:25'),
+(9, 6, 'adoption_application', 'Mike Rescuer wants to adopt your pet \"Nanduu\"! Review their application.', 'manage-applications.php', 0, '2026-03-29 06:55:21'),
+(10, 4, 'adoption_deal', '🎉 Great news! Your adoption application for \"Nanduu\" has been accepted! It\'s a Deal!', 'pet-details.php?id=9', 0, '2026-03-29 06:59:33');
 
 -- --------------------------------------------------------
 
@@ -191,24 +205,26 @@ CREATE TABLE `pets` (
   `age` varchar(20) DEFAULT NULL,
   `gender` enum('Male','Female') NOT NULL,
   `description` text DEFAULT NULL,
-  `location` varchar(255) DEFAULT NULL,
   `image` varchar(255) DEFAULT 'default_pet.jpg',
   `status` enum('Available','Adopted','Pending') DEFAULT 'Available',
   `added_by` int(11) DEFAULT NULL,
-  `added_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `added_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `location` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `pets`
 --
 
-INSERT INTO `pets` (`id`, `name`, `type`, `breed`, `age`, `gender`, `description`, `image`, `status`, `added_by`, `added_at`) VALUES
-(1, 'Bella', 'dog', 'Labrador Retriever', '2 years', 'Female', 'Bella is a friendly and energetic Labrador who loves playing fetch and swimming. She is great with kids and other pets.', '1771130316_images (1).webp', 'Available', 1, '2026-02-02 05:26:50'),
-(3, 'Arjun', 'dog', 'German Shepherd', '3 years', 'Male', 'Arjun is a loyal and intelligent German Shepherd. He has been trained in basic commands and is very protective.', '1771130365_german_shepherd_dog_guide.avif', 'Available', 1, '2026-02-02 05:26:50'),
-(4, 'Luna', 'cat', 'Persian', '2 years', 'Female', 'Luna is a beautiful Persian cat with a fluffy white coat. She enjoys quiet environments and gentle handling.', '1771130405_Persian_in_Cat_Cafe.jpg', 'Available', 1, '2026-02-02 05:26:50'),
-(5, 'Max', 'dog', 'Golden Retriever', '4 years', 'Male', 'Max is a gentle giant who loves everyone he meets. Perfect for families looking for a loyal companion.', '1771130471_Untitled_design-40.jpg', 'Available', 1, '2026-02-02 05:26:50'),
-(6, 'bogra', 'dog', 'Siberian Husky', '6', 'Male', 'The Siberian Husky is a breed of medium-sized working sled dog. The breed belongs to the Spitz genetic family. It is recognizable by its thickly furred double coat, erect triangular ears, and distinctive markings, and is smaller than the similar-looking Alaskan Malamute', '1771130092_images.webp', 'Adopted', 1, '2026-02-15 04:34:52'),
-(7, 'chommu', 'dog', 'street dog ', '7', 'Male', 'cutiepie chommu , keralas one and only chommu', '1771133524_download (11).jpg', 'Adopted', 3, '2026-02-15 05:32:04');
+INSERT INTO `pets` (`id`, `name`, `type`, `breed`, `age`, `gender`, `description`, `image`, `status`, `added_by`, `added_at`, `location`) VALUES
+(1, 'Bella', 'dog', 'Labrador Retriever', '2', 'Female', 'Bella is a friendly and energetic Labrador who loves playing fetch and swimming. She is great with kids and other pets.', '1771130316_images (1).webp', 'Adopted', 1, '2026-02-02 05:26:50', NULL),
+(3, 'Arjun', 'dog', 'German Shepherd', '3', 'Male', 'Arjun is a loyal and intelligent German Shepherd. He has been trained in basic commands and is very protective.', '1771130365_german_shepherd_dog_guide.avif', 'Available', 1, '2026-02-02 05:26:50', NULL),
+(4, 'Luna', 'cat', 'Persian', '2', 'Female', 'Luna is a beautiful Persian cat with a fluffy white coat. She enjoys quiet environments and gentle handling.', '1771130405_Persian_in_Cat_Cafe.jpg', 'Available', 1, '2026-02-02 05:26:50', 'Pandeshwara, Attavar, Mangaluru, Mangaluru taluk, Dakshina Kannada, Karnataka, 575001, India'),
+(5, 'Max', 'dog', 'Golden Retriever', '4', 'Male', 'Max is a gentle giant who loves everyone he meets. Perfect for families looking for a loyal companion.', '1771130471_Untitled_design-40.jpg', 'Available', 1, '2026-02-02 05:26:50', NULL),
+(6, 'bogra', 'dog', 'Siberian Husky', '6', 'Male', 'The Siberian Husky is a breed of medium-sized working sled dog. The breed belongs to the Spitz genetic family. It is recognizable by its thickly furred double coat, erect triangular ears, and distinctive markings, and is smaller than the similar-looking Alaskan Malamute', '1771130092_images.webp', 'Adopted', 1, '2026-02-15 04:34:52', NULL),
+(7, 'chommu', 'dog', 'street dog ', '7', 'Male', 'cutiepie chommu , keralas one and only chommu', '1771133524_download (11).jpg', 'Adopted', 3, '2026-02-15 05:32:04', NULL),
+(8, 'chikkuu', 'bird', 'parrot', '2', 'Female', 'chikku the parrot', '1774759669_6463_images__2_.webp', 'Available', 1, '2026-03-29 04:47:08', NULL),
+(9, 'Nanduu', 'other', 'jersery cow', '3', 'Female', 'the cutest life on planet earth . ', '1774761014_6803_cow.jpg', 'Adopted', 6, '2026-03-29 05:10:14', 'LR, Karandakkad, Kasaragod, Kerala, 671121, India');
 
 -- --------------------------------------------------------
 
@@ -244,6 +260,7 @@ CREATE TABLE `rescue_reports` (
   `animal_type` varchar(50) DEFAULT NULL,
   `urgency` enum('Low','Medium','High','Critical') DEFAULT 'Medium',
   `image` varchar(255) DEFAULT NULL,
+  `proof_image` varchar(255) DEFAULT NULL,
   `status` enum('Reported','Assigned','In Progress','Rescued','Closed') DEFAULT 'Reported',
   `assigned_to` int(11) DEFAULT NULL,
   `reported_at` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -254,9 +271,10 @@ CREATE TABLE `rescue_reports` (
 -- Dumping data for table `rescue_reports`
 --
 
-INSERT INTO `rescue_reports` (`id`, `reporter_id`, `reporter_name`, `contact_phone`, `location`, `latitude`, `longitude`, `description`, `animal_type`, `urgency`, `image`, `status`, `assigned_to`, `reported_at`, `updated_at`) VALUES
-(1, NULL, 'Anonymous', '9876543210', 'Near City Park, Main Street', NULL, NULL, 'Injured stray dog found near the park. Appears to have a leg injury and is limping.', 'Dog', 'High', NULL, 'Rescued', 4, '2026-02-02 05:26:50', '2026-02-11 11:41:41'),
-(5, NULL, 'Ash123', '987654324343', 'hurry up', 28.61587100, 77.22410200, 'urgent', NULL, 'Critical', '', 'Reported', NULL, '2026-02-26 11:26:14', '2026-02-26 11:26:14');
+INSERT INTO `rescue_reports` (`id`, `reporter_id`, `reporter_name`, `contact_phone`, `location`, `latitude`, `longitude`, `description`, `animal_type`, `urgency`, `image`, `proof_image`, `status`, `assigned_to`, `reported_at`, `updated_at`) VALUES
+(1, NULL, 'Anonymous', '9876543210', 'Near City Park, Main Street', NULL, NULL, 'Injured stray dog found near the park. Appears to have a leg injury and is limping.', 'Dog', 'High', NULL, NULL, 'Rescued', 4, '2026-02-02 05:26:50', '2026-02-11 11:41:41'),
+(5, NULL, 'Ash123', '987654324343', 'hurry up', 28.61587100, 77.22410200, 'urgent', NULL, 'Critical', '', NULL, 'Rescued', 7, '2026-02-26 11:26:14', '2026-04-01 03:53:07'),
+(6, 1, 'Ash', '9876543223', 'manjeshwar', 12.71392300, 74.91307500, 'the cow is infected .', NULL, 'Medium', '1776312330_6660_download__25_.jpg', NULL, 'Assigned', 3, '2026-04-16 04:05:30', '2026-04-16 04:37:07');
 
 -- --------------------------------------------------------
 
@@ -341,19 +359,23 @@ CREATE TABLE `users` (
   `lives_saved` int(11) DEFAULT 0,
   `organization_name` varchar(150) DEFAULT NULL,
   `reset_token` varchar(255) DEFAULT NULL,
-  `reset_expiry` datetime DEFAULT NULL
+  `reset_expiry` datetime DEFAULT NULL,
+  `latitude` decimal(10,8) DEFAULT NULL,
+  `longitude` decimal(11,8) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `email`, `password`, `phone`, `address`, `role`, `is_verified`, `created_at`, `gender`, `dob`, `profile_image`, `lives_saved`, `organization_name`, `reset_token`, `reset_expiry`) VALUES
-(1, 'Admin', 'admin@paw.com', '1234', '2345678', NULL, 'admin', 1, '2026-02-02 05:26:50', '', '0000-00-00', 'https://api.dicebear.com/9.x/toon-head/svg?seed=Charlie', 3, NULL, NULL, NULL),
-(2, 'John User', 'john@example.com', '1234', NULL, NULL, 'user', 1, '2026-02-02 05:26:50', NULL, NULL, NULL, 3, NULL, NULL, NULL),
-(3, 'Sarah G Volunteer', 'sarah@volunteer.com', '12345', '987654321', NULL, 'volunteer', 1, '2026-02-02 05:26:50', '', '0000-00-00', 'https://api.dicebear.com/9.x/toon-head/svg?seed=Aneka', 6, '', NULL, NULL),
-(4, 'Mike Rescuer', 'mike@rescuer.com', '1234', NULL, NULL, 'rescuer', 1, '2026-02-02 05:26:50', NULL, NULL, NULL, 8, NULL, NULL, NULL),
-(5, 'MeowMeow trust ', 'ashwinambar2002@gmail.com', '1234', '9897654321', 'Kerala 671324', 'organization', 1, '2026-02-02 05:27:38', '', '2002-10-21', 'https://api.dicebear.com/9.x/toon-head/svg?seed=Charlie', 10, 'Meoww', NULL, NULL);
+INSERT INTO `users` (`id`, `username`, `email`, `password`, `phone`, `address`, `role`, `is_verified`, `created_at`, `gender`, `dob`, `profile_image`, `lives_saved`, `organization_name`, `reset_token`, `reset_expiry`, `latitude`, `longitude`) VALUES
+(1, 'Admin', 'admin@paw.com', '1234', '2345678', 'Kerala 671324', 'admin', 1, '2026-02-02 05:26:50', '', '0000-00-00', 'https://api.dicebear.com/9.x/toon-head/svg?seed=Charlie', 3, NULL, NULL, NULL, NULL, NULL),
+(2, 'John User', 'john@example.com', '1234', NULL, NULL, 'user', 1, '2026-02-02 05:26:50', NULL, NULL, NULL, 3, NULL, NULL, NULL, NULL, NULL),
+(3, 'Sarah G Volunteer', 'sarah@volunteer.com', '1234', '987654321', NULL, 'volunteer', 1, '2026-02-02 05:26:50', '', '0000-00-00', 'https://api.dicebear.com/9.x/toon-head/svg?seed=Aneka', 6, '', NULL, NULL, 12.88499500, 74.87394300),
+(4, 'Mike Rescuer', 'mike@rescuer.com', '1234', NULL, NULL, 'rescuer', 1, '2026-02-02 05:26:50', NULL, NULL, NULL, 8, NULL, NULL, NULL, NULL, NULL),
+(5, 'MeowMeow trust ', 'ashwinambar2002@gmail.com', '1234', '9897654321', 'Kerala 671324', 'organization', 1, '2026-02-02 05:27:38', '', '2002-10-21', 'https://api.dicebear.com/9.x/toon-head/svg?seed=Charlie', 13, 'Meoww', NULL, NULL, NULL, NULL),
+(6, 'sompa', 'tester@gmail.com', '1234', '9897654321', NULL, 'user', 0, '2026-03-29 05:03:30', 'Male', '2030-06-01', NULL, 0, NULL, NULL, NULL, NULL, NULL),
+(7, 'ash', 'a@gmail.com', '1234', '987654329', 'Kerala 671324', 'rescuer', 0, '2026-04-01 03:49:29', 'Male', '2002-01-08', NULL, 0, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -376,19 +398,19 @@ CREATE TABLE `volunteer_shifts` (
 --
 
 --
--- Indexes for table `blogs`
---
-ALTER TABLE `blogs`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `author_id` (`author_id`);
-
---
 -- Indexes for table `adoption_applications`
 --
 ALTER TABLE `adoption_applications`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`),
   ADD KEY `pet_id` (`pet_id`);
+
+--
+-- Indexes for table `blogs`
+--
+ALTER TABLE `blogs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `author_id` (`author_id`);
 
 --
 -- Indexes for table `comments`
@@ -485,16 +507,16 @@ ALTER TABLE `volunteer_shifts`
 --
 
 --
--- AUTO_INCREMENT for table `blogs`
---
-ALTER TABLE `blogs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
-
---
 -- AUTO_INCREMENT for table `adoption_applications`
 --
 ALTER TABLE `adoption_applications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `blogs`
+--
+ALTER TABLE `blogs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `comments`
@@ -506,7 +528,7 @@ ALTER TABLE `comments`
 -- AUTO_INCREMENT for table `favorites`
 --
 ALTER TABLE `favorites`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `feedback`
@@ -518,13 +540,13 @@ ALTER TABLE `feedback`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `pets`
 --
 ALTER TABLE `pets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `pet_medical_records`
@@ -536,7 +558,7 @@ ALTER TABLE `pet_medical_records`
 -- AUTO_INCREMENT for table `rescue_reports`
 --
 ALTER TABLE `rescue_reports`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `role_requests`
@@ -560,7 +582,7 @@ ALTER TABLE `tasks`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `volunteer_shifts`
@@ -573,17 +595,17 @@ ALTER TABLE `volunteer_shifts`
 --
 
 --
--- Constraints for table `blogs`
---
-ALTER TABLE `blogs`
-  ADD CONSTRAINT `blogs_ibfk_1` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
-
---
 -- Constraints for table `adoption_applications`
 --
 ALTER TABLE `adoption_applications`
   ADD CONSTRAINT `adoption_applications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `adoption_applications_ibfk_2` FOREIGN KEY (`pet_id`) REFERENCES `pets` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `blogs`
+--
+ALTER TABLE `blogs`
+  ADD CONSTRAINT `blogs_ibfk_1` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `comments`

@@ -10,8 +10,8 @@ if (!isset($_SESSION['user_id'])) {
 $user_id = $_SESSION['user_id'];
 $user = $conn->query("SELECT * FROM users WHERE id=$user_id")->fetch_assoc();
 
-if (!$user['is_verified']) {
-    header("Location: public/profile.php"); // Only verified users
+if (!$user['is_verified'] && !in_array($user['role'], ['admin', 'volunteer', 'rescuer', 'organization'])) {
+    header("Location: public/profile.php"); // Only verified users or trusted roles
     exit();
 }
 

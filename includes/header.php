@@ -129,8 +129,29 @@ if (isset($isTransparentHeader) && $isTransparentHeader) {
             background-color: #2a2624 !important;
         }
 
+        .dark .bg-paw-bg,
+        html.dark .bg-paw-bg {
+            background-color: #161412 !important;
+        }
+
         .dark .bg-paw-bg\/30 {
             background-color: rgba(26, 24, 22, 0.3) !important;
+        }
+
+        .dark .bg-white\/80 {
+            background-color: rgba(42, 38, 36, 0.8) !important;
+        }
+
+        .dark .bg-white\/90 {
+            background-color: rgba(42, 38, 36, 0.9) !important;
+        }
+
+        .dark .border-white\/50 {
+            border-color: rgba(255, 255, 255, 0.05) !important;
+        }
+
+        .dark .bg-paw-dark {
+            background-color: #3a3634 !important;
         }
 
         .dark .text-paw-dark,
@@ -144,17 +165,20 @@ if (isset($isTransparentHeader) && $isTransparentHeader) {
         }
 
         .dark .text-gray-400,
-        .dark .text-gray-500 {
+        .dark .text-gray-500,
+        .dark .text-paw-gray {
             color: #8a827a !important;
         }
 
         .dark .border-gray-100,
-        .dark .border-gray-200 {
-            border-color: #3a3634 !important;
+        .dark .border-gray-200,
+        .dark .border-gray-300 {
+            border-color: #33302e !important;
         }
 
         .dark .bg-gray-50,
-        .dark .bg-gray-100 {
+        .dark .bg-gray-100,
+        .dark .bg-gray-200 {
             background-color: #232120 !important;
         }
 
@@ -175,7 +199,8 @@ if (isset($isTransparentHeader) && $isTransparentHeader) {
             border-color: #3a3634 !important;
         }
 
-        .dark .divide-gray-50> :not([hidden])~ :not([hidden]) {
+        .dark .divide-gray-50> :not([hidden])~ :not([hidden]),
+        .dark .divide-gray-100> :not([hidden])~ :not([hidden]) {
             border-color: #3a3634 !important;
         }
 

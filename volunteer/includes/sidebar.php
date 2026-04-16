@@ -27,7 +27,7 @@ function volunteerSidebarLinkClass($page, $currentPage)
 }
 ?>
 
-<aside class="w-64 bg-paw-dark text-white flex flex-col border-r border-white/10 hidden md:flex">
+<aside class="w-64 bg-paw-dark text-white flex flex-col h-screen sticky top-0 border-r border-white/10 hidden md:flex">
     <div class="p-6 border-b border-white/10">
         <a href="../index.php" class="font-serif text-2xl italic font-bold">Paw Pal<span
                 class="text-paw-accent">.</span></a>
@@ -36,7 +36,7 @@ function volunteerSidebarLinkClass($page, $currentPage)
         </p>
     </div>
 
-    <nav class="flex-1 p-4">
+    <nav class="flex-1 p-4 overflow-y-auto custom-scrollbar">
         <a href="index.php" class="<?php echo volunteerSidebarLinkClass('index.php', $currentPage); ?>">
             <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
         </a>
@@ -102,3 +102,21 @@ function volunteerSidebarLinkClass($page, $currentPage)
         </a>
     </div>
 </aside>
+<style>
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+</style>

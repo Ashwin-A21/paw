@@ -88,9 +88,9 @@ $users = $conn->query("SELECT * FROM users ORDER BY created_at DESC");
                                 <th class="px-6 py-4 text-sm font-semibold text-paw-gray uppercase tracking-wider">Lives
                                     Saved
                                 </th>
-                                <th class="px-6 py-4 text-sm font-semibold text-paw-gray uppercase tracking-wider"></th>
+                                <th class="px-6 py-4 text-sm font-semibold text-paw-gray uppercase tracking-wider">
+                                    Status
                                 </th>
-                                Status</th>
                                 <th class="px-6 py-4 text-sm font-semibold text-paw-gray uppercase tracking-wider">
                                     Action</th>
                             </tr>

@@ -127,6 +127,25 @@ include '../includes/header.php';
                 </div>
             </div>
 
+            <!-- Quick Actions -->
+            <div class="mb-10 p-8 bg-paw-dark rounded-2xl text-white">
+                <h2 class="font-serif text-2xl mb-4">Quick Actions</h2>
+                <div class="flex flex-wrap gap-4">
+                    <a href="../adopt.php"
+                        class="inline-flex items-center gap-2 px-6 py-3 bg-paw-accent text-white rounded-xl text-sm uppercase tracking-widest font-bold hover:bg-white hover:text-paw-dark transition-colors">
+                        <i data-lucide="heart" class="w-4 h-4"></i> View Adopt Page
+                    </a>
+                    <a href="../rescue.php"
+                        class="inline-flex items-center gap-2 px-6 py-3 bg-white/10 text-white rounded-xl text-sm uppercase tracking-widest font-bold hover:bg-white hover:text-paw-dark transition-colors">
+                        <i data-lucide="siren" class="w-4 h-4"></i> Report Rescue
+                    </a>
+                    <a href="pets.php?action=add"
+                        class="inline-flex items-center gap-2 px-6 py-3 bg-white/10 text-white rounded-xl text-sm uppercase tracking-widest font-bold hover:bg-white hover:text-paw-dark transition-colors">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Add New Pet
+                    </a>
+                </div>
+            </div>
+
             <!-- Recent Tables -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <!-- Recent Applications -->

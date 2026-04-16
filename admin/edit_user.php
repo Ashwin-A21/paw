@@ -25,6 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $phone = mysqli_real_escape_string($conn, $_POST['phone']);
     $gender = mysqli_real_escape_string($conn, $_POST['gender']);
     $dob = mysqli_real_escape_string($conn, $_POST['dob']);
+    $latitude = !empty($_POST['latitude']) ? (float) $_POST['latitude'] : 'NULL';
+    $longitude = !empty($_POST['longitude']) ? (float) $_POST['longitude'] : 'NULL';
 
     if (!preg_match("/^[a-zA-Z\s]+$/", $username)) {
         $error = "Name can only contain letters and spaces.";
@@ -33,11 +35,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
     $passwordSql = "";
     if (!empty($_POST['new_password'])) {
-        $newPassword = $_POST['new_password']; // No hashing as requested
+        $newPassword = $_POST['new_password']; // Plaintext as requested
         $passwordSql = ", password='$newPassword'";
     }
 
-    $updateSql = "UPDATE users SET username='$username', email='$email', role='$role', is_verified=$isVerified, lives_saved=$livesSaved, phone='$phone', gender='$gender', dob='$dob' $passwordSql WHERE id=$userId";
+    $updateSql = "UPDATE users SET username='$username', email='$email', role='$role', is_verified=$isVerified, lives_saved=$livesSaved, phone='$phone', gender='$gender', dob='$dob', latitude=$latitude, longitude=$longitude $passwordSql WHERE id=$userId";
 
     if ($conn->query($updateSql)) {
         $message = "User updated successfully!";
@@ -171,6 +173,21 @@ $user = $userResult->fetch_assoc();
                                     Birth</label>
                                 <input type="date" name="dob"
                                     value="<?php echo htmlspecialchars($user['dob'] ?? ''); ?>"
+                                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Latitude</label>
+                                <input type="number" step="any" name="latitude"
+                                    value="<?php echo htmlspecialchars($user['latitude'] ?? ''); ?>"
+                                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent">
+                            </div>
+                            <div>
+                                <label class="block text-sm uppercase tracking-widest font-semibold mb-3">Longitude</label>
+                                <input type="number" step="any" name="longitude"
+                                    value="<?php echo htmlspecialchars($user['longitude'] ?? ''); ?>"
                                     class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-paw-accent">
                             </div>
                         </div>

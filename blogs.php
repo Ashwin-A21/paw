@@ -124,21 +124,5 @@ include 'includes/header.php';
     </div>
 </section>
 
-<!-- Newsletter -->
-<section class="py-20 bg-white">
-    <div class="max-w-2xl mx-auto text-center px-6">
-        <h2 class="font-serif text-4xl mb-4">Stay Updated</h2>
-        <p class="text-paw-gray mb-8">Get the latest rescue stories and pet care tips delivered
-            to your inbox.</p>
-        <form class="flex gap-4 max-w-md mx-auto">
-            <input type="email" placeholder="Enter your email"
-                class="flex-1 px-6 py-4 border border-gray-200 bg-white rounded-full focus:outline-none focus:border-paw-accent">
-            <button type="submit"
-                class="px-8 py-4 bg-paw-dark text-white rounded-full text-sm uppercase tracking-widest font-bold hover:bg-paw-accent transition-colors">
-                Subscribe
-            </button>
-        </form>
-    </div>
-</section>
 
 <?php include 'includes/footer.php'; ?>

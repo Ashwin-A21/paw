@@ -5,6 +5,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 include '../config.php';
+include_once '../includes/notify.php';
 
 // Handle Status Update
 if (isset($_POST['update_status'])) {
@@ -13,6 +14,40 @@ if (isset($_POST['update_status'])) {
     $conn->query("UPDATE rescue_reports SET status='$status' WHERE id=$rescueId");
     header("Location: rescues.php");
     exit();
+}
+
+// Handle Rescuer Assignment
+if (isset($_POST['assign_rescuer'])) {
+    $rescueId = (int) $_POST['rescue_id'];
+    $rescuerId = (int) $_POST['rescuer_id'];
+    
+    // If assigned to someone, set status to 'Assigned' if it was 'Reported'
+    if ($conn->query("UPDATE rescue_reports SET assigned_to=$rescuerId, status=IF(status='Reported', 'Assigned', status) WHERE id=$rescueId")) {
+        // Notify the rescuer
+        createNotification($conn, $rescuerId, 'rescue_assignment', "You have been assigned to a new rescue mission. Check your tasks for details.", "volunteer/tasks.php");
+    }
+    header("Location: rescues.php?assigned=success");
+    exit();
+}
+
+// Distance Calculation Helper
+function getDistance($lat1, $lon1, $lat2, $lon2) {
+    if (!$lat1 || !$lon1 || !$lat2 || !$lon2) return 99999; // Far if no location
+    $earthRadius = 6371; // km
+    $dLat = deg2rad($lat2 - $lat1);
+    $dLon = deg2rad($lon2 - $lon1);
+    $a = sin($dLat/2) * sin($dLat/2) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLon/2) * sin($dLon/2);
+    $c = 2 * atan2(sqrt($a), sqrt(1-$a));
+    return $earthRadius * $c;
+}
+
+// Fetch available rescuers/volunteers
+$rescuers = $conn->query("SELECT id, username, latitude, longitude, role FROM users WHERE role IN ('volunteer', 'rescuer')");
+$rescuers_list = [];
+if ($rescuers) {
+    while ($r = $rescuers->fetch_assoc()) {
+        $rescuers_list[] = $r;
+    }
 }
 
 // Active reports (not rescued/closed) - sorted by urgency priority then date
@@ -174,7 +209,7 @@ $resolvedCount = $resolvedRescues ? $resolvedRescues->num_rows : 0;
                                         </div>
                                         <p class="text-paw-gray mb-4"><?php echo htmlspecialchars($rescue['description']); ?>
                                         </p>
-                                        <div class="flex gap-6 text-sm text-paw-gray">
+                                        <div class="flex flex-wrap items-center gap-6 text-sm text-paw-gray">
                                             <span class="flex items-center gap-1">
                                                 <i data-lucide="user" class="w-4 h-4"></i>
                                                 <?php echo htmlspecialchars($rescue['reporter_name']); ?>
@@ -188,6 +223,33 @@ $resolvedCount = $resolvedRescues ? $resolvedRescues->num_rows : 0;
                                                 <i data-lucide="external-link" class="w-4 h-4"></i>
                                                 View Details
                                             </a>
+
+                                            <!-- Rescuer Assignment Dropdown -->
+                                            <div class="ml-auto w-full md:w-auto mt-4 md:mt-0 flex items-center gap-2">
+                                                <form method="POST" class="flex items-center gap-2">
+                                                    <input type="hidden" name="rescue_id" value="<?php echo $rescue['id']; ?>">
+                                                    <select name="rescuer_id" onchange="this.form.submit()"
+                                                        class="text-xs border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:border-paw-alert min-w-[180px]">
+                                                        <option value="">Choose Rescuer/Volunteer</option>
+                                                        <?php foreach ($rescuers_list as $res): 
+                                                            $dist = getDistance($rescue['latitude'], $rescue['longitude'], $res['latitude'], $res['longitude']);
+                                                            $isClose = $dist <= 10;
+                                                            $colorClass = $isClose ? 'text-green-600 font-bold' : 'text-red-600';
+                                                            $distText = $dist > 1000 ? '>1000km' : round($dist, 1) . 'km';
+                                                            $isSelected = ($rescue['assigned_to'] == $res['id']) ? 'selected' : '';
+                                                        ?>
+                                                            <option value="<?php echo $res['id']; ?>" class="<?php echo $colorClass; ?>" <?php echo $isSelected; ?>>
+                                                                <?php echo htmlspecialchars($res['username']); ?> 
+                                                                (<?php echo ucfirst($res['role']); ?>) - <?php echo $distText; ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                    <input type="hidden" name="assign_rescuer" value="1">
+                                                    <?php if ($rescue['assigned_to']): ?>
+                                                        <span class="text-[10px] bg-green-50 text-green-600 px-2 py-1 rounded font-bold uppercase">Assigned</span>
+                                                    <?php endif; ?>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

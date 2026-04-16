@@ -120,6 +120,17 @@ $nextStmt->execute();
 $nextPet = $nextStmt->get_result()->fetch_assoc();
 $nextStmt->close();
 
+// Check if favorited
+$isFavorited = false;
+if (isset($_SESSION['user_id'])) {
+    $favStmt = $conn->prepare("SELECT id FROM favorites WHERE user_id = ? AND pet_id = ?");
+    $uID = $_SESSION['user_id'];
+    $favStmt->bind_param("ii", $uID, $pet_id);
+    $favStmt->execute();
+    if ($favStmt->get_result()->num_rows > 0) $isFavorited = true;
+    $favStmt->close();
+}
+
 $basePath = '';
 $pageTitle = htmlspecialchars($pet['name']) . ' - Adopt on Paw Pal';
 $ogImage = 'uploads/pets/' . rawurlencode($pet['image']);
@@ -329,6 +340,13 @@ include 'includes/header.php';
                                 <span id="shareTooltip"
                                     class="absolute -top-10 left-1/2 -translate-x-1/2 bg-paw-dark text-white text-xs px-3 py-1 rounded-lg opacity-0 transition-opacity pointer-events-none whitespace-nowrap">Link
                                     copied!</span>
+                            </button>
+
+                            <!-- Favorite Button -->
+                            <button onclick="toggleFavorite(<?php echo $pet_id; ?>)" id="favBtn"
+                                class="px-6 py-4 border border-gray-200 rounded-xl transition-all relative group <?php echo $isFavorited ? 'bg-red-50 border-red-100 text-red-500' : 'text-paw-gray hover:bg-gray-50'; ?>"
+                                title="<?php echo $isFavorited ? 'Remove from Favorites' : 'Add to Favorites'; ?>">
+                                <i data-lucide="heart" class="w-5 h-5 <?php echo $isFavorited ? 'fill-current' : ''; ?>"></i>
                             </button>
                         </div>
                     </div>
@@ -755,6 +773,41 @@ include 'includes/header.php';
             mapContainer.innerHTML = `<iframe width="100%" height="200" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://www.openstreetmap.org/export/embed.html?bbox=${lon-0.01}%2C${lat-0.01}%2C${lon+0.01}%2C${lat+0.01}&amp;layer=mapnik&amp;marker=${lat}%2C${lon}"></iframe>`;
             mapContainer.classList.remove('hidden');
         }
+    }
+
+    function toggleFavorite(petId) {
+        <?php if(!isset($_SESSION['user_id'])): ?>
+            window.location.href = 'login.php?redirect=' + window.location.href;
+            return;
+        <?php endif; ?>
+
+        const btn = document.getElementById('favBtn');
+        const icon = btn.querySelector('i');
+        
+        const formData = new FormData();
+        formData.append('pet_id', petId);
+
+        fetch('api/toggle-favorite.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                if(data.favorited) {
+                    btn.classList.add('bg-red-50', 'border-red-100', 'text-red-500');
+                    btn.classList.remove('text-paw-gray', 'hover:bg-gray-50');
+                    icon.classList.add('fill-current');
+                    btn.title = 'Remove from Favorites';
+                } else {
+                    btn.classList.remove('bg-red-50', 'border-red-100', 'text-red-500');
+                    btn.classList.add('text-paw-gray', 'hover:bg-gray-50');
+                    icon.classList.remove('fill-current');
+                    btn.title = 'Add to Favorites';
+                }
+                // Refresh lucide icons to ensure correctness if needed (though transition looks better this way)
+            }
+        });
     }
 </script>
 
